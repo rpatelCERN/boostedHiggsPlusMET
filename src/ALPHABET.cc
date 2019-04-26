@@ -29,7 +29,7 @@ int main(int argc, char** argv){
     if( argc >= 2 ){
         region = atoi(argv[1]);
         if( argc >= 3 )
-            looseCuts = atoi(argv[2]);    
+            looseCuts = atoi(argv[2]);
         if( argc >= 4 )
             MAX_EVENTS = atoi(argv[3]);
     }else
@@ -37,9 +37,9 @@ int main(int argc, char** argv){
 
     gROOT->ProcessLine(".L tdrstyle.C");
     gROOT->ProcessLine("setTDRStyle()");
-    
+
     skimSamples* skims_;
-    if( region == 0 ) 
+    if( region == 0 )
         skims_ = new skimSamples(skimSamples::kSignal);
     else if( region == 1 )
         skims_ = new skimSamples(skimSamples::kSLm);
@@ -47,15 +47,15 @@ int main(int argc, char** argv){
         skims_ = new skimSamples(skimSamples::kSLe);
     else if( region == 3 )
         skims_ = new skimSamples(skimSamples::kLowDphi);
-    else        
+    else
         assert(1);
-    
+
     typedef bool(*cuts)(RA2bTree*);
     vector<cuts> baselineCuts;
 
     if( looseCuts ){
         baselineCuts.push_back(*FiltersCut<RA2bTree>);
-        if( region == 3 ){ 
+        if( region == 3 ){
             baselineCuts.push_back(*lowDPhiCuts<RA2bTree>);
         }else{
             baselineCuts.push_back(*DeltaPhiCuts<RA2bTree>);
@@ -75,7 +75,7 @@ int main(int argc, char** argv){
             baselineCuts.push_back(*singleMuBaselineCut<RA2bTree>);
         }else if( region == 2){
             baselineCuts.push_back(*singleEleBaselineCut<RA2bTree>);
-        }else if( region == 3){ 
+        }else if( region == 3){
             baselineCuts.push_back(*lowDphiBaselineCut<RA2bTree>);
         }else
             assert(1);
@@ -84,7 +84,7 @@ int main(int argc, char** argv){
     skimSamples skims = *skims_;
 
     typedef plot<RA2bTree> plot;
-    
+
     double mJbins[4]={50.,85.,135.,250.};
     vector<vector<plot> > plots;
 
@@ -94,10 +94,10 @@ int main(int argc, char** argv){
         vector<plot> plotsTemp;
         plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_tagSR"+tag,"m_{J} [GeV]",3,mJbins));
         plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_tagSB"+tag,"m_{J} [GeV]",3,mJbins));
-    
+
         plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_antitagSR"+tag,"m_{J} [GeV]",3,mJbins));
         plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_antitagSB"+tag,"m_{J} [GeV]",3,mJbins));
-    
+
         plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_doubletagSR"+tag,"m_{J} [GeV]",3,mJbins));
         plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_doubletagSB"+tag,"m_{J} [GeV]",3,mJbins));
 
@@ -126,44 +126,44 @@ int main(int argc, char** argv){
     doubletagSBPlots.push_back(plot(MET_Plot));
     doubletagSBPlots.push_back(plot(J1pt_Ptplot));
     doubletagSBPlots.push_back(plot(J2pt_Ptplot));
-    doubletagSBPlots.push_back(plot(J1pt_Mplot));    
-    doubletagSBPlots.push_back(plot(J2pt_Mplot));    
+    doubletagSBPlots.push_back(plot(J1pt_Mplot));
+    doubletagSBPlots.push_back(plot(J2pt_Mplot));
     doubletagSBPlots.push_back(plot(ClosestMass));
     doubletagSBPlots.push_back(plot(FarthestMass));
 
     vector<plot> tagSRPlots;
     tagSRPlots.push_back(plot(MET_Plot));
     tagSRPlots.push_back(plot(J1pt_Ptplot));
-    tagSRPlots.push_back(plot(J2pt_Ptplot));    
+    tagSRPlots.push_back(plot(J2pt_Ptplot));
     tagSRPlots.push_back(plot(J1pt_Mplot));
-    tagSRPlots.push_back(plot(J2pt_Mplot));    
+    tagSRPlots.push_back(plot(J2pt_Mplot));
     tagSRPlots.push_back(plot(ClosestMass));
     tagSRPlots.push_back(plot(FarthestMass));
 
     vector<plot> tagSBPlots;
     tagSBPlots.push_back(plot(MET_Plot));
     tagSBPlots.push_back(plot(J1pt_Ptplot));
-    tagSBPlots.push_back(plot(J2pt_Ptplot));    
+    tagSBPlots.push_back(plot(J2pt_Ptplot));
     tagSBPlots.push_back(plot(J1pt_Mplot));
-    tagSBPlots.push_back(plot(J2pt_Mplot));    
+    tagSBPlots.push_back(plot(J2pt_Mplot));
     tagSBPlots.push_back(plot(ClosestMass));
     tagSBPlots.push_back(plot(FarthestMass));
 
     vector<plot> antitagSRPlots;
     antitagSRPlots.push_back(plot(MET_Plot));
     antitagSRPlots.push_back(plot(J1pt_Ptplot));
-    antitagSRPlots.push_back(plot(J2pt_Ptplot));    
+    antitagSRPlots.push_back(plot(J2pt_Ptplot));
     antitagSRPlots.push_back(plot(J1pt_Mplot));
-    antitagSRPlots.push_back(plot(J2pt_Mplot));    
+    antitagSRPlots.push_back(plot(J2pt_Mplot));
     antitagSRPlots.push_back(plot(ClosestMass));
     antitagSRPlots.push_back(plot(FarthestMass));
 
     vector<plot> antitagSBPlots;
     antitagSBPlots.push_back(plot(MET_Plot));
     antitagSBPlots.push_back(plot(J1pt_Ptplot));
-    antitagSBPlots.push_back(plot(J2pt_Ptplot));    
+    antitagSBPlots.push_back(plot(J2pt_Ptplot));
     antitagSBPlots.push_back(plot(J1pt_Mplot));
-    antitagSBPlots.push_back(plot(J2pt_Mplot));    
+    antitagSBPlots.push_back(plot(J2pt_Mplot));
     antitagSBPlots.push_back(plot(ClosestMass));
     antitagSBPlots.push_back(plot(FarthestMass));
 
@@ -179,27 +179,27 @@ int main(int argc, char** argv){
             }
         }
         for( int i = 0 ; i < doubletagSRPlots.size() ; i++ ){
-            doubletagSRPlots[i].addNtuple(ntuple,"doubletagSR_"+skims.sampleName[iSample]); 
+            doubletagSRPlots[i].addNtuple(ntuple,"doubletagSR_"+skims.sampleName[iSample]);
             doubletagSRPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
         }
         for( int i = 0 ; i < doubletagSBPlots.size() ; i++ ){
-            doubletagSBPlots[i].addNtuple(ntuple,"doubletagSB_"+skims.sampleName[iSample]); 
+            doubletagSBPlots[i].addNtuple(ntuple,"doubletagSB_"+skims.sampleName[iSample]);
             doubletagSBPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
         }
         for( int i = 0 ; i < tagSRPlots.size() ; i++ ){
-            tagSRPlots[i].addNtuple(ntuple,"tagSR_"+skims.sampleName[iSample]); 
+            tagSRPlots[i].addNtuple(ntuple,"tagSR_"+skims.sampleName[iSample]);
             tagSRPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
         }
         for( int i = 0 ; i < tagSBPlots.size() ; i++ ){
-            tagSBPlots[i].addNtuple(ntuple,"tagSB_"+skims.sampleName[iSample]); 
+            tagSBPlots[i].addNtuple(ntuple,"tagSB_"+skims.sampleName[iSample]);
             tagSBPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
         }
         for( int i = 0 ; i < antitagSRPlots.size() ; i++ ){
-            antitagSRPlots[i].addNtuple(ntuple,"antitagSR_"+skims.sampleName[iSample]); 
+            antitagSRPlots[i].addNtuple(ntuple,"antitagSR_"+skims.sampleName[iSample]);
             antitagSRPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
         }
         for( int i = 0 ; i < antitagSBPlots.size() ; i++ ){
-            antitagSBPlots[i].addNtuple(ntuple,"antitagSB_"+skims.sampleName[iSample]); 
+            antitagSBPlots[i].addNtuple(ntuple,"antitagSB_"+skims.sampleName[iSample]);
             antitagSBPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
         }
 
@@ -213,18 +213,18 @@ int main(int argc, char** argv){
         TString filename;
         for( int iEvt = 0 ; iEvt < min(MAX_EVENTS,numEvents) ; iEvt++ ){
             ntuple->GetEntry(iEvt);
-            if( iEvt % 100000 == 0 ) cout << skims.sampleName[iSample] << ": " << iEvt << "/" << min(MAX_EVENTS,numEvents) << endl;
-            
-            if(region==0){
-                std::vector<double> EfficiencyCenterUpDown = Eff_MetMhtSextetReal_CenterUpDown(ntuple->HT, ntuple->MHT, ntuple->NJets);
-                trigWeight=EfficiencyCenterUpDown[0];
-            }else if( region == 1 ){
-                trigWeight=singleMuonTrigWeights(ntuple);
-            }else if( region == 2 ){
-                trigWeight=singleElectronTrigWeights(ntuple);
-            }else if( region == 3 ){
-                trigWeight=lowDphiTrigWeights(ntuple);
-            }
+            if( iEvt % 10000 == 0 ) cout << skims.sampleName[iSample] << ": " << iEvt << "/" << min(MAX_EVENTS,numEvents) << endl;
+
+            // if(region==0){
+            //     std::vector<double> EfficiencyCenterUpDown = Eff_MetMhtSextetReal_CenterUpDown(ntuple->HT, ntuple->MHT, ntuple->NJets);
+            //     trigWeight=EfficiencyCenterUpDown[0];
+            // }else if( region == 1 ){
+            //     trigWeight=singleMuonTrigWeights(ntuple);
+            // }else if( region == 2 ){
+            //     trigWeight=singleElectronTrigWeights(ntuple);
+            // }else if( region == 3 ){
+            //     trigWeight=lowDphiTrigWeights(ntuple);
+            // }
 
             passBaseline=true;
             for( auto baselineCut : baselineCuts ){
@@ -235,7 +235,8 @@ int main(int argc, char** argv){
             filename = ntuple->fChain->GetFile()->GetName();
             if( ( filename.Contains("SingleLept") || filename.Contains("DiLept") ) && ntuple->madHT>600. )continue;
             bin = -1;
-            weight = ntuple->Weight*lumi*trigWeight*customPUweights(ntuple);	   
+            // weight = ntuple->Weight*lumi*trigWeight*customPUweights(ntuple);
+            weight = ntuple->Weight*lumi;
             //if( skims.sampleName[iSample] == "TT" ){
             //    weight *= ISRweights(ntuple);
             //}
@@ -248,7 +249,7 @@ int main(int argc, char** argv){
                 }
             }
             if( bin < 0 ) continue;
-      
+
             if( doubletagSRCut(ntuple) ){
                 plots[bin][4].fill(ntuple,weight);
                 for( int i = 0 ; i < doubletagSRPlots.size() ; i++ )
@@ -276,11 +277,11 @@ int main(int argc, char** argv){
             }// end if-else-if block for tagging regions
         }// end event loop
     }// end sample loop
-    
 
-    // data 
+    /*
+    // data
     RA2bTree* ntuple = skims.dataNtuple;
-  
+
     for( int iBin = 0 ; iBin < numMETbins ; iBin++){
         for( int iPlot = 0 ; iPlot < plots[iBin].size() ; iPlot++){
             plots[iBin][iPlot].addDataNtuple(ntuple,"data");
@@ -325,7 +326,7 @@ int main(int argc, char** argv){
             if( !singleMuTriggerCut(ntuple) ) continue;
         }else if( region == 2){
             if( !singleEleTriggerCut(ntuple) ) continue;
-        }else if( region == 3 ){ 
+        }else if( region == 3 ){
             if( !lowDphiTriggerCut(ntuple) ) continue;
         }
 
@@ -369,8 +370,8 @@ int main(int argc, char** argv){
             for( int i = 0 ; i < antitagSBPlots.size() ; i++ )
                 antitagSBPlots[i].fillData(ntuple);
         }// end if-else-if block for tagging regions
-    }// end event loop 
-
+    }// end event loop
+    */
     TFile* outputFile;
     TString regionName;
     TString cutName="";
@@ -384,24 +385,43 @@ int main(int argc, char** argv){
         regionName="_singleEle";
     if( region == 3 )
         regionName="_lowDphi";
-    outputFile = new TFile("ALPHABEThistos"+cutName+regionName+".root","RECREATE");
+
+    std::cout<<"Here1?"<<std::endl;
+
+    //outputFile = new TFile("ALPHABEThistos"+cutName+regionName+".root","RECREATE");
+    outputFile = new TFile("ALPHABEThistos.root","RECREATE");
 
     for( int iBin = 0 ; iBin < numMETbins; iBin++){
         for( int iPlot = 0 ; iPlot < plots[iBin].size() ; iPlot++){
             outputFile->cd();
             plots[iBin][iPlot].buildSum();
+            std::cout<<"Here1.3?"<<std::endl;
+
             plots[iBin][iPlot].Write();
+            std::cout<<"Here1.4?"<<std::endl;
+
             plots[iBin][iPlot].sum->Write();
-            
+
         }
     }
-    
+    std::cout<<"Here1.5?"<<std::endl;
+
     for( int i = 0 ; i < doubletagSRPlots.size() ; i++ ){
         outputFile->cd();
+        std::cout<<"Here1.7?"<<std::endl;
+
         doubletagSRPlots[i].buildSum("doubletagSR");
+        std::cout<<"Here1.8?"<<std::endl;
+        // std::cout<<"Integral: "<<doubletagSRPlots[i].Integral()<<std::endl;
+
         doubletagSRPlots[i].Write();
+        std::cout<<"Here1.9?"<<std::endl;
+
         doubletagSRPlots[i].sum->Write();
+        std::cout<<"Here1.95?"<<std::endl;
+
     }
+
     for( int i = 0 ; i < doubletagSBPlots.size() ; i++ ){
         outputFile->cd();
         doubletagSBPlots[i].buildSum("doubletagSB");
@@ -432,6 +452,8 @@ int main(int argc, char** argv){
         antitagSBPlots[i].Write();
         antitagSBPlots[i].sum->Write();
     }
+    std::cout<<"Here2?"<<std::endl;
+
 
     outputFile->Close();
 
