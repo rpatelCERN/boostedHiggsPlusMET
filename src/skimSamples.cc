@@ -223,5 +223,4 @@ class skimSamples {
     }
     return NULL;
   };
-
 };
