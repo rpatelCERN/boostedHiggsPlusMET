@@ -386,8 +386,6 @@ int main(int argc, char** argv){
     if( region == 3 )
         regionName="_lowDphi";
 
-    std::cout<<"Here1?"<<std::endl;
-
     //outputFile = new TFile("ALPHABEThistos"+cutName+regionName+".root","RECREATE");
     outputFile = new TFile("ALPHABEThistos.root","RECREATE");
 
@@ -395,31 +393,18 @@ int main(int argc, char** argv){
         for( int iPlot = 0 ; iPlot < plots[iBin].size() ; iPlot++){
             outputFile->cd();
             plots[iBin][iPlot].buildSum();
-            std::cout<<"Here1.3?"<<std::endl;
-
             plots[iBin][iPlot].Write();
-            std::cout<<"Here1.4?"<<std::endl;
-
             plots[iBin][iPlot].sum->Write();
 
         }
     }
-    std::cout<<"Here1.5?"<<std::endl;
 
     for( int i = 0 ; i < doubletagSRPlots.size() ; i++ ){
         outputFile->cd();
-        std::cout<<"Here1.7?"<<std::endl;
 
         doubletagSRPlots[i].buildSum("doubletagSR");
-        std::cout<<"Here1.8?"<<std::endl;
-        // std::cout<<"Integral: "<<doubletagSRPlots[i].Integral()<<std::endl;
-
         doubletagSRPlots[i].Write();
-        std::cout<<"Here1.9?"<<std::endl;
-
         doubletagSRPlots[i].sum->Write();
-        std::cout<<"Here1.95?"<<std::endl;
-
     }
 
     for( int i = 0 ; i < doubletagSBPlots.size() ; i++ ){
@@ -452,8 +437,6 @@ int main(int argc, char** argv){
         antitagSBPlots[i].Write();
         antitagSBPlots[i].sum->Write();
     }
-    std::cout<<"Here2?"<<std::endl;
-
 
     outputFile->Close();
 

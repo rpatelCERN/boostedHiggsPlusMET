@@ -203,8 +203,8 @@ public:
             if( it->second ) 
                 it->second->Write();
         }
-        if( dataHist )
-            dataHist->Write();
+        //if( dataHist )
+	//dataHist->Write();
 
     };
 
