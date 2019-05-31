@@ -59,7 +59,8 @@ vector<float> BoostedLoop::Loop(float EventWeight, string process = "", bool sav
   float value = 0;
 
   for (int i=1; i<=7; i++){
-    value =  bool_hists_cutflow[i-1]->Integral(1,bool_hists_cutflow[i-1]->GetNbinsX()+1);
+    // value =  bool_hists_cutflow[i-1]->Integral(1,bool_hists_cutflow[i-1]->GetNbinsX()+1);
+    value =  bool_hists_cutflow[i-1]->Integral();
     hist_Boost->SetBinContent(i,value);
     Cutflow.push_back(value);
   }

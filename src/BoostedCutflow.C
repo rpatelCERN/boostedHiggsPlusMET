@@ -25,7 +25,7 @@ using namespace std;
 void BoostedCutflow(string path="./") {
   setTDRStyle();
   if(!TString(path).EndsWith("/")) path+="/";
-  TFile* inf = TFile::Open((path+"BoostedCutflow.root").c_str(),"READ");
+  TFile* inf = TFile::Open((path+"BoostedCutflow_V12.root").c_str(),"READ");
 
   bool save_files = true;
   bool make_table = true;
@@ -34,7 +34,7 @@ void BoostedCutflow(string path="./") {
 
 
   //vector<string> processes = {"ZJets","WJets","TT","QCD","T5qqqqZH1700","T5qqqqZH2100"};
-  vector<string> processes = {"QCD"};
+  vector<string> processes = {"ZJets","WJets","TT","QCD"};
 
   string var = "MET";
   string direct = "";
@@ -43,8 +43,9 @@ void BoostedCutflow(string path="./") {
 
   for(unsigned int p = 0; p< processes.size(); p++) {
     //From Rishi's repo from old times double lumi=35862.824;
-    double EventWeight_T5HH = 35922.0*4.0;
-    double EventWeight = 35922.0;
+    double lumi = 35862.824;
+    double EventWeight_T5HH = lumi*4.0;
+    double EventWeight = lumi;
 
     cout<<"Beginning "<< processes[p].c_str()<<endl;
     TTree *tree;

@@ -23,12 +23,12 @@ photonSkim:photonSkim.cc
 WtaggingEfficiency:WtaggingEfficiency.cc
 plotWtagDist:plotWtagDist.cc
 skimHiggsSearchRegions: skimHiggsSearchRegions.cc
-all:$(EXECS) 
+all:$(EXECS)
 
 plotWtagDist:
-	$(CC) $(CFLAGS) $(LIBS) $(ROOFITLIBS) $(INCLUDES) plotWtagDist.cc -o ../bin/$@	
+	$(CC) $(CFLAGS) $(LIBS) $(ROOFITLIBS) $(INCLUDES) plotWtagDist.cc -o ../bin/$@
 fitWpeak:
-	$(CC) $(CFLAGS) $(LIBS) $(ROOFITLIBS) $(INCLUDES) fitWpeak.cc -o ../bin/$@	
+	$(CC) $(CFLAGS) $(LIBS) $(ROOFITLIBS) $(INCLUDES) fitWpeak.cc -o ../bin/$@
 WtaggingEfficiency:
 	$(CC) $(CFLAGS) $(LIBS) $(ROOFITLIBS) $(INCLUDES) WtaggingEfficiency.cc -o ../bin/$@
 photonSkim:
@@ -56,14 +56,14 @@ plotObs_antitag:
 plotObs_baseline:
 	$(CC) $(CFLAGS) $(LIBS) $(INCLUDES) plotObs_baseline.cc -o ../bin/$@
 plotObs_singleEleCR_baseline:
-	$(CC) $(CFLAGS) $(LIBS) $(INCLUDES) plotObs_singleEleCR_baseline.cc -o ../bin/$@	
+	$(CC) $(CFLAGS) $(LIBS) $(INCLUDES) plotObs_singleEleCR_baseline.cc -o ../bin/$@
 plotObs_singleMuCR_baseline:
-	$(CC) $(CFLAGS) $(LIBS) $(INCLUDES) plotObs_singleMuCR_baseline.cc -o ../bin/$@	
+	$(CC) $(CFLAGS) $(LIBS) $(INCLUDES) plotObs_singleMuCR_baseline.cc -o ../bin/$@
 plotHiggsPt_TChiHH:
 	$(CC) $(CFLAGS) $(LIBS) $(ROOFITLIBS) $(INCLUDES) plotHiggsPt_TChiHH.cc -o ../bin/$@
 datacardInputs:
 	$(CC) $(CFLAGS) $(LIBS) $(ROOFITLIBS) $(INCLUDES) datacardInputs.cc -o ../bin/$@
 skimHiggsSearchRegions:
 	$(CC) $(CFLAGS) $(LIBS) $(ROOFITLIBS) $(INCLUDES) skimHiggsSearchRegions.cc -o ../bin/$@
-clean : 
+clean :
 	rm ../bin/*
