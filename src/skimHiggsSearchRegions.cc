@@ -18,384 +18,679 @@
 #include "TriggerEfficiencySextet.cc"
 
 using namespace std;
-
+double FindHiggs( vector<TLorentzVector> Jets, std::vector<unsigned int >MedTags);
+double BuildBCombinations( vector<TLorentzVector> Jets, std::vector<unsigned int >LooseTags, std::vector<unsigned int >MedTags,std::vector<unsigned int >TightTags);
 
 int main(int argc, char** argv) {
-	skimSamples::region reg;
-	int reg_(0);
-	bool looseCuts(false);
-	reg = static_cast<skimSamples::region>(reg_);
 
-	//gROOT->ProcessLine(".L tdrstyle.C");
-	//gROOT->ProcessLine("setTDRStyle()");
+  skimSamples::region reg;
+  int reg_(0);
+  bool looseCuts(false);
+  reg = static_cast<skimSamples::region>(reg_);
 
-	skimSamples* skims_ = new skimSamples(reg);
-	typedef bool(*cuts)(RA2bTree*);
-	vector<cuts> baselineCuts;
+  // gROOT->ProcessLine(".L tdrstyle.C");
+  // gROOT->ProcessLine("setTDRStyle()");
 
-	baselineCuts.push_back(*baselineCut<RA2bTree>);
+  skimSamples* skims_ = new skimSamples(reg);
+  typedef bool(*cuts)(RA2bTree*);
+  vector<cuts> baselineCuts;
 
-	skimSamples skims = *skims_;
-	TString regionName;
-	TString cutName="baseline";
-	regionName="signal";
+  baselineCuts.push_back(*baselineCut<RA2bTree>);
 
-	TFile* outputFile = new TFile("BoostedCutflow.root","RECREATE");
+  skimSamples skims = *skims_;
+  TString regionName;
+  TString cutName="baseline";
+  regionName="signal";
+  TFile* outputFile = new TFile("output.root","RECREATE");
 
-	// background MC samples - 0 lepton regions
-	for ( int iSample = 0 ; iSample < skims.ntuples.size() ; iSample++) {
-		cout << skims.sampleName[iSample] << endl;
-		RA2bTree* ntuple = skims.ntuples[iSample];
-		int numEvents = ntuple->fChain->GetEntries();
-		ntupleBranchStatus<RA2bTree>(ntuple);
+  // background MC samples - 0 lepton regions
+  for ( int iSample = 0 ; iSample < skims.ntuples.size() ; iSample++) {
+    cout << skims.sampleName[iSample] << endl;
+    RA2bTree* ntuple = skims.ntuples[iSample];
+    int numEvents = ntuple->fChain->GetEntries();
+    ntupleBranchStatus<RA2bTree>(ntuple);
 
-		TTree* newtree = new TTree("newtree","newtree");
-		int boostBool1 = 0; int boostBool2 = 0; int boostBool3 = 0;
-		int boostBool4 = 0; int boostBool5 = 0; int boostBool6 = 0;
-		int boostBool7 = 0;
-
-		int resBool1 = 0; int resBool2 = 0; int resBool3 = 0;
-		int resBool4 = 0; int resBool5 = 0; int resBool6 = 0;
-		int resBool7 = 0; int resBool8 = 0; int resBool9 = 0;
-
-		float MET_ntuple=0;
-		float HT_ntuple = 0;
-		int BTags_ntuple = 0;
-		double Weight_ntuple = 0;
-		int nGenHs = 0;
-		int nGenZs = 0;
-		vector<TLorentzVector> JetsBCan;
-		vector<double>  JetsBCan_bDiscriminatorCSV;
-		double CSV_leading = 0; double CSV_subleading = 0;
-		double CSV_3leading = 0; double CSV_4leading = 0;
-		int BTagsL = 0; int BTagsM = 0; int BTagsT = 0;
-		double deltaR_max = 0;
+    TTree* newtree = new TTree("newtree","newtree");
+    int nAK8_200=0; int nAK8_300=0; int nAK8_boost=0;
+    int nAK4=0; int nAK4_cuts=0;
+    int nBoostedH=0; int nDiAK8=0;
+    int nResolvedH=0; int nBJets=0;
+    int nResolvedH_Iso=0; int nBJets_Iso=0;
+    int nGenZs = 0; int nGenHs = 0;
+    int BTagsL=0; int BTagsM=0; int BTagsT=0;
+    float MET = 0; float HT = 0;
+    float CSV_leading=0; float CSV_subleading=0;
+    float CSV_3leading=0; float CSV_4leading=0;
+    float res_avgM=0; float res_deltaM=0; float res_deltaRmax=0;
+    float com_mBoosted=0; float com_mResolved=0; float com_deltaR=0; float com_avgM=0;
+    float Weight = 0;
 
 
-		TBranch *b_MET, *b_HT;
-		TBranch *b_BTags, *b_Weight;
-		TBranch *b_boostbool1, *b_boostbool2, *b_boostbool3, *b_boostbool4, *b_boostbool5, *b_boostbool6, *b_boostbool7;
-		TBranch *b_resBool1, *b_resBool2, *b_resBool3, *b_resBool4, *b_resBool5, *b_resBool6, *b_resBool7, *b_resBool8, *b_resBool9;
-		TBranch *b_nGenZs, *b_nGenHs;
+    vector<TLorentzVector> CleanJets;
+    vector<float>  CleanJets_bDiscriminatorCSV;
+    vector<TLorentzVector> BJets_Iso;
+    vector<float>  BJetsIso_bDiscriminatorCSV;
+
+    // vector<TLorentzVector> AK4BJets;
+    // double HiggsCan_AvgMass=0;
+    // double deltaR_max=0;
+    // double HiggsCan_MassDiff=0;
+    // vector<TLorentzVector> *JetsAK8;
+    // vector<TLorentzVector> *Jets;
+    // vector<TLorentzVector> CleanJets;
+    // vector<double>  CleanJets_bDiscriminatorCSV;
+    // vector<double>  *Jets_bDiscriminatorCSV;
+    // double Weight = 0;
+    // vector<unsigned int> BJets_Iso;
+    // vector<double> boostedHiggsCan_eta;
+    // vector<double> boostedHiggsCan_phi;
+    // vector<double> *resolvedHCan_mass;
+    // vector<double> *boostedHCan_mass;
+    // // vector<double> *boostedHCan_pt;
+    // vector<double> *AK8_doubleBDiscriminator;
+
+    TBranch *b_nAK8_200, *b_nAK8_300, *b_nAK8_boost;
+    TBranch *b_nAK4, *b_nAK4_cuts;
+    TBranch *b_nDiAK8, *b_nBoostedH, *b_nResolvedH;
+    TBranch *b_nBJets, *b_nBJets_Iso, *b_nResolvedH_Iso;
+    TBranch *b_nGenZs, *b_nGenHs;
+    TBranch *b_BTagsL, *b_BTagsM, *b_BTagsT;
+    TBranch *b_MET, *b_HT;
+    TBranch *b_CSV_leading, *b_CSV_subleading, *b_CSV_3leading, *b_CSV_4leading;
+    TBranch *b_res_avgM, *b_res_deltaM, *b_res_deltaRmax;
+    TBranch *b_com_mBoosted, *b_com_mResolved, *b_com_deltaR, *b_com_avgM;
+    TBranch *b_Weight;
+    // TBranch *b_deltaR_max;
+    // TBranch *b_BTags, *b_Jets_bDiscriminatorCSV, *b_Weight;
+    // // TBranch *b_boostedHCan_pt, *b_boostedHCan_mass, *b_resolvedHCan_mass;
+    // TBranch *b_boostedHCan_mass, *b_resolvedHCan_mass;
+    // TBranch *b_HiggsCan_MassDiff, *b_HiggsCan_AvgMass;
+    // TBranch *b_deltaMAK8;
+    // TBranch *b_AK8_doubleBDiscriminator;
+
+    newtree->Branch("nAK8_200", &nAK8_200, "nAK8_200/I");
+    newtree->Branch("nAK8_300", &nAK8_300, "nAK8_300/I");
+    newtree->Branch("nAK8_boost", &nAK8_boost, "nAK8_boost/I");
+    newtree->Branch("nAK4", &nAK4, "nAK4/I");
+    newtree->Branch("nAK4_cuts", &nAK4_cuts, "nAK4_cuts/I");
+    newtree->Branch("nDiAK8", &nDiAK8, "nDiAK8/I");
+    newtree->Branch("nBoostedH", &nBoostedH, "nBoostedH/I");
+    newtree->Branch("nResolvedH", &nResolvedH, "nResolvedH/I");
+    newtree->Branch("nBJets", &nBJets, "nBJets/I");
+    newtree->Branch("nBJets_Iso", &nBJets_Iso, "nBJets_Iso/I");
+    newtree->Branch("nResolvedH_Iso", &nResolvedH_Iso, "nResolvedH_Iso/I");
+    newtree->Branch("nGenZs", &nGenZs, "nGenZs/I");
+    newtree->Branch("nGenHs", &nGenHs, "nGenHs/I");
+    newtree->Branch("BTagsL", &BTagsL, "BTagsL/I");
+    newtree->Branch("BTagsM", &BTagsM, "BTagsM/I");
+    newtree->Branch("BTagsT", &BTagsT, "BTagsT/I");
+    newtree->Branch("MET",&MET,"MET/F");
+    newtree->Branch("HT",&HT,"HT/F");
+    newtree->Branch("CSV_leading", &CSV_leading, "CSV_leading/F");
+    newtree->Branch("CSV_subleading", &CSV_subleading, "CSV_subleading/F");
+    newtree->Branch("CSV_3leading", &CSV_3leading, "CSV_3leading/F");
+    newtree->Branch("CSV_4leading", &CSV_4leading, "CSV_4leading/F");
+    newtree->Branch("res_avgM", &res_avgM, "res_avgM/F");
+    newtree->Branch("res_deltaM", &res_deltaM, "res_deltaM/F");
+    newtree->Branch("res_deltaRmax", &res_deltaRmax, "res_deltaRmax/F");
+    newtree->Branch("com_mBoosted", &com_mBoosted, "com_mBoosted/F");
+    newtree->Branch("com_mResolved", &com_mResolved, "com_mResolved/F");
+    newtree->Branch("com_deltaR", &com_deltaR, "com_deltaR/F");
+    newtree->Branch("com_avgM", &com_avgM, "com_avgM/F");
+    newtree->Branch("Weight", &Weight, "Weight/F");
+
+    // newtree->Branch("BTags", &BTags, "BTags/I");
+    // newtree->Branch("deltaR_max", &deltaR_max, "deltaR_max/D");
+    // newtree->Branch("Jets_bDiscriminatorCSV",&Jets_bDiscriminatorCSV);
+    // newtree->Branch("AK8_doubleBDiscriminator", &AK8_doubleBDiscriminator);
+    // newtree->Branch("boostedHCan_mass", &boostedHCan_mass);
+    // // newtree->Branch("boostedHCan_pt", &boostedHCan_pt);
+    // newtree->Branch("resolvedHCan_mass", &resolvedHCan_mass);
+    // newtree->Branch("HiggsCan_AvgMass", &HiggsCan_AvgMass, "HiggsCan_AvgMass/D");
+    // newtree->Branch("HiggsCan_MassDiff", &HiggsCan_MassDiff, "HiggsCan_MassDiff/D");
+    // newtree->Branch("deltaMAK8", &deltaMAK8, "deltaMAK8/D");
 
 
-		newtree->Branch("boostBool1", &boostBool1, "boostBool1/I");
-		newtree->Branch("boostBool2", &boostBool2, "boostBool2/I");
-		newtree->Branch("boostBool3", &boostBool3, "boostBool3/I");
-		newtree->Branch("boostBool4", &boostBool4, "boostBool4/I");
-		newtree->Branch("boostBool5", &boostBool5, "boostBool5/I");
-		newtree->Branch("boostBool6", &boostBool6, "boostBool6/I");
-		newtree->Branch("boostBool7", &boostBool7, "boostBool7/I");
+    newtree->SetBranchAddress("nAK8_200",&nAK8_200, &b_nAK8_200);
+    newtree->SetBranchAddress("nAK8_300",&nAK8_300, &b_nAK8_300);
+    newtree->SetBranchAddress("nAK8_boost",&nAK8_boost, &b_nAK8_boost);
+    newtree->SetBranchAddress("nAK4",&nAK4, &b_nAK4);
+    newtree->SetBranchAddress("nAK4_cuts",&nAK4_cuts, &b_nAK4_cuts);
+    newtree->SetBranchAddress("nDiAK8",&nDiAK8, &b_nDiAK8);
+    newtree->SetBranchAddress("nBoostedH",&nBoostedH, &b_nBoostedH);
+    newtree->SetBranchAddress("nResolvedH",&nResolvedH, &b_nResolvedH);
+    newtree->SetBranchAddress("nBJets", &nBJets, &b_nBJets);
+    newtree->SetBranchAddress("nBJets_Iso", &nBJets_Iso, &b_nBJets_Iso);
+    newtree->SetBranchAddress("nResolvedH_Iso",&nResolvedH_Iso, &b_nResolvedH_Iso);//added
+    newtree->SetBranchAddress("nGenZs",&nGenZs, &b_nGenZs);
+    newtree->SetBranchAddress("nGenHs",&nGenHs, &b_nGenHs);
+    newtree->SetBranchAddress("BTagsL", &BTagsL, &b_BTagsL);
+    newtree->SetBranchAddress("BTagsM", &BTagsM, &b_BTagsM);
+    newtree->SetBranchAddress("BTagsT", &BTagsT, &b_BTagsT);
+    newtree->SetBranchAddress("MET", &MET, &b_MET);
+    newtree->SetBranchAddress("HT", &HT, &b_HT);
+    newtree->SetBranchAddress("Weight", &Weight, &b_Weight);
+    newtree->SetBranchAddress("CSV_leading", &CSV_leading, &b_CSV_leading);
+    newtree->SetBranchAddress("CSV_subleading", &CSV_subleading, &b_CSV_subleading);
+    newtree->SetBranchAddress("CSV_3leading", &CSV_3leading, &b_CSV_3leading);
+    newtree->SetBranchAddress("CSV_4leading", &CSV_4leading, &b_CSV_4leading);
 
-		newtree->Branch("resBool1", &resBool1, "resBool1/I");
-		newtree->Branch("resBool2", &resBool2, "resBool2/I");
-		newtree->Branch("resBool3", &resBool3, "resBool3/I");
-		newtree->Branch("resBool4", &resBool4, "resBool4/I");
-		newtree->Branch("resBool5", &resBool5, "resBool5/I");
-		newtree->Branch("resBool6", &resBool6, "resBool6/I");
-		newtree->Branch("resBool7", &resBool7, "resBool7/I");
-		newtree->Branch("resBool8", &resBool8, "resBool8/I");
-		newtree->Branch("resBool9", &resBool9, "resBool9/I");
+    newtree->SetBranchAddress("res_avgM", &res_avgM, &b_res_avgM);
+    newtree->SetBranchAddress("res_deltaM", &res_deltaM, &b_res_deltaM);
+    newtree->SetBranchAddress("res_deltaRmax", &res_deltaRmax, &b_res_deltaRmax);
+    newtree->SetBranchAddress("com_mBoosted", &com_mBoosted, &b_com_mBoosted);
+    newtree->SetBranchAddress("com_mResolved", &com_mResolved, &b_com_mResolved);
+    newtree->SetBranchAddress("com_deltaR", &com_deltaR, &b_com_deltaR);
+    newtree->SetBranchAddress("com_avgM", &com_avgM, &b_com_avgM);
 
-		newtree->Branch("BTags", &BTags_ntuple, "BTags_ntuple/I");
-		newtree->Branch("HT",&HT_ntuple,"HT_ntuple/F");
-		newtree->Branch("MET",&MET_ntuple,"MET_ntuple/F");
-		newtree->Branch("Weight", &Weight_ntuple, "Weight_ntuple/D");
-		newtree->Branch("nGenZs", &nGenZs, "nGenZs/I");
-		newtree->Branch("nGenHs", &nGenHs, "nGenHs/I");
-
-
-		newtree->SetBranchAddress("boostBool1",&boostBool1, &b_boostbool1);
-		newtree->SetBranchAddress("boostBool2",&boostBool2, &b_boostbool2);
-		newtree->SetBranchAddress("boostBool3",&boostBool3, &b_boostbool3);
-		newtree->SetBranchAddress("boostBool4",&boostBool4, &b_boostbool4);
-		newtree->SetBranchAddress("boostBool5",&boostBool5, &b_boostbool5);
-		newtree->SetBranchAddress("boostBool6",&boostBool6, &b_boostbool6);
-		newtree->SetBranchAddress("boostBool7",&boostBool7, &b_boostbool7);
-
-		newtree->SetBranchAddress("resBool1",&resBool1, &b_resBool1);
-		newtree->SetBranchAddress("resBool2",&resBool2, &b_resBool2);
-		newtree->SetBranchAddress("resBool3",&resBool3, &b_resBool3);
-		newtree->SetBranchAddress("resBool4",&resBool4, &b_resBool4);
-		newtree->SetBranchAddress("resBool5",&resBool5, &b_resBool5);
-		newtree->SetBranchAddress("resBool6",&resBool6, &b_resBool6);
-		newtree->SetBranchAddress("resBool7",&resBool7, &b_resBool7);
-		newtree->SetBranchAddress("resBool8",&resBool8, &b_resBool8);
-		newtree->SetBranchAddress("resBool9",&resBool9, &b_resBool9);
-
-		newtree->SetBranchAddress("BTags", &BTags_ntuple, &b_BTags);
-		newtree->SetBranchAddress("Weight", &Weight_ntuple, &b_Weight);
-		newtree->SetBranchAddress("MET", &MET_ntuple, &b_MET);
-		newtree->SetBranchAddress("HT", &HT_ntuple, &b_HT);
-		newtree->SetBranchAddress("nGenZs",&nGenZs, &b_nGenZs);
-		newtree->SetBranchAddress("nGenHs",&nGenHs, &b_nGenHs);
+    // // newtree->SetBranchAddress("BTags", &BTags, &b_BTags);
+    // newtree->SetBranchAddress("Jets_bDiscriminatorCSV",&Jets_bDiscriminatorCSV, &b_Jets_bDiscriminatorCSV);
+    // newtree->SetBranchAddress("deltaR_max", &deltaR_max, &b_deltaR_max);
+    // newtree->SetBranchAddress("resolvedHCan_mass", &resolvedHCan_mass, &b_resolvedHCan_mass);
+    // newtree->SetBranchAddress("boostedHCan_mass", &boostedHCan_mass, &b_boostedHCan_mass);
+    // // newtree->SetBranchAddress("boostedHCan_pt", &boostedHCan_pt, &b_boostedHCan_pt);
+    // newtree->SetBranchAddress("HiggsCan_AvgMass", &HiggsCan_AvgMass, &b_HiggsCan_AvgMass);
+    // newtree->SetBranchAddress("HiggsCan_MassDiff", &HiggsCan_MassDiff, &b_HiggsCan_MassDiff);
+    // newtree->SetBranchAddress("deltaMAK8", &deltaMAK8, &b_deltaMAK8);
+    // newtree->SetBranchAddress("AK8_doubleBDiscriminator", &AK8_doubleBDiscriminator, &b_AK8_doubleBDiscriminator);
 
 
+    float minAK8_JetPt=300;
+    float bbtagCut=0.3;
+    TString filename = ntuple->fChain->GetFile()->GetName();
+    for ( int iEvt = 0 ; iEvt < numEvents ; iEvt++ ) {
+      ntuple->GetEntry(iEvt);
+      if ( iEvt % 100000 == 0 ) cout << skims.sampleName[iSample] << ": " << iEvt << "/" << numEvents << endl;
 
-		float bbtagCut=0.3;
-		TString filename = ntuple->fChain->GetFile()->GetName();
-		//for ( int iEvt = 0 ; iEvt < 1000 ; iEvt++ ) {
-		for ( int iEvt = 0 ; iEvt < numEvents ; iEvt++ ) {
-			//if (iEvt > 100) break;
-			ntuple->GetEntry(iEvt);
-			if ( iEvt % 100000 == 0 ) cout << skims.sampleName[iSample] << ": " << iEvt << "/" << numEvents << endl;
+      if (!baselineCut(ntuple)) continue; //at least 2 b jets or 1 AK8 jet, MET>150, some filter cuts
+      if ( ( filename.Contains("SingleLept") || filename.Contains("DiLept") ) && ntuple->madHT>600. ) continue;
+      MET=ntuple->MET;
+      HT=ntuple->HT;
+      Weight=ntuple->Weight;
+      nGenZs = getNumGenZs(ntuple);
+      nGenHs = getNumGenHiggses(ntuple);
 
 
-			//if( !signalTriggerCut(ntuple) ) continue; //this kills 32% of all events
+      nAK8_200= 0;
+      nAK8_300= 0;
+      nAK8_boost = 0;
+      nAK4= 0;
+      nAK4_cuts = 0;
+      nBoostedH= 0;
+      nDiAK8 = 0;
+      nResolvedH= 0;
+      nBJets = 0;
+      nResolvedH_Iso= 0;
+      nBJets_Iso = 0;
+      double com_boost_eta, com_boost_phi;
 
 
-			MET_ntuple=ntuple->MET;
-			HT_ntuple=ntuple->HT;
-			BTags_ntuple=ntuple->BTags;
-			//Weight_ntuple=ntuple->Weight;
-			nGenZs = getNumGenZs(ntuple);
-			nGenHs = getNumGenHiggses(ntuple);
-
-			//Adding trigger efficiency and PU weights
-			double weight=0.;
-			float trigWeight=1.0;
-			std::vector<double> EfficiencyCenterUpDown = Eff_MetMhtSextetReal_CenterUpDown(ntuple->HT, ntuple->MHT, ntuple->NJets);
-			trigWeight=EfficiencyCenterUpDown[0];
-			Weight_ntuple = ntuple->Weight*trigWeight*customPUweights(ntuple); //do I want this or no??
-			//Weight_ntuple = ntuple->Weight*trigWeight;
-
-			JetsBCan.clear();
-			JetsBCan_bDiscriminatorCSV.clear();
-
-			//if (!baselineCut(ntuple)) continue;
-			if (baselineCut(ntuple)) {
-				boostBool1 = 1;
-				if ( ( filename.Contains("SingleLept") || filename.Contains("DiLept") ) && ntuple->madHT>600. ) continue;
+      BJets_Iso.clear();
+      CleanJets.clear();
+      CleanJets_bDiscriminatorCSV.clear();
+      BJetsIso_bDiscriminatorCSV.clear();
 
 
 
-				//if (MET_ntuple>200) {
-					if (MET_ntuple>300. && HT_ntuple>600.) {
-					boostBool2 = 1;
+      if (MET<300) bbtagCut=0.6;
+      // Counting nAK8 jets
+      for (unsigned int fj=0; fj<ntuple->JetsAK8->size();++fj) {
+        double pT = ntuple->JetsAK8->at(fj).Pt();
+        if (pT<200) continue;
+        nAK8_200++;
+        if (pT<minAK8_JetPt) continue;
+        nAK8_300++;
+        if (ntuple->JetsAK8_doubleBDiscriminator->at(fj)<bbtagCut) continue;
+        nAK8_boost++;
+      }
 
-					// int AK8_size = ntuple->JetsAK8->size();
-					//if (MET_ntuple>250) {
-					if (ntuple->JetsAK8->size()>=2) {
-						boostBool3 = 1;
+      // Stand-alone boosted case
+      if ( boostedBaselineCut(ntuple) ) {
+        double J1_pT = ntuple->JetsAK8->at(0).Pt();double J2_pT = ntuple->JetsAK8->at(1).Pt();
+        double J1_phi = ntuple->JetsAK8->at(0).Phi();double J2_phi = ntuple->JetsAK8->at(1).Phi();
+        double J1_eta = ntuple->JetsAK8->at(0).Eta();double J2_eta = ntuple->JetsAK8->at(1).Eta();
+        double J1_prunedMass = ntuple->JetsAK8_prunedMass->at(0);double J2_prunedMass = ntuple->JetsAK8_prunedMass->at(1);
+        double J1_doubleB = ntuple->JetsAK8_doubleBDiscriminator->at(0);double J2_doubleB = ntuple->JetsAK8_doubleBDiscriminator->at(1);
+
+        bool J1_isBoost = (J1_pT>300.0 && J1_prunedMass>=85.0 && J1_prunedMass<135.0 && J1_doubleB>bbtagCut);
+        bool J2_isBoost = (J2_pT>300.0 && J2_prunedMass>=85.0 && J2_prunedMass<135.0 && J2_doubleB>bbtagCut);
+
+        bool J1_isBoost_antiB = (J1_pT>300.0 && J1_prunedMass>=85.0 && J1_prunedMass<135.0 && J1_doubleB<=bbtagCut);
+        bool J2_isBoost_antiB = (J2_pT>300.0 && J2_prunedMass>=85.0 && J2_prunedMass<135.0 && J2_doubleB<=bbtagCut);
+
+        if (J1_isBoost && J2_isBoost) {
+          nBoostedH=2;
+        }
+        else if (J1_isBoost && J2_isBoost_antiB) {
+          nBoostedH=1; nDiAK8=1;
+        }
+        else if (J2_isBoost && J1_isBoost_antiB) {
+          nBoostedH=1; nDiAK8=1;
+        }
+        // else if (J1_isBoost){
+        //   nBoostedH=1;
+        //   com_mBoosted = J1_prunedMass;
+        //   com_boost_eta = J1_eta;
+        //   com_boost_phi = J1_phi;
+        // }
+        // else if (J2_isBoost){
+        //   nBoostedH=1;
+        //   com_mBoosted = J2_prunedMass;
+        //   com_boost_eta = J2_eta;
+        //   com_boost_phi = J2_phi;
+        // }
+      }
 
 
-						if (ntuple->JetsAK8->at(0).Pt()>300. && ntuple->JetsAK8->at(1).Pt()>300. ) {
-							boostBool4 = 1;
+      //Stand-alone semi-resolved case, looking for a single boosted candidate (semi-lead fails the pT, or there's only one AK8)
+      //baseline has two cases: 2+ AK8 jets, and only 1
+      //2+ AK8 looks at lead and sublead jets - only one can pass the pT cut. If only one passes, check on it's mass and double-b cut
+      //Only 1 AK8: check if passes pT, mass, and double-b cuts
+      if ( semiResBaselineCut(ntuple) ) {
 
-							if (ntuple->JetsAK8_prunedMass->at(0)>50. &&  ntuple->JetsAK8_prunedMass->at(0)<250. && ntuple->JetsAK8_prunedMass->at(1)>50. &&  ntuple->JetsAK8_prunedMass->at(1)<250.) {
-								boostBool5 = 1;
+        bool J1_isBoost = false; bool J2_isBoost = false;
 
-								if (ntuple->JetsAK8_doubleBDiscriminator->at(0)>bbtagCut && ntuple->JetsAK8_doubleBDiscriminator->at(1)>bbtagCut) {
-									boostBool6 = 1;
+        double J1_pT = ntuple->JetsAK8->at(0).Pt();
+        double J1_phi = ntuple->JetsAK8->at(0).Phi();
+        double J1_eta = ntuple->JetsAK8->at(0).Eta();
+        double J1_prunedMass = ntuple->JetsAK8_prunedMass->at(0);
+        double J1_doubleB = ntuple->JetsAK8_doubleBDiscriminator->at(0);
 
-									if (ntuple->JetsAK8_prunedMass->at(0)>85. &&  ntuple->JetsAK8_prunedMass->at(0)<135. && ntuple->JetsAK8_prunedMass->at(1)>85. &&  ntuple->JetsAK8_prunedMass->at(1)<135.) {
-										boostBool7 = 1;
-									} //end boostbool 7
-								} // end boostbool 6
-							} // end boostbool5
-						} //end boostbool 4
+        J1_isBoost = (J1_pT>300.0 && J1_prunedMass>=85.0 && J1_prunedMass<135.0 && J1_doubleB>bbtagCut);
 
-					} //end boostBool 3
-				} //end boostBool2
-			} //end boostBool1
+        double J2_pT; double J2_phi; double J2_eta; double J2_prunedMass; double J2_doubleB;
 
-			/*
-			//cutflow for resolved
-			if (resolvedBaselineCut(ntuple)) {
-			// resBool1 = 1;
-			//if ( ( filename.Contains("SingleLept") || filename.Contains("DiLept") ) && ntuple->HT>600. ) continue; //check HT or madHT
+        if (ntuple->JetsAK8->size() > 1 && !J1_isBoost) {
+          double J2_pT = ntuple->JetsAK8->at(1).Pt();
+          double J2_phi = ntuple->JetsAK8->at(1).Phi();
+          double J2_eta = ntuple->JetsAK8->at(1).Eta();
+          double J2_prunedMass = ntuple->JetsAK8_prunedMass->at(1);
+          double J2_doubleB = ntuple->JetsAK8_doubleBDiscriminator->at(1);
+          J2_isBoost = (J2_pT>300.0 && J2_prunedMass>=85.0 && J2_prunedMass<135.0 && J2_doubleB>bbtagCut);
+        }
+
+        if (J1_isBoost){
+          nBoostedH=1;
+          com_mBoosted = J1_prunedMass;
+          com_boost_eta = J1_eta;
+          com_boost_phi = J1_phi;
+        }
+        else if (J2_isBoost){
+          nBoostedH=1;
+          com_mBoosted = J2_prunedMass;
+          com_boost_eta = J2_eta;
+          com_boost_phi = J2_phi;
+        }
+      }
 
 
-			// //based on Moriond Recommendations for combined CSV: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco#Recommendation_for_combining_b_a
-			// double CSVBtagLoose = 0.5426;
-			// double CSVBtagMed   = 0.8484;
-			// double CSVBtagTight = 0.9535;
 
-			//based on SUSY Recommendations for deep CSV: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy#Supported_Algorithms_and_Operati
-			double CSVBtagLoose = 0;
-			double CSVBtagMed   = 0;
-			double CSVBtagTight = 0;
+      //Stand-alone resolved case
+      //based on Moriond Recommendations for combined CSV: https://twiki.cern.ch/twiki/bin/view/CMS/BtagRecommendation80XReReco#Recommendation_for_combining_b_a
+      double CSVBtagLoose = 0.5426;
+      double CSVBtagMed   = 0.8484;
+      double CSVBtagTight = 0.9535;
+      BTagsL= 0;
+      BTagsM= 0;
+      BTagsT= 0;
 
-			if (filename.Contains("MC2016") ) {
-			CSVBtagLoose = 0.2217; //2016
-			CSVBtagMed   = 0.6321; //2016
-			CSVBtagTight = 0.8953; //2016
-		}
+      //Save NBTags for different points, save clean jet collection, determine overlap with AK8 jets in the case of 1 boosted
+      for (unsigned int j=0; j<ntuple->Jets->size();++j) {
+        ++nAK4;
+        if (ntuple->Jets->at(j).Pt()<30 || fabs(ntuple->Jets->at(j).Eta())>2.4) continue;
+        ++nAK4_cuts;
+        float CSV = ntuple->Jets_bDiscriminatorCSV->at(j);
+        if (CSV > CSVBtagLoose) BTagsL++;
+        if (CSV > CSVBtagMed) {
+          BTagsM++;
+          nBJets++;
+        }
+        if (CSV > CSVBtagTight) BTagsT++;
+        CleanJets.push_back(ntuple->Jets->at(j));
+        CleanJets_bDiscriminatorCSV.push_back(ntuple->Jets_bDiscriminatorCSV->at(j));
+        if (ntuple->Jets_bDiscriminatorCSV->at(j)<CSVBtagMed) continue;
+        // AK4BJets.push_back(ntuple->Jets->at(j));
 
-		else if ( filename.Contains("MC2017") ) {
-		CSVBtagLoose = 0.1522; //2017
-		CSVBtagMed   = 0.4941; //2017
-		CSVBtagTight = 0.8001; //2017
-	}
+        //Check overlap between boosted-AK8 and AK4 jet collection for the semi-resolved case only
+        if (nBoostedH==1 && nDiAK8!=1) {
+          bool Overlap=false;
 
-	else {
-	std::cout<<"File name does not contain MC2016 nor MC2017!"<<std::endl;
+          float deltaEta = ntuple->Jets->at(j).Eta() - com_boost_eta;
+          float deltaPhi = CalcdPhi(ntuple->Jets->at(j).Phi(), com_boost_phi);
+          float dR = sqrt((deltaEta*deltaEta)+(deltaPhi*deltaPhi));
+          if (dR<0.8) {
+            Overlap = true; continue;
+          }
+          if (!Overlap) {
+            BJets_Iso.push_back(ntuple->Jets->at(j));
+            nBJets_Iso++; //Num of b-tagged AK4 jets that are isolated from the AK8 jets, with pT and eta cuts
+            BJetsIso_bDiscriminatorCSV.push_back(ntuple->Jets_bDiscriminatorCSV->at(j));
+          }
+        } //For combined case
+      } //end loop over AK4 jets
+
+
+      //Look over all possible resolved Higgs candidates, without requiring any isolation (completely ignore presence of AK8 jets)
+      //So this is the Resolved Stand-alone
+      if (BTagsT>1 && CleanJets.size()>=4 && CleanJets.size()<6) {
+        //Find the four jets with the highest b-discriminator
+        float HighestValuesTest[] = {-11,-11,-11,-11};
+        int IndicesTest[] = {-1,-1,-1,-1};
+        for (unsigned int j=0; j<CleanJets.size();++j) {
+          float *current_min = min_element(HighestValuesTest,HighestValuesTest+4);
+          int min_pos = distance(HighestValuesTest,min_element(HighestValuesTest,HighestValuesTest+4));
+          float *CSVofJet = &(CleanJets_bDiscriminatorCSV.at(j));
+          if (*CSVofJet > *current_min) {
+            HighestValuesTest[min_pos] = *CSVofJet;
+            IndicesTest[min_pos] = j;
+          }
+        } //end loop to find jets with 4 highest CSV
+
+        //Save CSV values for problem-solving things
+        std::sort(HighestValuesTest, HighestValuesTest+4, std::greater<double>());
+        CSV_leading = HighestValuesTest[0];
+        CSV_subleading = HighestValuesTest[1];
+        CSV_3leading = HighestValuesTest[2];
+        CSV_4leading = HighestValuesTest[3];
+
+        //loop through candidate combinations
+        TLorentzVector JetComboTest1a = CleanJets[IndicesTest[0]]+CleanJets[IndicesTest[1]];
+        TLorentzVector JetComboTest1b = CleanJets[IndicesTest[2]]+CleanJets[IndicesTest[3]];
+        TLorentzVector JetComboTest2a = CleanJets[IndicesTest[0]]+CleanJets[IndicesTest[2]];
+        TLorentzVector JetComboTest2b = CleanJets[IndicesTest[1]]+CleanJets[IndicesTest[3]];
+        TLorentzVector JetComboTest3a = CleanJets[IndicesTest[0]]+CleanJets[IndicesTest[3]];
+        TLorentzVector JetComboTest3b = CleanJets[IndicesTest[1]]+CleanJets[IndicesTest[2]];
+
+        double MassDiff1 = abs(JetComboTest1a.M()-JetComboTest1b.M());
+        double MassDiff2 = abs(JetComboTest2a.M()-JetComboTest2b.M());
+        double MassDiff3 = abs(JetComboTest3a.M()-JetComboTest3b.M());
+        double MassAvg1 = (JetComboTest1a.M()+JetComboTest1b.M())/2;
+        double MassAvg2 = (JetComboTest2a.M()+JetComboTest2b.M())/2;
+        double MassAvg3 = (JetComboTest3a.M()+JetComboTest3b.M())/2;
+        double deltaR1, deltaR2, deltaEta1, deltaEta2, deltaPhi1, deltaPhi2 = -1;
+        double thisMassDiff, thisMassAvg;
+        double resCanMass1, resCanMass2;
+
+        if (MassDiff1<MassDiff2 && MassDiff1<MassDiff3){
+          deltaEta1 = (CleanJets[IndicesTest[0]].Eta()-CleanJets[IndicesTest[1]].Eta());
+          deltaPhi1 = CalcdPhi(CleanJets[IndicesTest[0]].Phi(),CleanJets[IndicesTest[1]].Phi());
+          deltaEta2 = (CleanJets[IndicesTest[2]].Eta()-CleanJets[IndicesTest[3]].Eta());
+          deltaPhi2 = CalcdPhi(CleanJets[IndicesTest[2]].Phi(),CleanJets[IndicesTest[3]].Phi());
+          thisMassDiff = MassDiff1; thisMassAvg = MassAvg1;
+          resCanMass1 = JetComboTest1a.M(); resCanMass2 = JetComboTest1b.M();
+        }
+        else if (MassDiff2<MassDiff1 && MassDiff2<MassDiff3){
+          deltaEta1 = (CleanJets[IndicesTest[0]].Eta()-CleanJets[IndicesTest[2]].Eta());
+          deltaPhi1 = CalcdPhi(CleanJets[IndicesTest[0]].Phi(),CleanJets[IndicesTest[2]].Phi());
+          deltaEta2 = (CleanJets[IndicesTest[1]].Eta()-CleanJets[IndicesTest[3]].Eta());
+          deltaPhi2 = CalcdPhi(CleanJets[IndicesTest[1]].Phi(),CleanJets[IndicesTest[3]].Phi());
+          thisMassDiff = MassDiff2; thisMassAvg = MassAvg2;
+          resCanMass1 = JetComboTest2a.M(); resCanMass2 = JetComboTest2b.M();
+        }
+        else if (MassDiff3<MassDiff1 && MassDiff3<MassDiff2){
+          deltaEta1 = (CleanJets[IndicesTest[0]].Eta()-CleanJets[IndicesTest[3]].Eta());
+          deltaPhi1 = CalcdPhi(CleanJets[IndicesTest[0]].Phi(),CleanJets[IndicesTest[3]].Phi());
+          deltaEta2 = (CleanJets[IndicesTest[1]].Eta()-CleanJets[IndicesTest[2]].Eta());
+          deltaPhi2 = CalcdPhi(CleanJets[IndicesTest[1]].Phi(),CleanJets[IndicesTest[2]].Phi());
+          thisMassDiff = MassDiff3; thisMassAvg = MassAvg3;
+          resCanMass1 = JetComboTest3a.M(); resCanMass2 = JetComboTest3b.M();
+        }
+
+        deltaR1 = sqrt((deltaEta1*deltaEta1)+(deltaPhi1*deltaPhi1));
+        deltaR2 = sqrt((deltaEta2*deltaEta2)+(deltaPhi2*deltaPhi2));
+
+        //only cuts here are basline, 4-5 AK4 jets (w cuts), and 2 tight b's
+        res_deltaRmax = max(deltaR1, deltaR2);
+        res_avgM = thisMassAvg; res_deltaM = thisMassDiff;
+
+        if (thisMassAvg>100 && thisMassAvg<=140 && abs(thisMassDiff)<40) {
+          nResolvedH=2;
+        }
+        else if ((resCanMass1>100 && resCanMass1<140) || (resCanMass2>100 && resCanMass2<140) ) nResolvedH=1;
+      } // end Resolved baseline
+
+
+
+
+        // Combined case - When there is one boosted, first look for a resolved candidate
+        if (nBoostedH==1 && nDiAK8!=1 && BTagsM>=2 && BJets_Iso.size()>0) {
+          //Find the four jets with the highest b-discriminator
+          float HighestCSVs[] = {-11,-11,-11,-11};
+          int JetIndex[] = {-1,-1,-1,-1};
+
+          //Loop over the b-jets isolated from the boosted AK8
+          for (unsigned int j=0; j<BJets_Iso.size();++j) {
+            float *current_min = min_element(HighestCSVs,HighestCSVs+4);
+            int min_pos = distance(HighestCSVs,min_element(HighestCSVs,HighestCSVs+4));
+            float *CSVofJet = &(BJetsIso_bDiscriminatorCSV.at(j));
+            if (*CSVofJet > *current_min) {
+              HighestCSVs[min_pos] = *CSVofJet;
+              JetIndex[min_pos] = j;
+            }
+          } //end loop to find jets with 4 highest CSV
+
+          std::sort(HighestCSVs, HighestCSVs+4, std::greater<double>());
+          float CSV0 = HighestCSVs[0]; float CSV1 = HighestCSVs[1];
+          float CSV2 = HighestCSVs[2]; float CSV3 = HighestCSVs[3];
+
+          vector<float> comboMass = {-11,-11,-11,-11,-11,-11};
+          vector<float> comboDeltaR = {-11,-11,-11,-11,-11,-11};
+          float deltaEta, deltaPhi, deltaR = -1;
+
+          //loop through all 6 candidate combinations
+          TLorentzVector JetCombo1, JetCombo2, JetCombo3, JetCombo4, JetCombo5, JetCombo6;
+          if (CSV0>0 && CSV1>0) {
+            JetCombo1 = BJets_Iso[JetIndex[0]]+BJets_Iso[JetIndex[1]];
+            if (JetCombo1.M() > 100 && JetCombo1.M() <140) {
+              comboMass.at(0)=JetCombo1.M();
+              deltaEta = (BJets_Iso[JetIndex[0]].Eta()-BJets_Iso[JetIndex[1]].Eta());
+              deltaPhi = CalcdPhi(BJets_Iso[JetIndex[0]].Phi(),BJets_Iso[JetIndex[1]].Phi());
+              deltaR = sqrt((deltaEta*deltaEta)+(deltaPhi*deltaPhi));
+              comboDeltaR.at(0)=deltaR;
+            }
+          }
+          if (CSV2>0 && CSV3>0) {
+            JetCombo2 = BJets_Iso[JetIndex[2]]+BJets_Iso[JetIndex[3]];
+            if (JetCombo2.M() > 100 && JetCombo2.M() <140) {
+              comboMass.at(1)=JetCombo2.M();
+              deltaEta = (BJets_Iso[JetIndex[2]].Eta()-BJets_Iso[JetIndex[3]].Eta());
+              deltaPhi = CalcdPhi(BJets_Iso[JetIndex[2]].Phi(),BJets_Iso[JetIndex[3]].Phi());
+              deltaR = sqrt((deltaEta*deltaEta)+(deltaPhi*deltaPhi));
+              comboDeltaR.at(1)=deltaR;
+            }
+          }
+          if (CSV0>0 && CSV2>0) {
+            JetCombo3 = BJets_Iso[JetIndex[0]]+BJets_Iso[JetIndex[2]];
+            if (JetCombo3.M() > 100 && JetCombo3.M() <140) {
+              comboMass.at(2)=JetCombo3.M();
+              deltaEta = (BJets_Iso[JetIndex[0]].Eta()-BJets_Iso[JetIndex[2]].Eta());
+              deltaPhi = CalcdPhi(BJets_Iso[JetIndex[0]].Phi(),BJets_Iso[JetIndex[2]].Phi());
+              deltaR = sqrt((deltaEta*deltaEta)+(deltaPhi*deltaPhi));
+              comboDeltaR.at(2)=deltaR;
+            }
+          }
+          if (CSV1>0 && CSV3>0) {
+            JetCombo4 = BJets_Iso[JetIndex[1]]+BJets_Iso[JetIndex[3]];
+            if (JetCombo4.M() > 100 && JetCombo4.M() <140) {
+              comboMass.at(3)=JetCombo4.M();
+              deltaEta = (BJets_Iso[JetIndex[1]].Eta()-BJets_Iso[JetIndex[3]].Eta());
+              deltaPhi = CalcdPhi(BJets_Iso[JetIndex[1]].Phi(),BJets_Iso[JetIndex[3]].Phi());
+              deltaR = sqrt((deltaEta*deltaEta)+(deltaPhi*deltaPhi));
+              comboDeltaR.at(3)=deltaR;
+            }
+          }
+          if (CSV0>0 && CSV3>0) {
+            JetCombo5 = BJets_Iso[JetIndex[0]]+BJets_Iso[JetIndex[3]];
+            if (JetCombo5.M() > 100 && JetCombo5.M() <140) {
+              comboMass.at(4)=JetCombo5.M();
+              deltaEta = (BJets_Iso[JetIndex[0]].Eta()-BJets_Iso[JetIndex[3]].Eta());
+              deltaPhi = CalcdPhi(BJets_Iso[JetIndex[0]].Phi(),BJets_Iso[JetIndex[3]].Phi());
+              deltaR = sqrt((deltaEta*deltaEta)+(deltaPhi*deltaPhi));
+              comboDeltaR.at(4)=deltaR;
+            }
+          }
+          if (CSV1>0 && CSV2>0) {
+            JetCombo6 = BJets_Iso[JetIndex[1]]+BJets_Iso[JetIndex[2]];
+            if (JetCombo6.M() > 100 && JetCombo6.M() <140) {
+              comboMass.at(5)=JetCombo6.M();
+              deltaEta = (BJets_Iso[JetIndex[1]].Eta()-BJets_Iso[JetIndex[2]].Eta());
+              deltaPhi = CalcdPhi(BJets_Iso[JetIndex[1]].Phi(),BJets_Iso[JetIndex[2]].Phi());
+              deltaR = sqrt((deltaEta*deltaEta)+(deltaPhi*deltaPhi));
+              comboDeltaR.at(5)=deltaR;
+            }
+          }
+
+          // Determining which will be the resolved candidate saved, based on which has the smallest deltaM to the boosted
+          float tmp_deltaM = 999;
+          int this_combo = -1;
+          for (int i=0; i<comboMass.size();i++) {
+            float this_mass = comboMass.at(i);
+            if (this_mass<0) continue;
+
+            float this_deltaM = abs(this_mass - com_mBoosted);
+            if (this_deltaM<tmp_deltaM) {
+              tmp_deltaM = this_deltaM;
+              this_combo = i;
+            }
+          } //end loop over combo
+
+          if (this_combo == -1) { //if a resolved candidate cannot be found, we're just grabbing the b-jet with the highest CSV
+            nResolvedH_Iso = 0; //this is implied, but keeping it here for notes-sake
+            com_mResolved = BJets_Iso[JetIndex[0]].M();
+            deltaEta = (BJets_Iso[JetIndex[0]].Eta() - com_boost_eta);
+            deltaPhi = CalcdPhi(BJets_Iso[JetIndex[0]].Phi(), com_boost_phi);
+            com_deltaR = sqrt((deltaEta*deltaEta)+(deltaPhi*deltaPhi));
+          }
+          else {
+            nResolvedH_Iso = 1;
+            com_mResolved = comboMass.at(this_combo);
+            com_deltaR = comboDeltaR.at(this_combo);
+            com_avgM = abs( comboMass.at(this_combo) - com_mBoosted );
+          }
+        } //end condition for combined case
+
+
+
+      newtree->Fill();
+      nBoostedH=0;
+      nDiAK8=0;
+      nAK8_200=0;
+      nAK8_300=0;
+      nAK8_boost=0;
+      nAK4=0;
+      nAK4_cuts=0;
+      nBJets=0;
+      nResolvedH=0;
+      nResolvedH_Iso=0;
+      nBJets_Iso=0;
+      BTagsL=0;
+      BTagsM=0;
+      BTagsT=0;
+      BJets_Iso.clear();
+      CleanJets.clear();
+      CleanJets_bDiscriminatorCSV.clear();
+      BJetsIso_bDiscriminatorCSV.clear();
+
+
+    } //end event loop
+
+    outputFile->cd();
+    newtree->Write(skims.sampleName[iSample]);
+    delete newtree;
+
+  } //end sample loop
+
+  outputFile->Close();
+  return 0;
 }
 
-BTagsL = 0;
-BTagsM = 0;
-BTagsT = 0;
-for(unsigned int j=0; j<ntuple->Jets->size();++j){
-if(ntuple->Jets->at(j).Pt()<30 || fabs(ntuple->Jets->at(j).Eta())>2.4) continue;
-JetsBCan.push_back(ntuple->Jets->at(j));
+double FindHiggs( vector<TLorentzVector> Jets, std::vector<unsigned int >MedTags) {
+  TLorentzVector tempLead;
+  TLorentzVector tempSubLead;
+  TLorentzVector ResolvedCandidate;
+  vector<double> MaybeHiggs_mass;
+  vector<double> MaybeHiggs_AbsMass;
+  double DasMass = -999.;
+  double HiggsMass = 125.;
+  for (unsigned int m=0; m<MedTags.size(); ++m) {
+    unsigned int jetindex=MedTags[m];
+    tempLead=Jets.at(jetindex);
+    for (unsigned int n=(m+1); n<MedTags.size(); ++n) {
+      unsigned int subjetindex=MedTags[n];
+      tempSubLead=Jets.at(jetindex);
+      ResolvedCandidate=tempLead+tempSubLead;
+      if (abs(ResolvedCandidate.M()-HiggsMass)>60) continue;
+      //std::cout<<"Maybe Higgs mass: "<<ResolvedCandidate.M()<<std::endl;
+      MaybeHiggs_mass.push_back(ResolvedCandidate.M());
+      MaybeHiggs_AbsMass.push_back(abs(ResolvedCandidate.M()-HiggsMass));
+    } //end loop over sub-jet
+  } // end loop over "lead" jet
 
-// JetsBCan_bDiscriminatorCSV.push_back(ntuple->Jets_bDiscriminatorCSV->at(j));
-// float this_CSV_value = ntuple->Jets_bDiscriminatorCSV->at(j);
-float this_CSV_value = ntuple->Jets_bJetTagDeepCSVprobb->at(j)+ntuple->Jets_bJetTagDeepCSVprobbb->at(j) ;
-JetsBCan_bDiscriminatorCSV.push_back(this_CSV_value);
+  if (MaybeHiggs_AbsMass.size()>0) {
+    //int size = (int)MaybeHiggs_AbsMass.size();
+    auto min = min_element(MaybeHiggs_AbsMass.begin(),MaybeHiggs_AbsMass.end());
+    int min_pos = distance(MaybeHiggs_AbsMass.begin(),min);
+    //std::cout<<"Jet pairing with mass closest to Higgs has mass of: "<< MaybeHiggs_mass[min_pos]<<std::endl;
+    DasMass = MaybeHiggs_mass[min_pos];
+  }
+  else{
+    //finally what if there are no tags? Just take two AK4 Jets and build the mass
+    if (Jets.size()>1) {
+      ResolvedCandidate=Jets.at(0)+Jets.at(1);
+      DasMass = ResolvedCandidate.M();
+    }
 
-if (this_CSV_value > CSVBtagLoose) BTagsL++;
-if (this_CSV_value > CSVBtagMed)   BTagsM++;
-if (this_CSV_value > CSVBtagTight) BTagsT++;
+  }
+  if (MedTags.size()>=2	|| Jets.size()>1)return DasMass;
+  else return -999.;
+  //	}
 }
 
-if ( (JetsBCan.size()==4 || JetsBCan.size()==5) && BTagsT>=2) {
-resBool1 = 1;
+double BuildBCombinations( vector<TLorentzVector> Jets, std::vector<unsigned int >LooseTags, std::vector<unsigned int >MedTags,std::vector<unsigned int >TightTags) {
+  //	if (nBoostedCandidates==1) {
+  TLorentzVector tempLead;
+  TLorentzVector tempSubLead;
+  //Highest Purity b-tags
+  for (unsigned int t=0; t<TightTags.size(); ++t) {
+    unsigned int jetindex=TightTags.at(t);
+    if (t==0) tempLead=Jets.at(jetindex);
+    if (t==1) tempSubLead=Jets.at(jetindex); //Tight-Tight bb candidates
+    if (t>1)break;
+  }
+  if (TightTags.size()<2) {
+    for (unsigned int m=0; m<MedTags.size(); ++m) {
+      unsigned int jetindex=MedTags[m];
 
-//BTags requirement and nJets>=4 already in baseline
-double HighestValuesTest[] = {-11,-11,-11,-11};
-int IndicesTest[] = {-1,-1,-1,-1};
-for(unsigned int j=0; j<JetsBCan.size();++j){
-double *current_min = min_element(HighestValuesTest,HighestValuesTest+4);
-int min_pos = distance(HighestValuesTest,min_element(HighestValuesTest,HighestValuesTest+4));
-double *CSVofJet = &(JetsBCan_bDiscriminatorCSV.at(j));
-if (*CSVofJet > *current_min){
-HighestValuesTest[min_pos] = *CSVofJet;
-IndicesTest[min_pos] = j;
+      if (m==0 && MedTags.size()==0) tempLead=Jets.at(jetindex);
+      if (m==0 && MedTags.size()==1) tempSubLead=Jets.at(jetindex); //Tight-Medium bb candidates
+      if (m==1 && MedTags.size()==0) tempSubLead=Jets.at(jetindex); //Medium-Medium bb candidates
+      if (m>1)break;
+    }
+  }
+  if (TightTags.size()<1 && MedTags.size()<1) { //don't have at least 1 Medium or 1 Tight Tag
+  for (unsigned int l=0; l<LooseTags.size(); ++l) {
+    unsigned int jetindex=LooseTags[l];
+    if (l>1)break;
+    if (l==1 && (MedTags.size()==1 || TightTags.size()==1 )) tempSubLead=Jets.at(jetindex); //Medium-Loose bb candidate
+    if (TightTags.size()>0) continue;
+    if (MedTags.size()>0) continue;
+    if (MedTags.size()==0 && l==0) tempLead=Jets.at(jetindex);
+    if (l==1) tempSubLead=Jets.at(jetindex); //Loose-Loose bb candidates
+  }
 }
-} //end loop to find jets with 4 highest CSV
-//Save CSV values for problem-solving things
-std::sort(HighestValuesTest, HighestValuesTest+4, std::greater<double>());
-CSV_leading = HighestValuesTest[0];
-CSV_subleading = HighestValuesTest[1];
-CSV_3leading = HighestValuesTest[2];
-CSV_4leading = HighestValuesTest[3];
-
-//cout<<"Test: "<<CSV_leading<<", "<<CSV_subleading<<", "<<CSV_3leading<<", "<<CSV_4leading<<endl;
-//loop through candidate combinations
-TLorentzVector JetComboTest1a = JetsBCan[IndicesTest[0]]+JetsBCan[IndicesTest[1]];
-TLorentzVector JetComboTest1b = JetsBCan[IndicesTest[2]]+JetsBCan[IndicesTest[3]];
-TLorentzVector JetComboTest2a = JetsBCan[IndicesTest[0]]+JetsBCan[IndicesTest[2]];
-TLorentzVector JetComboTest2b = JetsBCan[IndicesTest[1]]+JetsBCan[IndicesTest[3]];
-TLorentzVector JetComboTest3a = JetsBCan[IndicesTest[0]]+JetsBCan[IndicesTest[3]];
-TLorentzVector JetComboTest3b = JetsBCan[IndicesTest[1]]+JetsBCan[IndicesTest[2]];
-
-double MassDiff1 = abs(JetComboTest1a.M()-JetComboTest1b.M());
-double MassDiff2 = abs(JetComboTest2a.M()-JetComboTest2b.M());
-double MassDiff3 = abs(JetComboTest3a.M()-JetComboTest3b.M());
-double MassAvg1 = (JetComboTest1a.M()+JetComboTest1b.M())/2;
-double MassAvg2 = (JetComboTest2a.M()+JetComboTest2b.M())/2;
-double MassAvg3 = (JetComboTest3a.M()+JetComboTest3b.M())/2;
-double deltaR1 = -1;
-double deltaR2 = -1;
-//Find smallest mass difference of the 3 candidates
-if (MassDiff1<MassDiff2 && MassDiff1<MassDiff3){
-double deltaEta1 = (JetsBCan[IndicesTest[0]].Eta()-JetsBCan[IndicesTest[1]].Eta());
-double deltaPhi1 = CalcdPhi(JetsBCan[IndicesTest[0]].Phi(),JetsBCan[IndicesTest[1]].Phi());
-double deltaEta2 = (JetsBCan[IndicesTest[2]].Eta()-JetsBCan[IndicesTest[3]].Eta());
-double deltaPhi2 = CalcdPhi(JetsBCan[IndicesTest[2]].Phi(),JetsBCan[IndicesTest[3]].Phi());
-deltaR1 = sqrt((deltaEta1*deltaEta1)+(deltaPhi1*deltaPhi1));
-deltaR2 = sqrt((deltaEta2*deltaEta2)+(deltaPhi2*deltaPhi2));
-deltaR_max = max(deltaR1, deltaR2);
-if (abs(MassDiff1)<40) { resBool2 = 1;
-if (deltaR_max<2.2) { resBool3 = 1;
-if (MassAvg1>100 && MassAvg1<=140){ resBool4 = 1;
-if ( (BTagsT>=2 && BTagsM==3 && BTagsL==3) || (BTagsT>=2 && BTagsM>=3 && BTagsL>=4) ) { resBool5 = 1;
-if (BTagsT>=2 && BTagsM>=3 && BTagsL>=4){ resBool6 = 1;
-
-if (MET_ntuple>200){ resBool7 = 1;
-if (MET_ntuple>300){ resBool8 = 1;
-if (MET_ntuple>450){ resBool9 = 1;
-}//end resbool9
-}	//end resbool8
-}//end resbool7
-} //end resbool6
-} //end resBool5
-} //end res bool 4
-} //end resbool3
-}//end resbool2
+TLorentzVector ResolvedCandidate;
+if (TightTags.size()+MedTags.size()>2) {//have at least 2 b-tags
+  ResolvedCandidate=tempLead+tempSubLead;
 }
-else if (MassDiff2<MassDiff1 && MassDiff2<MassDiff3){
-double deltaEta1 = (JetsBCan[IndicesTest[0]].Eta()-JetsBCan[IndicesTest[2]].Eta());
-double deltaPhi1 = CalcdPhi(JetsBCan[IndicesTest[0]].Phi(),JetsBCan[IndicesTest[2]].Phi());
-double deltaEta2 = (JetsBCan[IndicesTest[1]].Eta()-JetsBCan[IndicesTest[3]].Eta());
-double deltaPhi2 = CalcdPhi(JetsBCan[IndicesTest[1]].Phi(),JetsBCan[IndicesTest[3]].Phi());
-deltaR1 = sqrt((deltaEta1*deltaEta1)+(deltaPhi1*deltaPhi1));
-deltaR2 = sqrt((deltaEta2*deltaEta2)+(deltaPhi2*deltaPhi2));
-deltaR_max = max(deltaR1, deltaR2);
-if (abs(MassDiff2)<40) { resBool2 = 1;
-if (deltaR_max<2.2) { resBool3 = 1;
-if (MassAvg2>100 && MassAvg2<=140){ resBool4 = 1;
-if ( (BTagsT>=2 && BTagsM==3 && BTagsL==3) || (BTagsT>=2 && BTagsM>=3 && BTagsL>=4) ) { resBool5 = 1;
-if (BTagsT>=2 && BTagsM>=3 && BTagsL>=4){ resBool6 = 1;
-if (MET_ntuple>200){ resBool7 = 1;
-if (MET_ntuple>300){ resBool8 = 1;
-if (MET_ntuple>450){ resBool9 = 1;
-}//end resbool9
-}	//end resbool8
-}//end resbool7
-} //end resbool6
-} //end resBool5
-} //end res bool 4
-} //end resbool3
-}//end resbool2
+else{
+  //finally what if there are no tags? Just take two AK4 Jets and build the mass
+  if (Jets.size()>1) {
+    ResolvedCandidate=Jets.at(0)+Jets.at(1);
+  }
+
 }
-else if (MassDiff3<MassDiff1 && MassDiff3<MassDiff2){
-double deltaEta1 = (JetsBCan[IndicesTest[0]].Eta()-JetsBCan[IndicesTest[3]].Eta());
-double deltaPhi1 = CalcdPhi(JetsBCan[IndicesTest[0]].Phi(),JetsBCan[IndicesTest[3]].Phi());
-double deltaEta2 = (JetsBCan[IndicesTest[1]].Eta()-JetsBCan[IndicesTest[2]].Eta());
-double deltaPhi2 = CalcdPhi(JetsBCan[IndicesTest[1]].Phi(),JetsBCan[IndicesTest[2]].Phi());
-deltaR1 = sqrt((deltaEta1*deltaEta1)+(deltaPhi1*deltaPhi1));
-deltaR2 = sqrt((deltaEta2*deltaEta2)+(deltaPhi2*deltaPhi2));
-deltaR_max = max(deltaR1, deltaR2);
-if (abs(MassDiff3)<40) { resBool2 = 1;
-if (deltaR_max<2.2) { resBool3 = 1;
-if (MassAvg3>100 && MassAvg3<=140){ resBool4 = 1;
-if ( (BTagsT>=2 && BTagsM==3 && BTagsL==3) || (BTagsT>=2 && BTagsM>=3 && BTagsL>=4) ) { resBool5 = 1;
-if (BTagsT>=2 && BTagsM>=3 && BTagsL>=4){ resBool6 = 1;
-if (MET_ntuple>200){ resBool7 = 1;
-if (MET_ntuple>300){ resBool8 = 1;
-if (MET_ntuple>450){ resBool9 = 1;
-}//end resbool9
-}	//end resbool8
-}//end resbool7
-} //end resbool6
-} //end resBool5
-} //end res bool 4
-} //end resbool3
-}//end resbool2
-}
-}  //end resBool1, nJets 4-6
-
-} //end resBool1, baseline selection
-*/
-
-newtree->Fill();
-boostBool1 = 0;
-boostBool2 = 0;
-boostBool3 = 0;
-boostBool4 = 0;
-boostBool5 = 0;
-boostBool6 = 0;
-boostBool7 = 0;
-
-resBool1 = 0;
-resBool2 = 0;
-resBool3 = 0;
-resBool4 = 0;
-resBool5 = 0;
-resBool6 = 0;
-resBool7 = 0;
-resBool8 = 0;
-resBool9 = 0;
-} //end event loop
-
-
-outputFile->cd();
-newtree->Write(skims.sampleName[iSample]);
-delete newtree;
-} //end sample loop
-outputFile->Close();
-
-return 0;
+//	if (TightTags.size()+MedTags.size()+LooseTags.size()>2   || Jets.size()>1)std::cout<<"Mass of Candidate "<<ResolvedCandidate.M()<<std::endl;
+if (TightTags.size()+MedTags.size()+LooseTags.size()>=2	|| Jets.size()>1)return ResolvedCandidate.M();
+else return -999.;
+//	}
 }

@@ -13,7 +13,8 @@
 
 using namespace std;
 
-double lumi=35862.824;
+// double lumi=35862.824;
+double lumi=137000.000;
 
 template <typename ntupleType> class plot{
 
@@ -191,26 +192,15 @@ public:
     void Write(){
 
         for( typename map<ntupleType*,TH1F*>::iterator it = histoMap.begin() ;
-             it != histoMap.end() ;
-             ++it ){
-            if( it->second )
-                it->second->Write();
-
+             it != histoMap.end(); ++it ){
+            if( it->second ) it->second->Write();
         }
 
         for( typename map<ntupleType*,TH1F*>::iterator it = signalHistoMap.begin() ;
-             it != signalHistoMap.end() ;
-             ++it ){
-            if( it->second )
-                it->second->Write();
+             it != signalHistoMap.end(); ++it ){
+            if( it->second ) it->second->Write();
         }
-        // if( dataHist ){
-        // cout<<"trying this 3"<<endl;
-        //     dataHist->Write();
-        //     cout<<"succeeded at 3"<<endl;
-        //
-        //   }
-
+        // if( dataHist ) dataHist->Write();
     };
 
     void DrawNoRatio(TCanvas* can,

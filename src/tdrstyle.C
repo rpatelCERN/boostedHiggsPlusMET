@@ -4,7 +4,6 @@
 // setTDRStyle()
 //
 #include "TStyle.h"
-#include "TPad.h"
 
 TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 
@@ -22,7 +21,7 @@ void fixOverlay() {
 }
 
 void setTDRStyle() {
-
+  
   // For the canvas:
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetCanvasColor(kWhite);
@@ -62,7 +61,7 @@ void setTDRStyle() {
   gStyle->SetEndErrorSize(2);
   //gStyle->SetErrorMarker(20);
   gStyle->SetErrorX(0.);
-
+  
   gStyle->SetMarkerStyle(7);
 
   //For the fit/function:
@@ -151,7 +150,7 @@ void setTDRStyle() {
   gStyle->SetOptLogz(0);
 
   // Postscript options:
-
+  
   gStyle->SetPaperSize(20.,20.);
   // gStyle->SetLineScalePS(Float_t scale = 3);
   // gStyle->SetLineStyleString(Int_t i, const char* text);
