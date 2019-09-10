@@ -5,10 +5,10 @@ classes to facilitate some things.
 
 #### Setting up the code:
 <pre>
-cmsrel CMSSW_7_4_2
-cd CMSSW_7_4_2/src/
+cmsrel CMSSW_8_1_0
+cd CMSSW_8_1_0/src/
 cmsenv
-git clone -b Higgsino https://github.com/awhitbeck/boostedHiggsPlusMET.git
+git clone -b HiggsinoCombination https://github.com/awhitbeck/boostedHiggsPlusMET.git
 </pre>
 
 NEEDS UPDATING
