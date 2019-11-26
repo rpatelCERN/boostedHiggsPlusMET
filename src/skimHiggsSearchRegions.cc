@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
 							if (ntuple->JetsAK8_prunedMass->at(0)>50. &&  ntuple->JetsAK8_prunedMass->at(0)<250. && ntuple->JetsAK8_prunedMass->at(1)>50. &&  ntuple->JetsAK8_prunedMass->at(1)<250.) {
 								boostBool5 = 1;
 
-								if (ntuple->JetsAK8_doubleBDiscriminator->at(0)>bbtagCut && ntuple->JetsAK8_doubleBDiscriminator->at(1)>bbtagCut) {
+								if (ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(0)>bbtagCut && ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(1)>bbtagCut) {
 									boostBool6 = 1;
 
 									if (ntuple->JetsAK8_prunedMass->at(0)>85. &&  ntuple->JetsAK8_prunedMass->at(0)<135. && ntuple->JetsAK8_prunedMass->at(1)>85. &&  ntuple->JetsAK8_prunedMass->at(1)<135.) {
