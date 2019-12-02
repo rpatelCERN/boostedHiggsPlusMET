@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
 		double CSV_3leading = 0; double CSV_4leading = 0;
 		int BTagsL = 0; int BTagsM = 0; int BTagsT = 0;
 		double deltaR_max = 0;
-
+		
 
 		TBranch *b_MET, *b_HT;
 		TBranch *b_BTags, *b_Weight;
@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
 
 
 
-		float bbtagCut=0.3;
+		float bbtagCut=0.7;
 		TString filename = ntuple->fChain->GetFile()->GetName();
 		//for ( int iEvt = 0 ; iEvt < 1000 ; iEvt++ ) {
 		for ( int iEvt = 0 ; iEvt < numEvents ; iEvt++ ) {
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
 			float trigWeight=1.0;
 			std::vector<double> EfficiencyCenterUpDown = Eff_MetMhtSextetReal_CenterUpDown(ntuple->HT, ntuple->MHT, ntuple->NJets);
 			trigWeight=EfficiencyCenterUpDown[0];
-			Weight_ntuple = ntuple->Weight*trigWeight*customPUweights(ntuple); //do I want this or no??
+			Weight_ntuple = ntuple->Weight;//*trigWeight*customPUweights(ntuple); //do I want this or no??
 			//Weight_ntuple = ntuple->Weight*trigWeight;
 
 			JetsBCan.clear();
@@ -182,13 +182,13 @@ int main(int argc, char** argv) {
 						if (ntuple->JetsAK8->at(0).Pt()>300. && ntuple->JetsAK8->at(1).Pt()>300. ) {
 							boostBool4 = 1;
 
-							if (ntuple->JetsAK8_prunedMass->at(0)>50. &&  ntuple->JetsAK8_prunedMass->at(0)<250. && ntuple->JetsAK8_prunedMass->at(1)>50. &&  ntuple->JetsAK8_prunedMass->at(1)<250.) {
+							if (ntuple->JetsAK8_softDropMass->at(0)>50. &&  ntuple->JetsAK8_softDropMass->at(0)<250. && ntuple->JetsAK8_softDropMass->at(1)>50. &&  ntuple->JetsAK8_softDropMass->at(1)<250.) {
 								boostBool5 = 1;
 
 								if (ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(0)>bbtagCut && ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(1)>bbtagCut) {
 									boostBool6 = 1;
 
-									if (ntuple->JetsAK8_prunedMass->at(0)>85. &&  ntuple->JetsAK8_prunedMass->at(0)<135. && ntuple->JetsAK8_prunedMass->at(1)>85. &&  ntuple->JetsAK8_prunedMass->at(1)<135.) {
+									if (ntuple->JetsAK8_softDropMass->at(0)>85. &&  ntuple->JetsAK8_softDropMass->at(0)<135. && ntuple->JetsAK8_softDropMass->at(1)>85. &&  ntuple->JetsAK8_softDropMass->at(1)<135.) {
 										boostBool7 = 1;
 									} //end boostbool 7
 								} // end boostbool 6
@@ -199,7 +199,6 @@ int main(int argc, char** argv) {
 				} //end boostBool2
 			} //end boostBool1
 
-			/*
 			//cutflow for resolved
 			if (resolvedBaselineCut(ntuple)) {
 			// resBool1 = 1;
@@ -368,7 +367,6 @@ if (MET_ntuple>450){ resBool9 = 1;
 }  //end resBool1, nJets 4-6
 
 } //end resBool1, baseline selection
-*/
 
 newtree->Fill();
 boostBool1 = 0;

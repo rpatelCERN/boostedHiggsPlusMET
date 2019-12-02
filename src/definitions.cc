@@ -32,6 +32,8 @@ template<typename ntupleType>void ntupleBranchStatus(ntupleType* ntuple){
   ntuple->fChain->SetBranchStatus("*",0);
   ntuple->fChain->SetBranchStatus("Muons",1);
   ntuple->fChain->SetBranchStatus("Electrons",1);
+  ntuple->fChain->SetBranchStatus("NMuons",1);
+  ntuple->fChain->SetBranchStatus("NElectrons",1);
   //ntuple->fChain->SetBranchStatus("isoElectronTracksclean",1);
   //ntuple->fChain->SetBranchStatus("isoMuonTracksclean",1);
   //ntuple->fChain->SetBranchStatus("isoPionTracksclean",1);
@@ -57,6 +59,7 @@ template<typename ntupleType>void ntupleBranchStatus(ntupleType* ntuple){
 
   ntuple->fChain->SetBranchStatus("JetsAK8*",1);
   ntuple->fChain->SetBranchStatus("Jets*",1);
+  ntuple->fChain->SetBranchStatus("Jets_bJetTagDeepCSVBvsAll",1);
   ntuple->fChain->SetBranchStatus("Weight",1);
   //ntuple->fChain->SetBranchStatus("puWeightNew",1);
   ntuple->fChain->SetBranchStatus("TrueNumInteractions",1);
@@ -1204,15 +1207,18 @@ template<typename ntupleType> bool AK8JetLooseMassCut(ntupleType* ntuple){
 
 template<typename ntupleType> bool baselineCut(ntupleType* ntuple){
 
-  return (
-           ntuple->MET > 300. && ntuple->HT > 300.  &&
+  return ( 
+           ntuple->MET > 300. && ntuple->HT > 300. 
            //ntuple->MET > 150. && (ntuple->BTags>=2 || ntuple->JetsAK8->size()>0  ) &&
            // ntuple->NJets > 1 &&
-           DeltaPhiCuts(ntuple) &&
-           ntuple->Muons->size()+ntuple->Electrons->size()==0
-           && ntuple->isoElectronTracks+ntuple->isoMuonTracks+ntuple->isoPionTracks==0 &&
-           FiltersCut(ntuple) &&
-           ntuple->JetID == 1);
+           //
+           && DeltaPhiCuts(ntuple) 
+           //&&
+           && ntuple->NMuons+ntuple->NElectrons==0
+           && ntuple->isoElectronTracks+ntuple->isoMuonTracks+ntuple->isoPionTracks==0 
+           && FiltersCut(ntuple)
+          && ntuple->JetID == 1
+	  );
 
 }
 
@@ -1231,13 +1237,18 @@ template<typename ntupleType> bool boostedBaselineCut(ntupleType* ntuple){
 }
 
 template<typename ntupleType> bool resolvedBaselineCut(ntupleType* ntuple) {
-
+  int BtagsT=0;
+  for (unsigned int j=0;j<ntuple->Jets_bJetTagDeepCSVBvsAll->size(); ++j){
+        if(ntuple->Jets->at(j).Pt()<30 || fabs(ntuple->Jets->at(j).Eta())>2.4) continue;
+	if(ntuple->Jets_bJetTagDeepCSVBvsAll->at(j)>0.8953)++BtagsT;	
+  }
   return (
-    ntuple->Muons->size()+ntuple->Electrons->size()==0 &&
-    ntuple->NJets>3 && ntuple->BTags>=2 && ntuple->MET > 150. &&
+    ntuple->NMuons+ntuple->NElectrons==0 &&
+    ntuple->NJets>3 && ntuple->NJets<6 && ntuple->MET > 150. &&
     ntuple->isoElectronTracks+ntuple->isoMuonTracks+ntuple->isoPionTracks==0 &&
     DeltaPhiCuts(ntuple) &&
-    FiltersCut(ntuple) &&
+    //FiltersCut(ntuple) && 
+    BtagsT>1 &&
     ntuple->JetID == 1);
 }
 
