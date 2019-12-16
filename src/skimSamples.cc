@@ -7,8 +7,8 @@
 #include <iostream>
 #include <vector>
 
-static const TString BASE_DIR="/eos/uscms/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV17/";
-//static const TString BASE_DIR="root://cmseos.fnal.gov//store/user/rgp230/SUSY/TChiHHV17/Skims/Run2ProductionV18a/";
+//static const TString BASE_DIR="/eos/uscms/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV17/";
+static const TString BASE_DIR="root://cmseos.fnal.gov//store/user/rgp230/SUSY/TChiHHV17/Skims/Run2ProductionV18a/";
 // static const TString BASE_DIR="/eos/uscms/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV16/tree_signal";
 // static const TString BASE_DIR="/mnt/hadoop/store/user/aperloff/SusyRA2Analysis2015/Skims/Run2ProductionV12/tree_signal";
 
@@ -76,8 +76,8 @@ class skimSamples {
       ZJets->Add(skimType+"/"+ZJetsFileNames[i]);
     }
     if( r == kSignal || r == kLowDphi ){
-     // ntuples.push_back(new RA2bTree(ZJets));//Need this one
-     // sampleName.push_back("ZJets");
+      ntuples.push_back(new RA2bTree(ZJets));//Need this one
+      sampleName.push_back("ZJets");
       fillColor.push_back(kGreen+1);
       lineColor.push_back(1);
     }
@@ -96,8 +96,8 @@ class skimSamples {
       WJets->Add(skimType+"/"+WJetsFileNames[i]);
     }
     if( r == kSignal || r == kSLm || r == kSLe || r == kLowDphi ){
-      // ntuples.push_back(new RA2bTree(WJets));//Need this one
-      //sampleName.push_back("WJets");
+       ntuples.push_back(new RA2bTree(WJets));//Need this one
+      sampleName.push_back("WJets");
       fillColor.push_back(kBlue);
       lineColor.push_back(1);
     }
@@ -153,8 +153,8 @@ class skimSamples {
       TT->Add(skimType+"/"+TTFileNames[i]);
     }
     if( r == kSignal || r == kSLm || r == kSLe || r == kLowDphi ){
-     // ntuples.push_back(new RA2bTree(TT));//Need this one
-     //  sampleName.push_back("TT");
+      ntuples.push_back(new RA2bTree(TT));//Need this one
+       sampleName.push_back("TT");
       fillColor.push_back(kCyan);
       lineColor.push_back(kCyan);
     }
