@@ -1262,8 +1262,8 @@ template<typename ntupleType> bool baselineCut(ntupleType* ntuple){
            //&&
            && ntuple->NMuons+ntuple->NElectrons==0
            && ntuple->isoElectronTracks+ntuple->isoMuonTracks+ntuple->isoPionTracks==0 
-          //&& FiltersCut(ntuple)
-         //&& ntuple->JetID == 1 
+          && FiltersCut(ntuple)
+         && ntuple->JetID == 1 
 	/*
               ntuple->HT > 600. &&
                ntuple->JetsAK8->size() >= 2 &&
