@@ -166,7 +166,7 @@ int main(int argc, char** argv) {
 			if(skims.sampleName[iSample]=="QCD") trigWeight=trigcorrorFakeMHT.GetCorrection(ntuple->MHT,trigunc);
 			//trigcorror.SetEff("../data/triggersRa2bRun2_v2_withTEffs.root","hPassMhtMet6packVsHTFromSingleEl_effRun2016");
 			//trigWeight=trigWeight*trigcorror.GetCorrection(ntuple->HT,trigunc);
-			Weight_ntuple = ntuple->Weight*trigWeight;//*customPUweights(ntuple); //do I want this or no??
+			Weight_ntuple = ntuple->Weight;//*trigWeight;//*customPUweights(ntuple); //do I want this or no??
 			//if(MET_ntuple<170)cout<<" Trigger weight low MET "<<trigWeight<<std::endl;
 			//Weight_ntuple = ntuple->Weight*trigWeight;
 

@@ -1181,17 +1181,16 @@ template<typename ntupleType> bool RA2bBaselineCut(ntupleType* ntuple){
 }
 
 template<typename ntupleType> bool FiltersCut(ntupleType* ntuple){
-  return ntuple->NVtx>0 && ntuple->MET/ntuple->CaloMET < 5. && ntuple->LowNeutralJetFilter==1 && ntuple->HTRatioDPhiTightFilter==1 && ntuple->HBHENoiseFilter==1 && ntuple->HBHEIsoNoiseFilter==1;//ntuple->FakeJetFilter==1;	
-	//ntuple->NVtx>0 &&
-      //ntuple->MET/ntuple->CaloMET < 5. &&
-      //ntuple->LowNeutralJetFilter==1 && ntuple->HTRatioDPhiTightFilter==1 && ntuple->FakeJetFilter==1);
-     //ntuple->HBHENoiseFilter==1 &&
-      //ntuple->HBHEIsoNoiseFilter==1 &&
-     // ntuple->eeBadScFilter==1 &&
-      // ntuple->EcalDeadCellTriggerPrimitiveFilter == 1 &&
-     // ntuple->BadPFMuonFilter == 1 &&
+      return  
+	ntuple->NVtx>0 && ntuple->MET/ntuple->CaloMET < 5. 
+	&& ntuple->LowNeutralJetFilter==1 && ntuple->HTRatioDPhiTightFilter==1 
+	&& ntuple->HBHENoiseFilter==1 && ntuple->HBHEIsoNoiseFilter==1 && //&&ntuple->FakeJetFilter==1;	
+       ntuple->eeBadScFilter==1 &&
+       ntuple->EcalDeadCellTriggerPrimitiveFilter == 1 &&
+       ntuple->BadPFMuonFilter == 1 &&
       //ntuple->BadChargedCandidateFilter == 1;
-      //ntuple->globalSuperTightHalo2016Filter==1 &&
+       ntuple->globalSuperTightHalo2016Filter==1 
+       && ntuple->METRatioFilter==1;
 }
 
 template<typename ntupleType> bool AK8MultCut(ntupleType* ntuple){
@@ -1253,6 +1252,7 @@ template<typename ntupleType> bool AK8JetLooseMassCut(ntupleType* ntuple){
 
 template<typename ntupleType> bool baselineCut(ntupleType* ntuple){
   //if(FiltersCut(ntuple))std::cout<<"Pass MET Filters "<<std::endl;
+
   return ( 
            ntuple->MET > 150. && ntuple->HT > 0. 
            //ntuple->MET > 150. && (ntuple->BTags>=2 || ntuple->JetsAK8->size()>0  ) &&
