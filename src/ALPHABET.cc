@@ -15,7 +15,8 @@
 #include "definitions.cc"
 #include "RA2bTree.cc"
 #include "ALPHABET.h"
-#include "TriggerEfficiencySextet.cc"
+//#include "TriggerEfficiencySextet.cc"
+#include "TriggerCorrector.h"
 
 using namespace std;
 using namespace alphabet;
@@ -24,7 +25,9 @@ int main(int argc, char** argv){
 
     int region(0);
     bool looseCuts(false);
+    //int MAX_EVENTS(99999999999999);
     int MAX_EVENTS(99999999);
+//int MAX_EVENTS(10000);
 
     region = atoi(argv[1]);
     // if( argc >= 2 ){
@@ -39,12 +42,19 @@ int main(int argc, char** argv){
     gROOT->ProcessLine(".L tdrstyle.C");
     gROOT->ProcessLine("setTDRStyle()");
     TString Year(argv[2]);
+    TriggerCorrector trigcorror;
+    TriggerCorrector trigcorrorHT;
+    TriggerCorrector trigcorrorFakeMHT;
+    trigcorror.SetEff("../data/triggersRa2bRun2_v2_withTEffs.root","hPassMhtMet6packVsMHTFromSingleEl_effRun2016");
+    trigcorrorFakeMHT.SetEff("../data/triggersRa2bRun2_v2_withTEffs.root","hPassMhtMet6packVsMHTFromSinglePho_effRun2016");
+    trigcorrorHT.SetEff("../data/triggersRa2bRun2_v2_withTEffs.root","hPassMhtMet6packVsHTFromSingleEl_effRun2016");
 
     skimSamples* skims_;
     if( region == 0 ) skims_ = new skimSamples(skimSamples::kSignal, Year);
     else if( region == 1 ) skims_ = new skimSamples(skimSamples::kSLm, Year);
     else if( region == 2 ) skims_ = new skimSamples(skimSamples::kSLe, Year);
     else if( region == 3 ) skims_ = new skimSamples(skimSamples::kLowDphi, Year);
+    else if( region == 4 ) skims_ = new skimSamples(skimSamples::kPhoton, Year);
     else assert(1);
 
     typedef bool(*cuts)(RA2bTree*);
@@ -69,7 +79,7 @@ int main(int argc, char** argv){
     }
     else {
         if( region == 0 ){
-          // baselineCuts.push_back(*baselineCut<RA2bTree>);
+        //   baselineCuts.push_back(*baselineCut<RA2bTree>);
           baselineCuts.push_back(*boostedBaselineCut<RA2bTree>);
         }
         else if( region == 1){
@@ -81,6 +91,10 @@ int main(int argc, char** argv){
         else if( region == 3){
             baselineCuts.push_back(*lowDphiBaselineCut<RA2bTree>);
         }
+	else if(region==4){
+            baselineCuts.push_back(*photonBaselineCut<RA2bTree>);
+		//std::cout<<"Single Photon "<<std::endl;
+	}
         else assert(1);
     }
 
@@ -89,7 +103,7 @@ int main(int argc, char** argv){
     typedef plot<RA2bTree> plot;
 
     double mJbins[4]={50.,85.,135.,250.};
-    double METbins[4]={300.,500.,700.,1000.};
+    double METbins[6]={150,200,300.,500.,700.,1000.};
     vector<vector<plot> > plots;
 
     for( int i = 0 ; i < numMETbins ; i++ ) {
@@ -107,7 +121,7 @@ int main(int argc, char** argv){
 
     //vector<plot> tempPlots;
     // plot MET_Plot(*fillMET<RA2bTree>,"MET","m_{J} [GeV]",3,100,700);
-    plot MET_Plot(*fillMET<RA2bTree>,"MET","m_{J} [GeV]",3,METbins);
+    plot MET_Plot(*fillMET<RA2bTree>,"MET","m_{J} [GeV]",5,METbins);
     plot J1pt_Ptplot(*fillLeadingJetPt<RA2bTree>,"J1pt_Pt","p_{T,J} [GeV]",50,300.,1300.);
     plot J2pt_Ptplot(*fillSubLeadingJetPt<RA2bTree>,"J2pt_Pt","p_{T,J} [GeV]",50,300.,1300.);
     plot J1pt_Mplot(*fillLeadingJetMass<RA2bTree>,"J1pt_M","m_{J} [GeV]",50,50.,250.);
@@ -224,6 +238,7 @@ int main(int argc, char** argv){
         int bin = -1;
         double weight=0.;
         float trigWeight=1.0;
+	float trigunc=0;
         bool passBaseline;
         double jetMass1,jetMass2;
         TString filename;
@@ -234,51 +249,71 @@ int main(int argc, char** argv){
         else if ( filename.Contains("2017") ) this_lumi = 41529.0;
         else if ( filename.Contains("2018") ) this_lumi = 59740.0;
 
-        // for( int iEvt = 0 ; iEvt < 50000 ; iEvt++ ){
+        //for( int iEvt = 0 ; iEvt < 50000 ; iEvt++ ){
         for( int iEvt = 0 ; iEvt < numEvents ; iEvt++ ){
-          // for( int iEvt = 0 ; iEvt < min(MAX_EVENTS,numEvents) ; iEvt++ ){
+           //for( int iEvt = 0 ; iEvt < min(MAX_EVENTS,numEvents) ; iEvt++ ){
             ntuple->GetEntry(iEvt);
             if( iEvt % 10000 == 0 ) cout << skims.sampleName[iSample] << ": " << iEvt << "/" << min(MAX_EVENTS,numEvents) << endl;
 
             if(region==0){
-                std::vector<double> EfficiencyCenterUpDown = Eff_MetMhtSextetReal_CenterUpDown(ntuple->HT, ntuple->MHT, ntuple->NJets);
-                trigWeight=EfficiencyCenterUpDown[0];
+		trigWeight=trigcorror.GetCorrection(ntuple->MHT,trigunc);
+		trigWeight=trigWeight*trigcorrorHT.GetCorrection(ntuple->HT,trigunc);
+		if(skims.sampleName[iSample]=="QCD") trigWeight=trigcorrorFakeMHT.GetCorrection(ntuple->MHT,trigunc);
+               // std::vector<double> EfficiencyCenterUpDown = Eff_MetMhtSextetReal_CenterUpDown(ntuple->HT, ntuple->MHT, ntuple->NJets);
+              //  trigWeight=EfficiencyCenterUpDown[0];
             }else if( region == 1 ){
-                trigWeight=singleMuonTrigWeights(ntuple);
+                //trigWeight=singleMuonTrigWeights(ntuple);
+		trigWeight=trigcorror.GetCorrection(ntuple->MHT,trigunc);
+		trigWeight=trigWeight*trigcorrorHT.GetCorrection(ntuple->HT,trigunc);
             }else if( region == 2 ){
-                trigWeight=singleElectronTrigWeights(ntuple);
+                //trigWeight=singleElectronTrigWeights(ntuple);
+		trigWeight=trigcorror.GetCorrection(ntuple->MHT,trigunc);
+		trigWeight=trigWeight*trigcorrorHT.GetCorrection(ntuple->HT,trigunc);
             }else if( region == 3 ){
-                trigWeight=lowDphiTrigWeights(ntuple);
+		 if(skims.sampleName[iSample]!="QCD"){
+		trigWeight=trigcorror.GetCorrection(ntuple->MHT,trigunc);
+		trigWeight=trigWeight*trigcorrorHT.GetCorrection(ntuple->HT,trigunc);
+		}
+		else{
+			trigWeight=1.0;
+		}
+	//	 if(skims.sampleName[iSample]=="QCD")trigWeight=trigcorrorFakeMHT.GetCorrection(ntuple->MHT,trigunc);
+
+               // trigWeight=lowDphiTrigWeights(ntuple);
             }
 
             passBaseline=true;
             for( auto baselineCut : baselineCuts ){
+		//if(!passBaseline)continue;
                 passBaseline&=baselineCut(ntuple);
             }
             if( ! passBaseline ) continue;
-
             if( ( filename.Contains("SingleLept") || filename.Contains("DiLept") ) && ntuple->madHT>600. )continue;
             bin = -1;
             //weight = ntuple->Weight*lumi*trigWeight*customPUweights(ntuple);
 
 
-            weight = ntuple->Weight*this_lumi;
+            weight = ntuple->Weight*this_lumi;//*trigWeight;
             //if( skims.sampleName[iSample] == "TT" ){
             //    weight *= ISRweights(ntuple);
             //}
             for( int iBin = 0 ; iBin < numMETbins ; iBin++ ){
+	/*
                 if( ntuple->MET > lowestMET ){
                     if( ntuple->MET > numMETbins*(binWidth-1)+lowestMET )
                         bin = numMETbins-1;
                     else
                         bin = int((ntuple->MET-lowestMET)/binWidth);
                 }
+	*/
+		if(ntuple->MET>=METbins[iBin])bin=iBin;
             }
-            if( bin < 0 ) continue;
-
-            if( tagSBLow(ntuple,0) || antitagSBLow(ntuple,0)) BBtagPlots[0].fill(ntuple,weight);
-            else if( tagSR(ntuple,0) || antitagSR(ntuple,0)) BBtagPlots[1].fill(ntuple,weight);
-            else if( tagSBHigh(ntuple,0) || antitagSBHigh(ntuple,0)) BBtagPlots[2].fill(ntuple,weight);
+           if( bin < 0 ) continue;
+	//	std::cout<<"Bin to fill MET "<<ntuple->MET<<" Bin "<<bin<<std::endl;
+	
+            //if( tagSBLow(ntuple,0) || antitagSBLow(ntuple,0)) BBtagPlots[0].fill(ntuple,weight);
+            //else if( tagSR(ntuple,0) || antitagSR(ntuple,0)) BBtagPlots[1].fill(ntuple,weight);
+            //else if( tagSBHigh(ntuple,0) || antitagSBHigh(ntuple,0)) BBtagPlots[2].fill(ntuple,weight);
 
 
             if( doubletagSRCut(ntuple) ){

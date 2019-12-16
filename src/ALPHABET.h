@@ -1,7 +1,7 @@
 namespace alphabet{
 
-    const int numMETbins=4;
-    const int lowestMET=100.;
+    const int numMETbins=5;
+    const int lowestMET=150.;
     const int binWidth=200.;
 
     //const int numMETbins=3;

@@ -15,8 +15,8 @@
 #include "skimSamples.cc"
 #include "definitions.cc"
 #include "RA2bTree.cc"
-#include "TriggerEfficiencySextet.cc"
-
+//#include "TriggerEfficiencySextet.cc"
+#include "TriggerCorrector.h"
 using namespace std;
 
 
@@ -131,7 +131,12 @@ int main(int argc, char** argv) {
 		newtree->SetBranchAddress("nGenHs",&nGenHs, &b_nGenHs);
 
 
-
+		TriggerCorrector trigcorror;
+		TriggerCorrector trigcorrorHT;
+		TriggerCorrector trigcorrorFakeMHT;
+		trigcorror.SetEff("../data/triggersRa2bRun2_v2_withTEffs.root","hPassMhtMet6packVsMHTFromSingleEl_effRun2016");
+		trigcorrorHT.SetEff("../data/triggersRa2bRun2_v2_withTEffs.root","hPassMhtMet6packVsHTFromSingleEl_effRun2016");
+		trigcorrorFakeMHT.SetEff("../data/triggersRa2bRun2_v2_withTEffs.root","hPassMhtMet6packVsMHTFromSinglePho_effRun2016");
 		float bbtagCut=0.7;
 		TString filename = ntuple->fChain->GetFile()->GetName();
 		//for ( int iEvt = 0 ; iEvt < 1000 ; iEvt++ ) {
@@ -154,9 +159,15 @@ int main(int argc, char** argv) {
 			//Adding trigger efficiency and PU weights
 			double weight=0.;
 			float trigWeight=1.0;
-			std::vector<double> EfficiencyCenterUpDown = Eff_MetMhtSextetReal_CenterUpDown(ntuple->HT, ntuple->MHT, ntuple->NJets);
-			trigWeight=EfficiencyCenterUpDown[0];
-			Weight_ntuple = ntuple->Weight;//*trigWeight*customPUweights(ntuple); //do I want this or no??
+			float trigunc=0.0;
+			//std::vector<double> EfficiencyCenterUpDown = Eff_MetMhtSextetReal_CenterUpDown(ntuple->HT, ntuple->MHT, ntuple->NJets);
+			trigWeight=trigcorror.GetCorrection(ntuple->MHT,trigunc);
+			//trigWeight=trigWeight*trigcorrorHT.GetCorrection(ntuple->HT,trigunc);
+			if(skims.sampleName[iSample]=="QCD") trigWeight=trigcorrorFakeMHT.GetCorrection(ntuple->MHT,trigunc);
+			//trigcorror.SetEff("../data/triggersRa2bRun2_v2_withTEffs.root","hPassMhtMet6packVsHTFromSingleEl_effRun2016");
+			//trigWeight=trigWeight*trigcorror.GetCorrection(ntuple->HT,trigunc);
+			Weight_ntuple = ntuple->Weight*trigWeight;//*customPUweights(ntuple); //do I want this or no??
+			//if(MET_ntuple<170)cout<<" Trigger weight low MET "<<trigWeight<<std::endl;
 			//Weight_ntuple = ntuple->Weight*trigWeight;
 
 			JetsBCan.clear();
