@@ -1254,7 +1254,7 @@ template<typename ntupleType> bool baselineCut(ntupleType* ntuple){
   //if(FiltersCut(ntuple))std::cout<<"Pass MET Filters "<<std::endl;
 
   return ( 
-           ntuple->MET > 150. && ntuple->HT > 0. 
+           ntuple->MET > 150. && ntuple->HT > 0.// && ntuple->MHT>100  
            //ntuple->MET > 150. && (ntuple->BTags>=2 || ntuple->JetsAK8->size()>0  ) &&
            // ntuple->NJets > 1 &&
            //
@@ -1262,8 +1262,8 @@ template<typename ntupleType> bool baselineCut(ntupleType* ntuple){
            //&&
            && ntuple->NMuons+ntuple->NElectrons==0
            && ntuple->isoElectronTracks+ntuple->isoMuonTracks+ntuple->isoPionTracks==0 
-          && FiltersCut(ntuple)
-         && ntuple->JetID == 1 
+          //&& FiltersCut(ntuple)
+         //&& ntuple->JetID == 1 
 	/*
               ntuple->HT > 600. &&
                ntuple->JetsAK8->size() >= 2 &&
@@ -1298,12 +1298,18 @@ template<typename ntupleType> bool resolvedBaselineCut(ntupleType* ntuple) {
         if(ntuple->Jets->at(j).Pt()<30 || fabs(ntuple->Jets->at(j).Eta())>2.4) continue;
 	if(ntuple->Jets_bJetTagDeepCSVBvsAll->at(j)>0.8953)++BtagsT;	
   }
-  return (
+  float avgMass=resAvgMass(ntuple);
+  float massDiff = resMassDiff(ntuple);
+  float deltaR = resDeltaRMax(ntuple);
+return (
     ntuple->NMuons+ntuple->NElectrons==0 &&
     ntuple->NJets>3 && ntuple->NJets<6 && ntuple->MET > 150. &&
     ntuple->isoElectronTracks+ntuple->isoMuonTracks+ntuple->isoPionTracks==0 &&
     DeltaPhiCuts(ntuple) &&
-    BtagsT>1// && 
+    BtagsT>1 && avgMass>=0.0 && avgMass<=200.0 &&
+    massDiff>=0.0 && massDiff<=40.0 &&
+    deltaR>=0.0 && deltaR<=2.2  
+    //&& 
     //FiltersCut(ntuple) && 
     //ntuple->JetID == 1
     );
@@ -1961,3 +1967,215 @@ if(ntuple->JetsAK8->at(j).Pt()>430. && ntuple->JetsAK8->at(j).Pt()<840)doubleBSF
 if(ntuple->JetsAK8->at(j).Pt()>840)doubleBSF=1.01-0.08;
 return doubleBSF;
 }
+template<typename ntupleType> int numJets(ntupleType* ntuple) { //Returns the number jets within pT and eta
+  int NJets = 0;
+  for (unsigned int j=0; j<ntuple->Jets->size();++j) {
+    if (ntuple->Jets->at(j).Pt()<30 || fabs(ntuple->Jets->at(j).Eta())>2.4) continue;
+    NJets++;
+  }
+  return NJets;
+}
+
+template<typename ntupleType> std::vector<int> numDeepBs(ntupleType* ntuple) { //Returns the number of b's based on loose, medium, and tight WPs
+  int NJets = numJets(ntuple);
+  if (NJets<4 || NJets>5) return {0,0,0};
+  double CSVBtagLoose = 0.2217;
+  double CSVBtagMed   = 0.6321;
+  double CSVBtagTight = 0.8953;
+
+  int BTagsL = 0;
+  int BTagsM = 0;
+  int BTagsT = 0;
+
+  for (unsigned int j=0; j<ntuple->Jets->size();++j) {
+    if (ntuple->Jets->at(j).Pt()<30 || fabs(ntuple->Jets->at(j).Eta())>2.4) continue;
+    float this_CSV_value = ntuple->Jets_bJetTagDeepCSVBvsAll->at(j);//ntuple->Jets_bJetTagDeepCSVprobb->at(j)+ntuple->Jets_bJetTagDeepCSVprobbb->at(j);
+    if (this_CSV_value > CSVBtagTight) {
+      BTagsT++;
+    }
+    if (this_CSV_value > CSVBtagMed) BTagsM++;
+    if (this_CSV_value > CSVBtagLoose) BTagsL++;
+  }
+  std::vector<int> thisNBs = {BTagsL, BTagsM, BTagsT};
+  return thisNBs;
+}
+
+template<typename ntupleType> std::vector<int> resHCandidates(ntupleType* ntuple) { //returns the indices for the 4 AK4 jets that make up H candidates (1,2) and (3,4)
+  vector<int> thisNBs = numDeepBs(ntuple); int numTight = thisNBs.at(2);
+  int NJets = numJets(ntuple);
+  if (NJets<4 || NJets>5 || numTight<2) return {-11,-11,-11,-11};
+  double HighestValuesTest[] = {-11.0,-11.0,-11.0,-11.0};
+  int JetIndices[] = {-1,-1,-1,-1};
+  for (unsigned int j=0; j<ntuple->Jets->size();++j) {
+    if (ntuple->Jets->at(j).Pt()<30 || fabs(ntuple->Jets->at(j).Eta())>2.4) continue;
+    // double *current_min = min_element(HighestValuesTest,HighestValuesTest+4);
+    // int min_pos = distance(HighestValuesTest,min_element(HighestValuesTest,HighestValuesTest+4));
+    // // double *CSVofJet = &(ntuple->Jets_bDiscriminatorCSV->at(j));
+    // double *CSVofJet = &(ntuple->Jets_bJetTagDeepCSVprobb->at(j)+ntuple->Jets_bJetTagDeepCSVprobbb->at(j));
+    // if (*CSVofJet > *current_min) {
+    //   HighestValuesTest[min_pos] = *CSVofJet;
+    //   JetIndices[min_pos] = j;
+    // }
+    double *current_min = min_element(HighestValuesTest,HighestValuesTest+4);
+    int min_pos = distance(HighestValuesTest,min_element(HighestValuesTest,HighestValuesTest+4));
+
+    // double *CSVofJet = &(ntuple->Jets_bDiscriminatorCSV->at(j));
+    double CSVofJet = ntuple->Jets_bJetTagDeepCSVBvsAll->at(j);//(ntuple->Jets_bJetTagDeepCSVprobb->at(j)+ntuple->Jets_bJetTagDeepCSVprobbb->at(j));
+    if (CSVofJet > *current_min) {
+      HighestValuesTest[min_pos] = CSVofJet;
+      JetIndices[min_pos] = j;
+    }
+
+  } //end loop to find jets with 4 highest CSV
+
+  // std::sort(HighestValuesTest, HighestValuesTest+4, std::greater<double>());
+  TLorentzVector JetComboTest1a = ntuple->Jets->at(JetIndices[0])+ntuple->Jets->at(JetIndices[1]);
+  TLorentzVector JetComboTest1b = ntuple->Jets->at(JetIndices[2])+ntuple->Jets->at(JetIndices[3]);
+  TLorentzVector JetComboTest2a = ntuple->Jets->at(JetIndices[0])+ntuple->Jets->at(JetIndices[2]);
+  TLorentzVector JetComboTest2b = ntuple->Jets->at(JetIndices[1])+ntuple->Jets->at(JetIndices[3]);
+  TLorentzVector JetComboTest3a = ntuple->Jets->at(JetIndices[0])+ntuple->Jets->at(JetIndices[3]);
+  TLorentzVector JetComboTest3b = ntuple->Jets->at(JetIndices[1])+ntuple->Jets->at(JetIndices[2]);
+
+  double MassDiff1 = abs(JetComboTest1a.M()-JetComboTest1b.M());
+  double MassDiff2 = abs(JetComboTest2a.M()-JetComboTest2b.M());
+  double MassDiff3 = abs(JetComboTest3a.M()-JetComboTest3b.M());
+
+  std::vector<int> theChosen; //ordered by combo, so 1st+2nd jet, and 3rd+4th jet, which has the smallest mass difference
+  if (MassDiff1<MassDiff2 && MassDiff1<MassDiff3) theChosen = {JetIndices[0],JetIndices[1],JetIndices[2],JetIndices[3]};
+  else if (MassDiff2<MassDiff1 && MassDiff2<MassDiff3) theChosen = {JetIndices[0],JetIndices[2],JetIndices[1],JetIndices[3]};
+  else if (MassDiff3<MassDiff1 && MassDiff3<MassDiff2) theChosen = {JetIndices[0],JetIndices[3],JetIndices[1],JetIndices[2]};
+  return theChosen;
+}
+
+template<typename ntupleType> float resMassDiff(ntupleType* ntuple) {
+  vector<int> theseJets = resHCandidates(ntuple);
+  if (theseJets.at(0) == -11) return -999.;
+  TLorentzVector Higgs1 = ntuple->Jets->at(theseJets.at(0))+ntuple->Jets->at(theseJets.at(1));
+  TLorentzVector Higgs2 = ntuple->Jets->at(theseJets.at(2))+ntuple->Jets->at(theseJets.at(3));
+  float massDiff = fabs( Higgs1.M()-Higgs2.M() );
+  return massDiff;
+}
+
+template<typename ntupleType> float resAvgMass(ntupleType* ntuple) {
+  vector<int> theseJets = resHCandidates(ntuple);
+  if (theseJets.at(0) == -11) return -999.;
+  TLorentzVector Higgs1 = ntuple->Jets->at(theseJets.at(0))+ntuple->Jets->at(theseJets.at(1));
+  TLorentzVector Higgs2 = ntuple->Jets->at(theseJets.at(2))+ntuple->Jets->at(theseJets.at(3));
+  float avgMass = (Higgs1.M()+Higgs2.M())/2 ;
+  return avgMass;
+}
+
+template<typename ntupleType> float resDeltaRMax(ntupleType* ntuple) {
+  vector<int> theseJets = resHCandidates(ntuple);
+  if (theseJets.at(0) == -11) return -999.;
+  // TLorentzVector Higgs1 = ntuple->Jets->at(theseJets[0])+ntuple->Jets->at(theseJets[1]);
+  // TLorentzVector Higgs2 = ntuple->Jets->at(theseJets[2])+ntuple->Jets->at(theseJets[3]);
+  float deltaEta1 = ntuple->Jets->at( theseJets.at(0) ).Eta() - ntuple->Jets->at( theseJets.at(1) ).Eta();
+  float deltaPhi1 = CalcdPhi(ntuple->Jets->at( theseJets.at(0) ).Phi() , ntuple->Jets->at( theseJets.at(1) ).Phi() );
+  float deltaEta2 = ntuple->Jets->at( theseJets.at(2) ).Eta() - ntuple->Jets->at( theseJets.at(3) ).Eta();
+  float deltaPhi2 = CalcdPhi( ntuple->Jets->at( theseJets.at(2) ).Phi() , ntuple->Jets->at( theseJets.at(3) ).Phi() );
+
+  float deltaR1 = sqrt((deltaEta1*deltaEta1)+(deltaPhi1*deltaPhi1));
+  float deltaR2 = sqrt((deltaEta2*deltaEta2)+(deltaPhi2*deltaPhi2));
+  float deltaR_max = max(deltaR1, deltaR2);
+  return deltaR_max;
+}
+//Resolved ABCD region cuts
+//fourbSRCut
+
+template<typename ntupleType> bool fourbSRCut(ntupleType* ntuple) {
+  float avgMass = resAvgMass(ntuple);
+  float massDiff = resMassDiff(ntuple);
+  float deltaR = resDeltaRMax(ntuple);
+  vector<int> thisNBs = numDeepBs(ntuple);
+  int numLoose = thisNBs.at(0);  int numMed = thisNBs.at(1);  int numTight = thisNBs.at(2);
+
+  return (
+    baselineCut(ntuple) &&
+    avgMass>=100.0 && avgMass<=140.0 &&
+    massDiff>=0.0 && massDiff<=40.0 &&
+    deltaR>=0.0 && deltaR<=2.2 &&
+    numLoose>=4 && numMed>=3 && numTight>=2
+  );
+}
+
+template<typename ntupleType> bool fourbSBCut(ntupleType* ntuple) {
+  float avgMass = resAvgMass(ntuple);
+  float massDiff = resMassDiff(ntuple);
+  float deltaR = resDeltaRMax(ntuple);
+  vector<int> thisNBs = numDeepBs(ntuple);
+  int numLoose = thisNBs.at(0);  int numMed = thisNBs.at(1);  int numTight = thisNBs.at(2);
+
+  return (
+    baselineCut(ntuple) &&
+    ((avgMass>=0.0 && avgMass<=100.0) || (avgMass>=140.0 && avgMass<=200.0)) &&
+    massDiff>=0.0 && massDiff<=40.0 &&
+    deltaR>=0.0 && deltaR<=2.2 &&
+    numLoose>=4 && numMed>=3 && numTight>=2
+  );
+}
+
+template<typename ntupleType> bool threebSRCut(ntupleType* ntuple) {
+  float avgMass = resAvgMass(ntuple);
+  float massDiff = resMassDiff(ntuple);
+  float deltaR = resDeltaRMax(ntuple);
+  vector<int> thisNBs = numDeepBs(ntuple);
+  int numLoose = thisNBs.at(0);  int numMed = thisNBs.at(1);  int numTight = thisNBs.at(2);
+
+  return (
+    baselineCut(ntuple) &&
+    avgMass>=100.0 && avgMass<=140.0 &&
+    massDiff>=0.0 && massDiff<=40.0 &&
+    deltaR>=0.0 && deltaR<=2.2 &&
+    numMed==3 && numTight>=2
+  );
+}
+
+template<typename ntupleType> bool threebSBCut(ntupleType* ntuple) {
+  float avgMass = resAvgMass(ntuple);
+  float massDiff = resMassDiff(ntuple);
+  float deltaR = resDeltaRMax(ntuple);
+  vector<int> thisNBs = numDeepBs(ntuple);
+  int numLoose = thisNBs.at(0);  int numMed = thisNBs.at(1);  int numTight = thisNBs.at(2);
+
+  return (
+    baselineCut(ntuple) &&
+    ((avgMass>=0.0 && avgMass<=100.0) || (avgMass>=140.0 && avgMass<=200.0) )&&
+    massDiff>=0.0 && massDiff<=40.0 &&
+    deltaR>=0.0 && deltaR<=2.2 &&
+    numMed==3 && numTight>=2
+  );
+}
+
+template<typename ntupleType> bool twobSRCut(ntupleType* ntuple) {
+  float avgMass = resAvgMass(ntuple);
+  float massDiff = resMassDiff(ntuple);
+  float deltaR = resDeltaRMax(ntuple);
+  vector<int> thisNBs = numDeepBs(ntuple);
+  int numLoose = thisNBs.at(0);  int numMed = thisNBs.at(1);  int numTight = thisNBs.at(2);
+
+  return (
+    baselineCut(ntuple) &&
+    avgMass>=100.0 && avgMass<=140.0 &&
+    massDiff>=0.0 && massDiff<=40.0 &&
+    deltaR>=0.0 && deltaR<=2.2 &&
+    numMed==2 && numTight==2
+  );
+}
+
+template<typename ntupleType> bool twobSBCut(ntupleType* ntuple) {
+  float avgMass = resAvgMass(ntuple);
+  float massDiff = resMassDiff(ntuple);
+  float deltaR = resDeltaRMax(ntuple);
+  vector<int> thisNBs = numDeepBs(ntuple);
+  int numLoose = thisNBs.at(0);  int numMed = thisNBs.at(1);  int numTight = thisNBs.at(2);
+
+  return (
+    baselineCut(ntuple) &&
+    ((avgMass>=0.0 && avgMass<=100.0) || (avgMass>=140.0 && avgMass<=200.0) )&&
+    massDiff>=0.0 && massDiff<=40.0 &&
+    deltaR>=0.0 && deltaR<=2.2 &&
+    numMed==2 && numTight==2
+  );
+}
+

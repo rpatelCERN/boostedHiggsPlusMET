@@ -4,7 +4,7 @@ LIBS=`root-config --cflags --glibs` -L $(ROOTSYS)/lib -I$(ROOTSYS)/include
 ROOFITLIBS=-lRooFit -lHtml -lMinuit -lRooFitCore
 INCLUDES=-I$(CMSSW_BASE)/src/AnalysisTools/src/ -I$(CMSSW_BASE)/src/ -I$(CMSSW_BASE)/src/Analysis/btag/
 EXECS=fitWpeak flavorFit plotObs_photon_baseline plotObs_singleEleCR_baseline plotObs_lowDPhi_baseline plotObs_singleHiggsTag plotObs_doubleHiggsTag plotObs_antitag plotObs_baseline plotObs_singleMuCR_baseline cutFlow NminusOne ALPHABET ALPHABET_photon datacardInputs photonSkim WtaggingEfficiency.cc plotWtagDist.cc skimHiggsSearchRegions
-$(EXECS):RA2bTree.cc definitions.cc skimSamples.cc skimHiggsSearchRegions.cc
+$(EXECS):RA2bTree.cc definitions.cc skimSamples.cc skimHiggsSearchRegions.cc ALPHABET.cc ALPHABET_res.cc
 flavorFit:flavorFit.cc
 fitWpeak:fitWpeak.cc
 plotObs_singleEleCR_baseline:plotObs_singleEleCR_baseline.cc
@@ -17,6 +17,7 @@ plotObs_doubleHiggsTag:plotObs_doubleHiggsTag.cc
 plotObs_singleHiggsTag:
 cutFlow:cutFlow.cc RA2bTree.cc skimSamples.cc
 ALPHABET:ALPHABET.cc
+ALPHABET_res:ALPHABET_res.cc
 ALPHABET_photon:ALPHABET_photon.cc
 datacardInputs:datacardInputs.cc
 photonSkim:photonSkim.cc
@@ -39,6 +40,8 @@ plotObs_fastFullComp:
 	$(CC) $(CFLAGS) $(LIBS) $(INCLUDES) plotObs_fastFullComp.cc -o ../bin/$@
 ALPHABET:
 	$(CC) $(CFLAGS) $(LIBS) $(INCLUDES) ALPHABET.cc -o ../bin/$@
+ALPHABET_res:
+	$(CC) $(CFLAGS) $(LIBS) $(INCLUDES) ALPHABET_res.cc -o ../bin/$@
 ALPHABET_photon:
 	$(CC) $(CFLAGS) $(LIBS) $(INCLUDES) ALPHABET_photon.cc -o ../bin/$@
 cutFlow:

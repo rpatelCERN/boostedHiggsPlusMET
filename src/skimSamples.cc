@@ -76,8 +76,8 @@ class skimSamples {
       ZJets->Add(skimType+"/"+ZJetsFileNames[i]);
     }
     if( r == kSignal || r == kLowDphi ){
-      ntuples.push_back(new RA2bTree(ZJets));//Need this one
-      sampleName.push_back("ZJets");
+     // ntuples.push_back(new RA2bTree(ZJets));//Need this one
+     // sampleName.push_back("ZJets");
       fillColor.push_back(kGreen+1);
       lineColor.push_back(1);
     }
@@ -96,8 +96,8 @@ class skimSamples {
       WJets->Add(skimType+"/"+WJetsFileNames[i]);
     }
     if( r == kSignal || r == kSLm || r == kSLe || r == kLowDphi ){
-       ntuples.push_back(new RA2bTree(WJets));//Need this one
-      sampleName.push_back("WJets");
+  //    ntuples.push_back(new RA2bTree(WJets));//Need this one
+   //   sampleName.push_back("WJets");
       fillColor.push_back(kBlue);
       lineColor.push_back(1);
     }
@@ -153,8 +153,8 @@ class skimSamples {
       TT->Add(skimType+"/"+TTFileNames[i]);
     }
     if( r == kSignal || r == kSLm || r == kSLe || r == kLowDphi ){
-      ntuples.push_back(new RA2bTree(TT));//Need this one
-       sampleName.push_back("TT");
+      //ntuples.push_back(new RA2bTree(TT));//Need this one
+      //sampleName.push_back("TT");
       fillColor.push_back(kCyan);
       lineColor.push_back(kCyan);
     }
@@ -190,8 +190,8 @@ class skimSamples {
       QCD->Add(skimType+"/"+QCDFileNames[i]);
     }
     if( r == kSignal || r == kPhoton || r == kLowDphi ){
-     ntuples.push_back(new RA2bTree(QCD));//Need this one
-      sampleName.push_back("QCD");
+     //ntuples.push_back(new RA2bTree(QCD));//Need this one
+     // sampleName.push_back("QCD");
       fillColor.push_back(kGray);
       lineColor.push_back(1);
     }
@@ -321,7 +321,6 @@ class skimSamples {
       //ntuples.push_back(new RA2bTree(T5qqqqZH1300));
       //ntuples.push_back(new RA2bTree(T5qqqqZH1700));
       //ntuples.push_back(new RA2bTree(T5qqqqZH2100));
-/*
       ntuples.push_back(new RA2bTree(TChiHH127));
       ntuples.push_back(new RA2bTree(TChiHH150));
       ntuples.push_back(new RA2bTree(TChiHH175));
@@ -381,9 +380,7 @@ class skimSamples {
       sampleName.push_back("TChiHH127");
      for(unsigned int i=0; i<55; ++i)sampleName.push_back(TString::Format("TChiHH%d", 150+i*25));
        for(unsigned int i=0; i<sampleName.size(); ++i)sigLineColor.push_back(kRed);
-*/
     }
-
   }; //end Skim samples
 
   RA2bTree* findNtuple(TString name){

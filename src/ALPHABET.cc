@@ -288,12 +288,13 @@ int main(int argc, char** argv){
                 passBaseline&=baselineCut(ntuple);
             }
             if( ! passBaseline ) continue;
+	    if(resolvedBaselineCut(ntuple))continue;
             if( ( filename.Contains("SingleLept") || filename.Contains("DiLept") ) && ntuple->madHT>600. )continue;
             bin = -1;
             //weight = ntuple->Weight*lumi*trigWeight*customPUweights(ntuple);
 
 
-            weight = ntuple->Weight*this_lumi;//*trigWeight;
+            weight = ntuple->Weight*this_lumi*trigWeight;
             //if( skims.sampleName[iSample] == "TT" ){
             //    weight *= ISRweights(ntuple);
             //}
