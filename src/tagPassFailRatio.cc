@@ -16,11 +16,13 @@
 #include "plotterUtils.cc"
 #include "skimSamples.cc"
 #include "definitions.cc"
+#include "RA2bTree.cc"
+
 
 using namespace std;
 
 //void plotter(){
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 
   gROOT->ProcessLine(".L tdrstyle.C");
   gROOT->ProcessLine("setTDRStyle()");
@@ -102,39 +104,39 @@ int main(int argc, char** argv){
     SR.addNtuple(ntuple,skims.sampleName[iSample]);
     SBVersusAnalysisBin.addNtuple(ntuple,skims.sampleName[iSample]);
     SRVersusAnalysisBin.addNtuple(ntuple,skims.sampleName[iSample]);
-    
+
     int numEvents = ntuple->fChain->GetEntries();
     for( int iEvt = 0 ; iEvt < numEvents ; iEvt++ ){
       ntuple->GetEntry(iEvt);
       if( iEvt % 1000000 == 0 ) cout << skims.sampleName[iSample] << ": " << iEvt << "/" << numEvents << endl;
-      if(!baselineCut(ntuple)) continue; 
+      if(!baselineCut(ntuple)) continue;
       for( int iPlot = 0 ; iPlot<SRplots.size() ; iPlot++){
-	if( taggingCut(ntuple) && ptBinCut(ntuple,iPlot) )
-	  SRplots[iPlot].fill(ntuple);
-	if( antiTaggingCut(ntuple) && ptBinCut(ntuple,iPlot) )
-	  SBplots[iPlot].fill(ntuple);
+        if( taggingCut(ntuple) && ptBinCut(ntuple,iPlot) )
+        SRplots[iPlot].fill(ntuple);
+        if( antiTaggingCut(ntuple) && ptBinCut(ntuple,iPlot) )
+        SBplots[iPlot].fill(ntuple);
       }
       if( taggingCut(ntuple) ){
-	double testMass = fillLeadingBBtagJetMass(ntuple);
-	if( testMass > 85. && testMass < 135. ){ 
-	  RpassFailNum.fill(ntuple);
-	  RpassFailNumVersusPt.fill(ntuple);
-	  RpassFailNumVersusMET.fill(ntuple);
-	  RpassFailNumVersusHT.fill(ntuple);
-	  SRVersusAnalysisBin.fill(ntuple);
-	  SR.fill(ntuple);
-	}else if( testMass > 50. && testMass < 200. ){
-	  RpassFailDenom.fill(ntuple);
-	  RpassFailDenomVersusPt.fill(ntuple);
-	  RpassFailDenomVersusMET.fill(ntuple);
-	  RpassFailDenomVersusHT.fill(ntuple);
-	  SBVersusAnalysisBin.fill(ntuple);
-	  SB.fill(ntuple);
-      }
+        double testMass = fillLeadingBBtagJetMass(ntuple);
+        if( testMass > 85. && testMass < 135. ){
+          RpassFailNum.fill(ntuple);
+          RpassFailNumVersusPt.fill(ntuple);
+          RpassFailNumVersusMET.fill(ntuple);
+          RpassFailNumVersusHT.fill(ntuple);
+          SRVersusAnalysisBin.fill(ntuple);
+          SR.fill(ntuple);
+        }else if( testMass > 50. && testMass < 200. ){
+          RpassFailDenom.fill(ntuple);
+          RpassFailDenomVersusPt.fill(ntuple);
+          RpassFailDenomVersusMET.fill(ntuple);
+          RpassFailDenomVersusHT.fill(ntuple);
+          SBVersusAnalysisBin.fill(ntuple);
+          SB.fill(ntuple);
+        }
       }
     }
   }
-  
+
   // Data -- Only fill SB histos
   for( int iPlot = 0 ; iPlot<SRplots.size() ; iPlot++){
     SRplots[iPlot].addDataNtuple(skims.dataNtuple,"data");
@@ -151,33 +153,33 @@ int main(int argc, char** argv){
   for( int iEvt = 0 ; iEvt < numEvents ; iEvt++ ){
     skims.dataNtuple->GetEntry(iEvt);
     if( iEvt % 1000000 == 0 ) cout << "Data: " << iEvt << "/" << numEvents << endl;
-    if(!baselineCut(skims.dataNtuple)) continue; 
+    if(!baselineCut(skims.dataNtuple)) continue;
     for( int iPlot = 0 ; iPlot<SRplots.size() ; iPlot++){
       //if( taggingCut(skims.dataNtuple) && ptBinCut(skims.dataNtuple,iPlot) )
       //  SRplots[iPlot].fillData(skims.dataNtuple);
       if( antiTaggingCut(skims.dataNtuple) && ptBinCut(skims.dataNtuple,iPlot) )
-	SBplots[iPlot].fillData(skims.dataNtuple);
+      SBplots[iPlot].fillData(skims.dataNtuple);
     }
     if( antiTaggingCut(skims.dataNtuple) ){
       double testMass = fillLeadingBBtagJetMass(skims.dataNtuple);
       if( testMass > 85. && testMass < 135. ){
-	RpassFailNumData.fillData(skims.dataNtuple);
-      }else if( testMass > 50. && testMass < 200. ){ 
-	RpassFailDenomData.fillData(skims.dataNtuple);      
+        RpassFailNumData.fillData(skims.dataNtuple);
+      }else if( testMass > 50. && testMass < 200. ){
+        RpassFailDenomData.fillData(skims.dataNtuple);
       }
     }
     if( taggingCut(skims.dataNtuple) ){
       double testMass = fillLeadingBBtagJetMass(skims.dataNtuple);
       if( testMass > 85. && testMass < 135. ){
-	SRDataVersusAnalysisBin.fillData(skims.dataNtuple);
-	SRData.fillData(skims.dataNtuple);
-      }else if( testMass > 50. && testMass < 200. ){ 
-	SBDataVersusAnalysisBin.fillData(skims.dataNtuple);
-	SBData.fillData(skims.dataNtuple);
+        SRDataVersusAnalysisBin.fillData(skims.dataNtuple);
+        SRData.fillData(skims.dataNtuple);
+      }else if( testMass > 50. && testMass < 200. ){
+        SBDataVersusAnalysisBin.fillData(skims.dataNtuple);
+        SBData.fillData(skims.dataNtuple);
       }
     }
   }
-
+  
   TCanvas* can = new TCanvas("can","can",1200,800);
   can->Divide(3,2);
   for( int iPlot = 0 ; iPlot<SRplots.size()-1 ; iPlot++){
@@ -193,7 +195,7 @@ int main(int argc, char** argv){
     SBplots[iPlot].sum->SetLineStyle(2);
     SBplots[iPlot].sum->SetLineWidth(2);
     SBplots[iPlot].sum->SetLineColor(2);
-    
+
     SRplots[iPlot].sum->GetYaxis()->SetRangeUser(0.,.4);
     SRplots[iPlot].sum->Draw("e4");
     SBplots[iPlot].sum->Draw("hist,e1,SAME");
@@ -212,8 +214,8 @@ int main(int argc, char** argv){
   leg->Draw();
   char saveString[256];
 
-  sprintf(saveString,"tagPassFailRatioVsPt_bbtag_%.1f.png",bbtagCut);
-  can->SaveAs(saveString);  
+  sprintf(saveString,"OfficialRPFPlots/tagPassFailRatioVsPt_bbtag_%.1f.png",bbtagCut);
+  can->SaveAs(saveString);
 
   TCanvas* canPt = new TCanvas("canPt","canPt");
   SRplots.back().buildSum();
@@ -221,7 +223,7 @@ int main(int argc, char** argv){
   SRplots.back().sum->SetLineColor(2);
   SRplots.back().sum->Draw("histo");
   SBplots.back().sum->Draw("e1,SAME");
-  canPt->SaveAs("JetPt_SRversusSB.png");
+  canPt->SaveAs("OfficialRPFPlots/JetPt_SRversusSB.png");
 
   TCanvas* canRatio = new TCanvas("canRatio","canRatio",800,800);
   TGraphAsymmErrors* RpassFailGraph = new TGraphAsymmErrors();
@@ -277,7 +279,7 @@ int main(int argc, char** argv){
   canRatio->cd(4);
   RpassFailVersusHTGraph->Draw("A,P");
 
-  canRatio->SaveAs("passFailRatio.png");
+  canRatio->SaveAs("OfficialRPFPlots/passFailRatio.png");
 
   TCanvas* canClosure = new TCanvas("canClosure","canClosure",800,400);
   canClosure->Divide(2,1);
@@ -307,7 +309,7 @@ int main(int argc, char** argv){
     cout << "bin " << i << " " << closureTestVersusAnalysisBin->GetBinContent(i) << "+/-" << closureTestVersusAnalysisBin->GetBinError(i) << endl;
   }
 
-  canClosure->SaveAs("closureTest.png");
+  canClosure->SaveAs("OfficialRPFPlots/closureTest.png");
 
   TCanvas* canPrediction = new TCanvas("canPrediction","canPrediction",800,400);
   canPrediction->Divide(2,1);
@@ -349,9 +351,6 @@ int main(int argc, char** argv){
     cout << "observation bin " << i << ": " << SRDataVersusAnalysisBin.dataHist->GetBinContent(i) << endl;
   }
 
-  canPrediction->SaveAs("prediction.png");
-  
+  canPrediction->SaveAs("OfficialRPFPlots/prediction.png");
+
 }
-
-
-
