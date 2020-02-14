@@ -1,107 +1,76 @@
 #include "tdrstyle.C"
 #include "CMS_lumi.cc"
+
+
 void MakeABCD(){
     setTDRStyle();
     bool vetoRes = true;
-    TFile*f=new TFile("ALPHABEThistos_NoVeto_bkg.root", "READ");
-    if (vetoRes) f=new TFile("ALPHABEThistos_resAllVeto_bkg.root", "READ");
+
+    TFile*f;
+    if (!vetoRes) f=new TFile("ALPHABETBoostMC2016_V18.root", "READ"); //not veto
+    else if (vetoRes) f=new TFile("ALPHABETBoostMC2016_V18_resVeto.root", "READ"); //veto
 
     TH1F*h_A_ZJets = (TH1F*)f->Get("MET_doubletagSR_ZJets"); TH1F*h_B_ZJets = (TH1F*)f->Get("MET_doubletagSB_ZJets");
     TH1F*h_C_ZJets= (TH1F*)f->Get("MET_antitagSR_ZJets"); TH1F*h_D_ZJets = (TH1F*)f->Get("MET_antitagSB_ZJets");
-
     TH1F*h_A_WJets = (TH1F*)f->Get("MET_doubletagSR_WJets"); TH1F*h_B_WJets = (TH1F*)f->Get("MET_doubletagSB_WJets");
     TH1F*h_C_WJets= (TH1F*)f->Get("MET_antitagSR_WJets"); TH1F*h_D_WJets = (TH1F*)f->Get("MET_antitagSB_WJets");
-
     TH1F*h_A_QCD = (TH1F*)f->Get("MET_doubletagSR_QCD"); TH1F*h_B_QCD = (TH1F*)f->Get("MET_doubletagSB_QCD");
     TH1F*h_C_QCD= (TH1F*)f->Get("MET_antitagSR_QCD"); TH1F*h_D_QCD = (TH1F*)f->Get("MET_antitagSB_QCD");
-
     TH1F*h_A_TT = (TH1F*)f->Get("MET_doubletagSR_TT"); TH1F*h_B_TT = (TH1F*)f->Get("MET_doubletagSB_TT");
-       TH1F*h_C_TT= (TH1F*)f->Get("MET_antitagSR_TT"); TH1F*h_D_TT = (TH1F*)f->Get("MET_antitagSB_TT");
+    TH1F*h_C_TT= (TH1F*)f->Get("MET_antitagSR_TT"); TH1F*h_D_TT = (TH1F*)f->Get("MET_antitagSB_TT");
 
-    TH1F*TotalBkg=(TH1F*)h_A_ZJets->Clone("TotalBkg");
+    TH1F*TotalBkg = (TH1F*)h_A_ZJets->Clone("TotalBkg");
     double scale=137000.0/35862.824;
     // double scale=1.;
-    TH1D*ControlB=(TH1D*)h_B_ZJets->Clone("ControlB");
-    TH1D*ControlC=(TH1D*)h_C_ZJets->Clone("ControlC");
-    TH1D*ControlD=(TH1D*)h_D_ZJets->Clone("ControlD");
+    TH1D*ControlB = (TH1D*)h_B_ZJets->Clone("ControlB");
+    TH1D*ControlC = (TH1D*)h_C_ZJets->Clone("ControlC");
+    TH1D*ControlD = (TH1D*)h_D_ZJets->Clone("ControlD");
 
+    TotalBkg->Add(h_A_WJets); ControlB->Add(h_B_WJets);
+    ControlC->Add(h_C_WJets); ControlD->Add(h_D_WJets);
+    TotalBkg->Add(h_A_QCD); ControlB->Add(h_B_QCD);
+    ControlC->Add(h_C_QCD); ControlD->Add(h_D_QCD);
+    TotalBkg->Add(h_A_TT); ControlB->Add(h_B_TT);
+    ControlC->Add(h_C_TT); ControlD->Add(h_D_TT);
 
-    TotalBkg->Add(h_A_WJets);
-
-    ControlB->Add(h_B_WJets);
-    ControlC->Add(h_C_WJets);
-    ControlD->Add(h_D_WJets);
-
-    TotalBkg->Add(h_A_QCD);
-    ControlB->Add(h_B_QCD);
-    ControlC->Add(h_C_QCD);
-    ControlD->Add(h_D_QCD);
-
-    TotalBkg->Add(h_A_TT);
-    ControlB->Add(h_B_TT);
-    ControlC->Add(h_C_TT);
-    ControlD->Add(h_D_TT);
-
-    TotalBkg->Scale(scale);
-    ControlB->Scale(scale);
-    ControlC->Scale(scale);
-    ControlD->Scale(scale);
+    TotalBkg->Scale(scale); ControlB->Scale(scale);
+    ControlC->Scale(scale); ControlD->Scale(scale);
 
     TH1D*Pred=(TH1D*)ControlB->Clone("Pred");
     Pred->Multiply(ControlC);
     Pred->Divide(ControlD);
 
-
-
-
     THStack * BackgroundStack = new THStack("hs","");
-    h_A_ZJets->Scale(scale);
-    h_A_WJets->Scale(scale);
-    h_A_QCD->Scale(scale);
-    h_A_TT->Scale(scale);
-    h_A_QCD->SetFillColor(kGray);
-    h_A_TT->SetFillColor(kCyan);
-    h_A_ZJets->SetFillColor(kGreen+2);
-    h_A_WJets->SetFillColor(kBlue);
-    BackgroundStack->Add(h_A_ZJets);
-    BackgroundStack->Add(h_A_WJets);
-    BackgroundStack->Add(h_A_TT);
-    BackgroundStack->Add(h_A_QCD);
+    h_A_ZJets->Scale(scale); h_A_WJets->Scale(scale);
+    h_A_QCD->Scale(scale); h_A_TT->Scale(scale);
+    h_A_QCD->SetFillColor(kGray); h_A_TT->SetFillColor(kCyan);
+    h_A_ZJets->SetFillColor(kGreen+2); h_A_WJets->SetFillColor(kBlue);
+    BackgroundStack->Add(h_A_ZJets); BackgroundStack->Add(h_A_WJets);
+    BackgroundStack->Add(h_A_TT); BackgroundStack->Add(h_A_QCD);
 
-    double W = 800;
-    double H = 600;
-    double T = 0.08*H;
-    double B = 0.12*H;
-    double L = 0.12*W;
-    double R = 0.06*W;
-    double up_height     = 0.8;
+    double W = 800; double H = 600;
+    double T = 0.08*H; double B = 0.12*H;
+    double L = 0.12*W; double R = 0.06*W;
+    double up_height = 0.8;
     double dw_correction = 1.18;
     double font_size_dw  = 0.1;
     double dw_height = (1. - up_height) * dw_correction;
     double dw_height_offset = 0.02;
 
     TCanvas * can_h = new TCanvas("can_h","Closure", 50, 50, W, H);
-    can_h->SetFillColor(0);
-    can_h->SetBorderMode(0);
-    can_h->SetFrameFillStyle(0);
-    can_h->SetFrameBorderMode(0);
-    can_h->SetLeftMargin( L/W );
-    can_h->SetRightMargin( R/W );
-    can_h->SetTopMargin( T/H );
-    can_h->SetBottomMargin( B/H );
-    can_h->SetTickx(0);
-    can_h->SetTicky(0);
+    can_h->SetFillColor(0); can_h->SetBorderMode(0);
+    can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+    can_h->SetLeftMargin(L/W); can_h->SetRightMargin(R/W);
+    can_h->SetTopMargin(T/H); can_h->SetBottomMargin(B/H);
+    can_h->SetTickx(0); can_h->SetTicky(0);
     TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
     TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
-    pad1->SetTickx(0);
-    pad1->SetTicky(0);
+    pad1->SetTickx(0); pad1->SetTicky(0);
     pad1->SetPad(0., 1 - up_height, 1., 1.00);
-    pad1->SetFrameFillColor(0);
-    pad1->SetFillColor(0);
+    pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
     pad1->SetTopMargin(0.08);
     pad1->SetLeftMargin(0.12);
     pad1->SetRightMargin(0.06);
-
     // pad1->SetLogy(logy)
     pad1->Draw();
 
@@ -110,15 +79,11 @@ void MakeABCD(){
     Pred->SetMarkerStyle(kFullCircle);
     h_B_ZJets->SetFillColor(kBlack);
     Pred->SetTitle(";MET [GeV];Events 137/fb");
-    // Pred->GetXaxis()->SetTitle("MET [GeV]");
-    // Pred->GetYaxis()->SetTitle("Events 137/fb");
     Pred->GetYaxis()->SetTitleOffset(0.7);
     Pred->Draw("pe");
-
     BackgroundStack->Draw("histsame");
     Pred->Draw("pesame");
 
-    // TLegend* legend = new TLegend(0.35,0.85,0.9,0.9) ;
     TLegend* legend = new TLegend(0.56,0.68,0.90,0.90);
     legend->SetNColumns(2);
     legend->AddEntry(h_A_QCD, "QCD", "f");
@@ -127,7 +92,6 @@ void MakeABCD(){
     legend->AddEntry(h_A_ZJets, "ZJets", "f");
     legend->AddEntry(Pred, "Pred: B*C/D", "pe");
 
-    // legend->SetNColumns(4);
     legend->SetBorderSize(0);
     legend->Draw();
     writeExtraText = true;
@@ -137,7 +101,7 @@ void MakeABCD(){
 
     TFile*output;
     if (vetoRes) output=new TFile("OutputYields_veto.root","RECREATE");
-    else output = new TFile("OutputYields.root","RECREATE");
+    else if (!vetoRes) output = new TFile("OutputYields.root","RECREATE");
 
     TotalBkg->Write("SignalRegionYields");
     Pred->Write("BackgroundPred");
@@ -145,6 +109,4 @@ void MakeABCD(){
     ControlC->Write("ControlC");
     ControlD->Write("ControlD");
     can_h->Write("Canvas");
-
-
 }

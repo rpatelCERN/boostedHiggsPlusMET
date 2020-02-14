@@ -3,25 +3,17 @@
 #include "RA2bTree.cc"
 #include "TString.h"
 
-// STL libraries
 #include <iostream>
 #include <vector>
 
 // static const TString BASE_DIR="/eos/uscms/store/user/lpcsusyhad/SusyRA2Analysis2015/Skims/Run2ProductionV17/";
-static const TString BASE_DIR="/eos/uscms/store/user/rgp230/SUSY/TChiHHV17/Skims/Run2ProductionV18a/";
+static const TString BASE_DIR="/eos/uscms/store/user/rgp230/SUSY/TChiHHV17/Skims/Run2ProductionV18a/"; //this is V17 with lower MET, only for 2016
 
-
-// static const TString MySkims_BASE_DIR="/eos/uscms/store/user/emacdona/Run2ProductionV17/tree_signal/";
 static const TString V18Signal_DIR="/eos/uscms/store/user/rgp230/SUSY/TChiHHV17/Skims/tree_signal/";
-
 static const TString V18T5HH_DIR = "TwoHiggsEvents/";
-// static const TString T5HHV17_DIR=T5HHV17_DIR+"";
-
 
 class skimSamples {
-
   public :
-
   TChain *WJets,*ZJets,*QCD,*SnglT,*TT,*GJets,*GJets0p4,*Other,*DY,*TTinc;
   TChain *T5HH750, *T5HH1000, *T5HH1100,*T5HH1200,*T5HH1300,*T5HH1400,*T5HH1500,*T5HH1600,*T5HH1700,*T5HH1800,*T5HH1900,*T5HH2000,*T5HH2100,*T5HH2200,*T5HH2300,*T5HH2400,*T5HH2500;
   TChain *TChiHH127, *TChiHH150, *TChiHH175,*TChiHH200,*TChiHH225, *TChiHH250, *TChiHH275, *TChiHH300, *TChiHH325,*TChiHH350, *TChiHH375, *TChiHH400, *TChiHH425, *TChiHH450,*TChiHH475,*TChiHH500, *TChiHH525, *TChiHH550,*TChiHH575, *TChiHH600, *TChiHH625, *TChiHH650, *TChiHH675, *TChiHH700,*TChiHH725, *TChiHH750,*TChiHH775, *TChiHH800, *TChiHH825, *TChiHH850, *TChiHH875, *TChiHH900, *TChiHH925, *TChiHH950, *TChiHH975, *TChiHH1000;
@@ -33,35 +25,26 @@ class skimSamples {
   std::vector<TString> dataSampleName;
   std::vector<int> fillColor, lineColor, sigLineColor;
 
-  // enum region {kSignal,kPhoton,kSLm,kSLe,kLowDphi, kNumRegions};
-  // TString regionNames[kNumRegions]={"signal","photon","SLm","SLe","kLowDphi"};
-
   enum region {kSignal,kSignalOnly,kSLm,kSLe,kPhoton,kLowDphi, kNumRegions};
   TString regionNames[kNumRegions]={"signal", "signalOnly","SLm", "SLe", "photon", "kLowDphi"};
-
-  // enum region {kSignal,kSLm,kSLe,kPhoton,kLowDphi, kNumRegions};
-  // TString regionNames[kNumRegions]={"signal","SLm", "SLe", "photon", "kLowDphi"};
-
   TString skimType;
 
-  skimSamples(region r=kSignal, TString Year="MC2016"){
-
+  skimSamples(region r=kSignal, TString Year="MC2016") {
     skimType="";
 
-    // if( r == kSignal ){
-    if( r == kSignal || r == kSignalOnly){
+    if (r == kSignal || r == kSignalOnly) {
       skimType=BASE_DIR+"tree_signal";
     }
-    if( r == kSLm ){
+    if (r == kSLm) {
       skimType=BASE_DIR+"tree_SLm";
     }
-    if( r == kSLe ){
+    if (r == kSLe) {
       skimType=BASE_DIR+"tree_SLe";
     }
-    if( r == kPhoton ){
+    if (r == kPhoton) {
       skimType=BASE_DIR+"tree_GJet_CleanVars";
     }
-    if(r==kLowDphi){
+    if (r==kLowDphi) {
       skimType=BASE_DIR+"tree_LDP";
     }
 
@@ -88,8 +71,7 @@ class skimSamples {
     ///////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - BACKGROUND INPUTS - - - - - - - - - - - - - - //
     ///////////////////////////////////////////////////////////////////////
-
-    if (run_ZJets){
+    if (run_ZJets) {
       std::vector<TString> ZJetsFileNames;
       ZJetsFileNames.push_back("tree_ZJetsToNuNu_HT-100to200_"+Year+".root");
       ZJetsFileNames.push_back("tree_ZJetsToNuNu_HT-200to400_"+Year+".root");
@@ -99,10 +81,10 @@ class skimSamples {
       ZJetsFileNames.push_back("tree_ZJetsToNuNu_HT-1200to2500_"+Year+".root");
       ZJetsFileNames.push_back("tree_ZJetsToNuNu_HT-2500toInf_"+Year+".root");
       ZJets = new TChain("tree");
-      for( int i = 0 ; i < ZJetsFileNames.size() ; i++ ){
+      for (int i = 0 ; i < ZJetsFileNames.size() ; i++) {
         ZJets->Add(skimType+"/"+ZJetsFileNames[i]);
       }
-      if( r == kSignal || r == kLowDphi ){
+      if (r == kSignal || r == kLowDphi) {
         ntuples.push_back(new RA2bTree(ZJets));
         sampleName.push_back("ZJets");
         fillColor.push_back(kGreen+1);
@@ -110,7 +92,7 @@ class skimSamples {
       }
     }
 
-    if (run_WJets){
+    if (run_WJets) {
       std::vector<TString> WJetsFileNames;
       WJetsFileNames.push_back("tree_WJetsToLNu_HT-100to200_"+Year+".root");
       WJetsFileNames.push_back("tree_WJetsToLNu_HT-200to400_"+Year+".root");
@@ -121,10 +103,10 @@ class skimSamples {
       WJetsFileNames.push_back("tree_WJetsToLNu_HT-2500toInf_"+Year+".root");
 
       WJets = new TChain("tree");
-      for( int i = 0 ; i < WJetsFileNames.size() ; i++ ){
+      for (int i = 0 ; i < WJetsFileNames.size() ; i++) {
         WJets->Add(skimType+"/"+WJetsFileNames[i]);
       }
-      if( r == kSignal || r == kSLm || r == kSLe || r == kLowDphi ){
+      if (r == kSignal || r == kSLm || r == kSLe || r == kLowDphi) {
         ntuples.push_back(new RA2bTree(WJets));
         sampleName.push_back("WJets");
         fillColor.push_back(kBlue);
@@ -132,15 +114,7 @@ class skimSamples {
       }
     }
 
-    // TTFileNames.push_back("tree_TTTT.root");
-    // TTFileNames.push_back("tree_TTWJetsToLNu.root");
-    // TTFileNames.push_back("tree_TTWJetsToQQ.root");
-    // TTFileNames.push_back("tree_TTZToLLNuNu.root");
-    // TTFileNames.push_back("tree_TTZToQQ.root");
-    // TTFileNames.push_back("tree_TTGJets.root"); //doesn't exist for 2016
-
-
-    if (run_TT){
+    if (run_TT) {
       std::vector<TString> TTFileNames;
       TTFileNames.push_back("tree_TTJets_HT-600to800_"+Year+".root");
       TTFileNames.push_back("tree_TTJets_HT-800to1200_"+Year+".root");
@@ -154,12 +128,18 @@ class skimSamples {
       // TTFileNames.push_back("tree_TTJets_DiLept_genMET-150.root");
       // TTFileNames.push_back("tree_TTJets_SingleLeptFromT_genMET-150.root");
       // TTFileNames.push_back("tree_TTJets_SingleLeptFromTbar_genMET-150.root");
+      // TTFileNames.push_back("tree_TTTT.root");
+      // TTFileNames.push_back("tree_TTWJetsToLNu.root");
+      // TTFileNames.push_back("tree_TTWJetsToQQ.root");
+      // TTFileNames.push_back("tree_TTZToLLNuNu.root");
+      // TTFileNames.push_back("tree_TTZToQQ.root");
+      // TTFileNames.push_back("tree_TTGJets.root");
 
       TT = new TChain("tree");
-      for( int i = 0 ; i < TTFileNames.size() ; i++ ){
+      for (int i = 0 ; i < TTFileNames.size() ; i++) {
         TT->Add(skimType+"/"+TTFileNames[i]);
       }
-      if( r == kSignal || r == kSLm || r == kSLe || r == kLowDphi ){
+      if (r == kSignal || r == kSLm || r == kSLe || r == kLowDphi) {
         ntuples.push_back(new RA2bTree(TT));
         sampleName.push_back("TT");
         fillColor.push_back(kCyan);
@@ -167,8 +147,7 @@ class skimSamples {
       }
     }
 
-
-    if (run_QCD){
+    if (run_QCD) {
       std::vector<TString> QCDFileNames;
       QCDFileNames.push_back("tree_QCD_HT-200to300_"+Year+".root");
       QCDFileNames.push_back("tree_QCD_HT-300to500_"+Year+".root");
@@ -178,10 +157,10 @@ class skimSamples {
       QCDFileNames.push_back("tree_QCD_HT-1500to2000_"+Year+".root");
       QCDFileNames.push_back("tree_QCD_HT-2000toInf_"+Year+".root");
       QCD = new TChain("tree");
-      for( int i = 0 ; i < QCDFileNames.size() ; i++ ){
+      for (int i = 0 ; i < QCDFileNames.size() ; i++) {
         QCD->Add(skimType+"/"+QCDFileNames[i]);
       }
-      if( r == kSignal || r == kPhoton || r == kLowDphi ){
+      if (r == kSignal || r == kPhoton || r == kLowDphi) {
         ntuples.push_back(new RA2bTree(QCD));
         sampleName.push_back("QCD");
         fillColor.push_back(kGray);
@@ -189,7 +168,7 @@ class skimSamples {
       }
     }
 
-    if (run_T){
+    if (run_T) {
       std::vector<TString> SnglTFileNames;
       SnglTFileNames.push_back("tree_ST_s-channel_"+Year+".root");
       SnglTFileNames.push_back("tree_ST_t-channel_antitop_"+Year+".root");
@@ -197,17 +176,16 @@ class skimSamples {
       SnglTFileNames.push_back("tree_ST_tW_antitop_"+Year+".root");
       SnglTFileNames.push_back("tree_ST_tW_top_"+Year+".root");
       SnglT = new TChain("tree");
-      for( int i = 0 ; i < SnglTFileNames.size() ; i++ ) {
+      for (int i = 0 ; i < SnglTFileNames.size() ; i++) {
         SnglT->Add(skimType+"/"+SnglTFileNames[i]);
       }
-      if( r == kSignal || r == kSLm || r == kSLe ){
+      if (r == kSignal || r == kSLm || r == kSLe) {
         ntuples.push_back(new RA2bTree(SnglT));
         sampleName.push_back("SnglT");
         fillColor.push_back(kOrange);
         lineColor.push_back(1);
       }
     }
-
 
 
     //std::vector<TString> GJets0p4FileNames;
@@ -222,11 +200,11 @@ class skimSamples {
     //GJets0p4 = new TChain("TreeMaker2/PreSelection");
 
 
-    // for( int i = 0 ; i < GJets0p4FileNames.size() ; i++ ){
+    // for (int i = 0 ; i < GJets0p4FileNames.size() ; i++) {
     //   // GJets0p4->Add(skimType+"/"+GJets0p4FileNames[i]);
     //   GJets0p4->Add(GJets0p4FileNames[i]);
     // }
-    // if( r == kPhoton ){
+    // if (r == kPhoton) {
     //   ntuples.push_back(new RA2bTree(GJets0p4));
     //   sampleName.push_back("GJets");
     //   fillColor.push_back(kGreen);
@@ -236,10 +214,8 @@ class skimSamples {
     /////////////////////////////////////////////////////////////////////
     // - - - - - - - - - - - - - - Signal  - - - - - - - - - - - - - - //
     /////////////////////////////////////////////////////////////////////
-    //T5qqqqZH1300->Add("root://cmseos.fnal.gov//store/user/rgp230/SUSY/BooostedZSkims/tree_signal/tree_T5qqqqZH_1300_MC2016.root");
-    ///nfs/data37/cms/emacdonald/WorkingArea/CombinedHiggs/samples/StrongProduction/tree_T5qqqqZH_2200.root
 
-    if (run_T5HH){
+    if (run_T5HH) {
       // T5HH750 = new TChain("tree");
       T5HH1000 = new TChain("tree");
       T5HH1100 = new TChain("tree");
@@ -258,27 +234,19 @@ class skimSamples {
       T5HH2400 = new TChain("tree");
       T5HH2500 = new TChain("tree");
 
-
-
-
       // T5HH750->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_750_1_MC2016_fast.root");
       T5HH1000->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_1000_1_MC2016_fast.root");
       T5HH1100->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_1100_1_MC2016_fast.root");
       T5HH1200->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_1200_1_MC2016_fast.root");
       T5HH1300->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_1300_1_MC2016_fast.root");
-      // T5HH1300->Add("/eos/uscms/store/user/rgp230/SUSY/TChiHHV17/T5qqqqZH_mMother-1300_mLSP-1_MC2016_fast.root");
-
       T5HH1400->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_1400_1_MC2016_fast.root");
       T5HH1500->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_1500_1_MC2016_fast.root");
       T5HH1600->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_1600_1_MC2016_fast.root");
       T5HH1700->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_1700_1_MC2016_fast.root");
-      // T5HH1700->Add("/eos/uscms/store/user/rgp230/SUSY/TChiHHV17/T5qqqqZH_mMother-1700_mLSP-1_MC2016_fast.root");
-
       T5HH1800->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_1800_1_MC2016_fast.root");
       T5HH1900->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_1900_1_MC2016_fast.root");
       T5HH2000->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_2000_1_MC2016_fast.root");
       T5HH2100->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_2100_1_MC2016_fast.root");
-      // T5HH2100->Add("/eos/uscms/store/user/rgp230/SUSY/TChiHHV17/T5qqqqZH_mMother-2100_mLSP-1_MC2016_fast.root");
       T5HH2200->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_2200_1_MC2016_fast.root");
       T5HH2300->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_2300_1_MC2016_fast.root");
       T5HH2400->Add(V18Signal_DIR+V18T5HH_DIR+"tree_T5qqqqZH_2400_1_MC2016_fast.root");
@@ -327,10 +295,7 @@ class skimSamples {
     } //if run_T5HH
 
 
-    if (run_AllTChiHH || run_SomeTChiHH){
-      //TChiHH samples
-      // TChain *TChiHH1025, *TChiHH1050, *TChiHH1075, *TChiHH1100, *TChiHH1125,*TChiHH1150, *TChiHH1175, *TChiHH1200, *TChiHH1225, *TChiHH1250, *TChiHH1275, *TChiHH1300, *TChiHH1325, *TChiHH1350, *TChiHH1375, *TChiHH1400, *TChiHH1425, *TChiHH1450, *TChiHH1475, *TChiHH1500;
-
+    if (run_AllTChiHH || run_SomeTChiHH) {
       // TChiHH127 = new TChain("tree");
       TChiHH150 = new TChain("tree");
       TChiHH175 = new TChain("tree");TChiHH200 = new TChain("tree");
@@ -350,7 +315,6 @@ class skimSamples {
       TChiHH875 = new TChain("tree");TChiHH900 = new TChain("tree");
       TChiHH925 = new TChain("tree");TChiHH950 = new TChain("tree");
       TChiHH975 = new TChain("tree");TChiHH1000 = new TChain("tree");
-
       TChiHH1025 = new TChain("tree");TChiHH1050 = new TChain("tree");
       TChiHH1075 = new TChain("tree");TChiHH1100 = new TChain("tree");
       TChiHH1125 = new TChain("tree");TChiHH1150 = new TChain("tree");
@@ -368,8 +332,6 @@ class skimSamples {
       TChiHH175->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_175_1_MC2016_fast.root");
       TChiHH200->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_200_1_MC2016_fast.root");
       TChiHH225->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_225_1_MC2016_fast.root");
-      // TChiHH225->Add("/eos/uscms/store/user/rgp230/SUSY/TChiHHV17/TChiHH_HToBB_HToBB_mMother-225_mLSP-1_MC2016_fast.root");
-
       TChiHH250->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_250_1_MC2016_fast.root");
       TChiHH275->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_275_1_MC2016_fast.root");
       TChiHH300->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_300_1_MC2016_fast.root");
@@ -377,8 +339,6 @@ class skimSamples {
       TChiHH350->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_350_1_MC2016_fast.root");
       TChiHH375->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_375_1_MC2016_fast.root");
       TChiHH400->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_400_1_MC2016_fast.root");
-      // TChiHH400->Add("/eos/uscms/store/user/rgp230/SUSY/TChiHHV17/TChiHH_HToBB_HToBB_mMother-400_mLSP-1_MC2016_fast.root");
-
       TChiHH425->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_425_1_MC2016_fast.root");
       TChiHH450->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_450_1_MC2016_fast.root");
       TChiHH475->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_475_1_MC2016_fast.root");
@@ -391,8 +351,6 @@ class skimSamples {
       TChiHH650->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_650_1_MC2016_fast.root");
       TChiHH675->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_675_1_MC2016_fast.root");
       TChiHH700->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_700_1_MC2016_fast.root");
-      // TChiHH700->Add("/eos/uscms/store/user/rgp230/SUSY/TChiHHV17/TChiHH_HToBB_HToBB_mMother-700_mLSP-1_MC2016_fast.root");
-
       TChiHH725->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_725_1_MC2016_fast.root");
       TChiHH750->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_750_1_MC2016_fast.root");
       TChiHH775->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_775_1_MC2016_fast.root");
@@ -405,7 +363,6 @@ class skimSamples {
       TChiHH950->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_950_1_MC2016_fast.root");
       TChiHH975->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_975_1_MC2016_fast.root");
       TChiHH1000->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_1000_1_MC2016_fast.root");
-
       TChiHH1025->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_1025_1_MC2016_fast.root");
       TChiHH1050->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_1050_1_MC2016_fast.root");
       TChiHH1075->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_1075_1_MC2016_fast.root");
@@ -427,9 +384,7 @@ class skimSamples {
       TChiHH1475->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_1475_1_MC2016_fast.root");
       TChiHH1500->Add(V18Signal_DIR+"tree_TChiHH_HToBB_HToBB_1500_1_MC2016_fast.root");
 
-      // TChiHH1000->Add("/eos/uscms/store/user/rgp230/SUSY/TChiHHV17/TChiHH_HToBB_HToBB_mMother-1000_mLSP-1_MC2016_fast.root");
-
-      if (run_AllTChiHH){
+      if (run_AllTChiHH) {
         // ntuples.push_back(new RA2bTree(TChiHH127));
         ntuples.push_back(new RA2bTree(TChiHH150));
         ntuples.push_back(new RA2bTree(TChiHH175));
@@ -462,7 +417,6 @@ class skimSamples {
         ntuples.push_back(new RA2bTree(TChiHH925));
         ntuples.push_back(new RA2bTree(TChiHH950));
         ntuples.push_back(new RA2bTree(TChiHH975));
-
         ntuples.push_back(new RA2bTree(TChiHH1025));
         ntuples.push_back(new RA2bTree(TChiHH1050));
         ntuples.push_back(new RA2bTree(TChiHH1075));
@@ -481,9 +435,9 @@ class skimSamples {
         ntuples.push_back(new RA2bTree(TChiHH1425));
         ntuples.push_back(new RA2bTree(TChiHH1450));
         ntuples.push_back(new RA2bTree(TChiHH1475));
-
       }
 
+      // "some" signal
       ntuples.push_back(new RA2bTree(TChiHH200));
       ntuples.push_back(new RA2bTree(TChiHH400));
       ntuples.push_back(new RA2bTree(TChiHH700));
@@ -491,10 +445,7 @@ class skimSamples {
       ntuples.push_back(new RA2bTree(TChiHH1300));
       ntuples.push_back(new RA2bTree(TChiHH1500));
 
-
-
-
-      if (run_AllTChiHH){
+      if (run_AllTChiHH) {
         // sampleName.push_back("TChiHH127");
         sampleName.push_back("TChiHH150");
         sampleName.push_back("TChiHH175");
@@ -527,7 +478,6 @@ class skimSamples {
         sampleName.push_back("TChiHH925");
         sampleName.push_back("TChiHH950");
         sampleName.push_back("TChiHH975");
-
         sampleName.push_back("TChiHH1025");
         sampleName.push_back("TChiHH1050");
         sampleName.push_back("TChiHH1075");
@@ -548,6 +498,7 @@ class skimSamples {
         sampleName.push_back("TChiHH1475");
       }
 
+      // "some" signal
       sampleName.push_back("TChiHH200");
       sampleName.push_back("TChiHH400");
       sampleName.push_back("TChiHH700");
@@ -555,26 +506,22 @@ class skimSamples {
       sampleName.push_back("TChiHH1300");
       sampleName.push_back("TChiHH1500");
 
-
-
       for (unsigned int i=0; i<sampleName.size(); ++i) {
         sigLineColor.push_back(kRed);
         fillColor.push_back(kRed);
       }
     }
-
   }; //end Skim samples
 
-  RA2bTree* findNtuple(TString name){
-    for( int iSam = 0 ; iSam < sampleName.size() ; iSam++ ){
-      if( sampleName[iSam] == name )
+  RA2bTree* findNtuple(TString name) {
+    for (int iSam = 0 ; iSam < sampleName.size() ; iSam++) {
+      if (sampleName[iSam] == name)
       return ntuples[iSam] ;
     }
-    for( int iSam = 0 ; iSam < signalSampleName.size() ; iSam++ ){
-      if( signalSampleName[iSam] == name )
+    for (int iSam = 0 ; iSam < signalSampleName.size() ; iSam++) {
+      if (signalSampleName[iSam] == name)
       return signalNtuples[iSam] ;
     }
     return NULL;
   };
-
 };

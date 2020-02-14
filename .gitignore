@@ -21,3 +21,4 @@ plots/*
 scripts/*
 bin/*
 !data/PileupHistograms_0121_69p2mb_pm4p6.root
+**/*txt
