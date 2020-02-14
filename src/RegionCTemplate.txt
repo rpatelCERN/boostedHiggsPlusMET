@@ -1,0 +1,27 @@
+imax 3 #number of channels
+jmax 4 #number of backgrounds
+kmax * nuissance
+shapes * * FAKE
+
+bin SidebandRegion0 SidebandRegion1 SidebandRegion2
+observation obs1 obs2 obs3
+
+bin SidebandRegion0 SidebandRegion0 SidebandRegion0 SidebandRegion0 SidebandRegion0 SidebandRegion1 SidebandRegion1 SidebandRegion1 SidebandRegion1 SidebandRegion1 SidebandRegion2 SidebandRegion2 SidebandRegion2 SidebandRegion2 SidebandRegion2
+process sig qcd zvv W Top sig qcd zvv W Top sig qcd zvv W Top
+process 0 1 2 3 4 0 1 2 3 4 0 1 2 3 4
+rate higgsino qcd zvv W Top higgsino qcd zvv W Top higgsino qcd zvv W Top
+-----------------------
+Gamma0 rateParam SidebandRegion0 qcd 1 [0.00,4.00]
+Gamma0 rateParam SidebandRegion0 zvv 1 [0.00,4.00]
+Gamma0 rateParam SidebandRegion0 W 1 [0.00,4.00]
+Gamma0 rateParam SidebandRegion0 Top 1 [0.00,4.00]
+
+Gamma1 rateParam SidebandRegion1 qcd 1 [0.00,4.00]
+Gamma1 rateParam SidebandRegion1 zvv 1 [0.00,4.00]
+Gamma1 rateParam SidebandRegion1 W 1 [0.00,4.00]
+Gamma1 rateParam SidebandRegion1 Top 1 [0.00,4.00]
+
+Gamma2 rateParam SidebandRegion2 qcd 1 [0.00,4.00]
+Gamma2 rateParam SidebandRegion2 zvv 1 [0.00,4.00]
+Gamma2 rateParam SidebandRegion2 W 1 [0.00,4.00]
+Gamma2 rateParam SidebandRegion2 Top 1 [0.00,4.00]

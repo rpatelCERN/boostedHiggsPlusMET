@@ -1,0 +1,27 @@
+imax 3 #number of channels
+jmax 4 #number of backgrounds
+kmax * nuissance
+shapes * * FAKE
+
+bin AntitagRegion0 AntitagRegion1 AntitagRegion2
+observation obs1 obs2 obs3
+
+bin AntitagRegion0 AntitagRegion0 AntitagRegion0 AntitagRegion0 AntitagRegion0 AntitagRegion1 AntitagRegion1 AntitagRegion1 AntitagRegion1 AntitagRegion1 AntitagRegion2 AntitagRegion2 AntitagRegion2 AntitagRegion2 AntitagRegion2
+process sig qcd zvv W Top sig qcd zvv W Top sig qcd zvv W Top
+process 0 1 2 3 4 0 1 2 3 4 0 1 2 3 4
+rate higgsino qcd zvv W Top higgsino qcd zvv W Top higgsino qcd zvv W Top
+-----------------------
+Beta0 rateParam AntitagRegion0 qcd 1 [0.00,4.00]
+Beta0 rateParam AntitagRegion0 zvv 1 [0.00,4.00]
+Beta0 rateParam AntitagRegion0 W 1 [0.00,4.00]
+Beta0 rateParam AntitagRegion0 Top 1 [0.00,4.00]
+
+Beta1 rateParam AntitagRegion1 qcd 1 [0.00,4.00]
+Beta1 rateParam AntitagRegion1 zvv 1 [0.00,4.00]
+Beta1 rateParam AntitagRegion1 W 1 [0.00,4.00]
+Beta1 rateParam AntitagRegion1 Top 1 [0.00,4.00]
+
+Beta2 rateParam AntitagRegion2 qcd 1 [0.00,4.00]
+Beta2 rateParam AntitagRegion2 zvv 1 [0.00,4.00]
+Beta2 rateParam AntitagRegion2 W 1 [0.00,4.00]
+Beta2 rateParam AntitagRegion2 Top 1 [0.00,4.00]

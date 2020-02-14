@@ -1,0 +1,31 @@
+imax 3 #number of channels
+jmax 4 #number of backgrounds
+kmax * nuissance
+shapes * * FAKE
+
+bin BinRegion0 BinRegion1 BinRegion2
+observation obs1 obs2 obs3
+
+bin BinRegion0 BinRegion0 BinRegion0 BinRegion0 BinRegion0 BinRegion1 BinRegion1 BinRegion1 BinRegion1 BinRegion1 BinRegion2 BinRegion2 BinRegion2 BinRegion2 BinRegion2
+process sig qcd zvv W Top sig qcd zvv W Top sig qcd zvv W Top
+process 0 1 2 3 4 0 1 2 3 4 0 1 2 3 4
+rate higgsino qcd zvv W Top higgsino qcd zvv W Top higgsino qcd zvv W Top
+-----------------------
+kappa0 param 0.92012 0.15
+kappa1 param 1.39473 0.45
+kappa2 param 1.0 0.73
+
+Alpha0 rateParam BinRegion0 qcd ((@0*@1/@2)*@3) Beta0,Gamma0,Delta0,kappa0
+Alpha0 rateParam BinRegion0 Top ((@0*@1/@2)*@3) Beta0,Gamma0,Delta0,kappa0
+Alpha0 rateParam BinRegion0 W ((@0*@1/@2)*@3) Beta0,Gamma0,Delta0,kappa0
+Alpha0 rateParam BinRegion0 zvv ((@0*@1/@2)*@3) Beta0,Gamma0,Delta0,kappa0
+
+Alpha1 rateParam BinRegion1 qcd ((@0*@1/@2)*@3) Beta1,Gamma1,Delta1,kappa1
+Alpha1 rateParam BinRegion1 Top ((@0*@1/@2)*@3) Beta1,Gamma1,Delta1,kappa1
+Alpha1 rateParam BinRegion1 W ((@0*@1/@2)*@3) Beta1,Gamma1,Delta1,kappa1
+Alpha1 rateParam BinRegion1 zvv ((@0*@1/@2)*@3) Beta1,Gamma1,Delta1,kappa1
+
+Alpha2 rateParam BinRegion2 qcd ((@0*@1/@2)*@3) Beta2,Gamma2,Delta2,kappa2
+Alpha2 rateParam BinRegion2 Top ((@0*@1/@2)*@3) Beta2,Gamma2,Delta2,kappa2
+Alpha2 rateParam BinRegion2 W ((@0*@1/@2)*@3) Beta2,Gamma2,Delta2,kappa2
+Alpha2 rateParam BinRegion2 zvv ((@0*@1/@2)*@3) Beta2,Gamma2,Delta2,kappa2

@@ -1,0 +1,36 @@
+imax 4 #number of channels
+jmax 4 #number of backgrounds
+kmax * nuissance
+shapes * * FAKE
+
+bin BinResRegion0 BinResRegion1 BinResRegion2 BinResRegion3
+observation obs1 obs2 obs3 obs4
+
+bin BinResRegion0 BinResRegion0 BinResRegion0 BinResRegion0 BinResRegion0 BinResRegion1 BinResRegion1 BinResRegion1 BinResRegion1 BinResRegion1 BinResRegion2 BinResRegion2 BinResRegion2 BinResRegion2 BinResRegion2 BinResRegion3 BinResRegion3 BinResRegion3 BinResRegion3 BinResRegion3
+process sig qcd zvv W Top sig qcd zvv W Top sig qcd zvv W Top sig qcd zvv W Top
+process 0 1 2 3 4 0 1 2 3 4 0 1 2 3 4 0 1 2 3 4
+rate higgsino qcd zvv W Top higgsino qcd zvv W Top higgsino qcd zvv W Top higgsino qcd zvv W Top
+-----------------------
+kappaRes0 param 1.11255 0.0711412
+kappaRes1 param 1.15188 0.0841309
+kappaRes2 param 0.713112 0.22
+kappaRes3 param 1.0   0.1
+AlphaRes0 rateParam BinResRegion0 qcd ((@0*@1/@2)*@3) BetaRes0,GammaRes0,DeltaRes0,kappaRes0
+AlphaRes0 rateParam BinResRegion0 Top ((@0*@1/@2)*@3) BetaRes0,GammaRes0,DeltaRes0,kappaRes0
+AlphaRes0 rateParam BinResRegion0 W ((@0*@1/@2)*@3) BetaRes0,GammaRes0,DeltaRes0,kappaRes0
+AlphaRes0 rateParam BinResRegion0 zvv ((@0*@1/@2)*@3) BetaRes0,GammaRes0,DeltaRes0,kappaRes0
+
+AlphaRes1 rateParam BinResRegion1 qcd ((@0*@1/@2)*@3) BetaRes1,GammaRes1,DeltaRes1,kappaRes1
+AlphaRes1 rateParam BinResRegion1 Top ((@0*@1/@2)*@3) BetaRes1,GammaRes1,DeltaRes1,kappaRes1
+AlphaRes1 rateParam BinResRegion1 W ((@0*@1/@2)*@3) BetaRes1,GammaRes1,DeltaRes1,kappaRes1
+AlphaRes1 rateParam BinResRegion1 zvv ((@0*@1/@2)*@3) BetaRes1,GammaRes1,DeltaRes1,kappaRes1
+
+AlphaRes2 rateParam BinResRegion2 qcd ((@0*@1/@2)*@3) BetaRes2,GammaRes2,DeltaRes2,kappaRes2
+AlphaRes2 rateParam BinResRegion2 Top ((@0*@1/@2)*@3) BetaRes2,GammaRes2,DeltaRes2,kappaRes2
+AlphaRes2 rateParam BinResRegion2 W ((@0*@1/@2)*@3) BetaRes2,GammaRes2,DeltaRes2,kappaRes2
+AlphaRes2 rateParam BinResRegion2 zvv ((@0*@1/@2)*@3) BetaRes2,GammaRes2,DeltaRes2,kappaRes2
+
+AlphaRes3 rateParam BinResRegion3 qcd ((@0*@1/@2)*@3) BetaRes3,GammaRes3,DeltaRes3,kappaRes3
+AlphaRes3 rateParam BinResRegion3 Top ((@0*@1/@2)*@3) BetaRes3,GammaRes3,DeltaRes3,kappaRes3
+AlphaRes3 rateParam BinResRegion3 W (((@0*@1/@2))*@3) BetaRes3,GammaRes3,DeltaRes3,kappaRes3
+AlphaRes3 rateParam BinResRegion3 zvv ((@0*@1/@2)*@3) BetaRes3,GammaRes3,DeltaRes3,kappaRes3
