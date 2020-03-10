@@ -1,5 +1,6 @@
 #include "TLorentzVector.h"
 #include "TRandom3.h"
+#include "TMath.h"
 // constants
 // ==============================================
 double bbtagCut_unsupp = 0.70; //this is for deep bb tag - 2016 unsupported, matching signal efficiency to real deep (Med is 0.89)
@@ -16,6 +17,11 @@ TH1F* WJets_NLO = (TH1F*) NLOWeightFile->Get("WJets_012j_NLO/nominal");
 TH1F* WJets_LO = (TH1F*) NLOWeightFile->Get("WJets_LO/inv_pt");
 TH1F* ZJets_NLO = (TH1F*) NLOWeightFile->Get("ZJets_01j_NLO/nominal");
 TH1F* ZJets_LO = (TH1F*) NLOWeightFile->Get("ZJets_LO/inv_pt");
+
+
+
+TFile*leadJetWeights_bkgmeth=new TFile("RPassFail.root","READ");
+TH1D*PassFailWeightsVsSoftdropmass=(TH1D*)leadJetWeights_bkgmeth->Get("PassFailWeightsVsSoftdropmass");
 // ==============================================
 
 double CalcdPhi(double phi1 , double phi2) {
@@ -641,6 +647,11 @@ template<typename ntupleType> double fillLeadingJetMass(ntupleType* ntuple) {
   return ntuple->JetsAK8_softDropMass->at(0);
 }
 
+template<typename ntupleType> double fillLeadingJetMass_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()==0) return -99999.;
+  return ntuple->JetsAK8_prunedMass->at(0);
+}
+
 template<typename ntupleType> double fillLeadingJetFlavor(ntupleType* ntuple) {
   if (ntuple->JetsAK8->size()==0) return -99999.;
   if (ntuple->JetsAK8_NumBhadrons->at(0)==2) return 21.;
@@ -667,6 +678,7 @@ template<typename ntupleType> double fillLeadingdeepBBtag(ntupleType* ntuple) {
   if (ntuple->JetsAK8->size()==0) return-99999.;
   // return ntuple->JetsAK8_pfMassIndependentDeepDoubleBvLJetTagsProbHbb->at(0);
   return ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(0); //change for V18
+  // return ntuple->JetsAK8_doubleBDiscriminator->at(0); //change for V18
 
 }
 
@@ -686,6 +698,11 @@ template<typename ntupleType> double fillLeadingTau21(ntupleType* ntuple) {
 template<typename ntupleType> double fillSubLeadingJetMass(ntupleType* ntuple) {
   if (ntuple->JetsAK8->size()<=1) return-99999.;
   return ntuple->JetsAK8_softDropMass->at(1);
+}
+
+template<typename ntupleType> double fillSubLeadingJetMass_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<=1) return-99999.;
+  return ntuple->JetsAK8_prunedMass->at(1);
 }
 
 template<typename ntupleType> double fillSubLeadingJetFlavor(ntupleType* ntuple) {
@@ -713,6 +730,7 @@ template<typename ntupleType> double fillSubLeadingdeepBBtag(ntupleType* ntuple)
   if (ntuple->JetsAK8->size()<=1) return-99999.;
   // return ntuple->JetsAK8_pfMassIndependentDeepDoubleBvLJetTagsProbHbb->at(1);
   return ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(1); //change for V18
+  // return ntuple->JetsAK8_doubleBDiscriminator->at(1); //change for V18
 }
 
 template<typename ntupleType> double fillSubLeadingTau21(ntupleType* ntuple) {
@@ -730,6 +748,16 @@ template<typename ntupleType> double fillLeadingBBtagJetMass(ntupleType* ntuple)
   else {
     index = int(ntuple->JetsAK8_doubleBDiscriminator->at(0) < ntuple->JetsAK8_doubleBDiscriminator->at(1));
     return ntuple->JetsAK8_softDropMass->at(index);
+  }
+}
+
+template<typename ntupleType> double fillLeadingBBtagJetMass_V12(ntupleType* ntuple) { //change for V18
+  if (ntuple->JetsAK8->size()==0) return-99999.;
+  int index;
+  if (ntuple->JetsAK8->size()==1) index = 0;
+  else {
+    index = int(ntuple->JetsAK8_doubleBDiscriminator->at(0) < ntuple->JetsAK8_doubleBDiscriminator->at(1));
+    return ntuple->JetsAK8_prunedMass->at(index);
   }
 }
 
@@ -781,6 +809,11 @@ template<typename ntupleType> double fillLeadingBBtagJetTau21(ntupleType* ntuple
 template<typename ntupleType> double fillSubLeadingBBtagJetMass(ntupleType* ntuple) {  //change for V18
   int index = int(ntuple->JetsAK8_doubleBDiscriminator->at(0) > ntuple->JetsAK8_doubleBDiscriminator->at(1));
   return ntuple->JetsAK8_softDropMass->at(index);
+}
+
+template<typename ntupleType> double fillSubLeadingBBtagJetMass_V12(ntupleType* ntuple) {  //change for V18
+  int index = int(ntuple->JetsAK8_doubleBDiscriminator->at(0) > ntuple->JetsAK8_doubleBDiscriminator->at(1));
+  return ntuple->JetsAK8_prunedMass->at(index);
 }
 
 template<typename ntupleType> double fillSubLeadingBBtagJetFlavor(ntupleType* ntuple) {  //change for V18
@@ -958,6 +991,32 @@ template<typename ntupleType> double fillFarthestJetMass(ntupleType* ntuple) {
   }
 }
 
+template<typename ntupleType> double fillClosestJetMass_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8_prunedMass->size() == 0)
+  return -999.;
+  else if (ntuple->JetsAK8_prunedMass->size() == 1)
+  return ntuple->JetsAK8_prunedMass->at(0);
+  else {
+    double J1diff,J2diff;
+    J1diff = ntuple->JetsAK8_prunedMass->at(0)-110.;
+    J2diff = ntuple->JetsAK8_prunedMass->at(1)-110.;
+    return fabs(J1diff)>fabs(J2diff) ?  ntuple->JetsAK8_prunedMass->at(1) :  ntuple->JetsAK8_prunedMass->at(0);
+  }
+}
+
+template<typename ntupleType> double fillFarthestJetMass_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8_prunedMass->size() == 0)
+  return -999.;
+  else if (ntuple->JetsAK8_prunedMass->size() == 1)
+  return ntuple->JetsAK8_prunedMass->at(0);
+  else {
+    double J1diff,J2diff;
+    J1diff = ntuple->JetsAK8_prunedMass->at(0)-110.;
+    J2diff = ntuple->JetsAK8_prunedMass->at(1)-110.;
+    return fabs(J1diff)<fabs(J2diff) ?  ntuple->JetsAK8_prunedMass->at(1) :  ntuple->JetsAK8_prunedMass->at(0);
+  }
+}
+
 /////////////////
 // OTHER STUFF //
 /////////////////
@@ -1063,28 +1122,50 @@ template<typename ntupleType> bool RA2bBaselineCut(ntupleType* ntuple) {
   return (NJets == 3 && MET > 300. && HT > 300. && DeltaPhi1 > 0.5 && DeltaPhi2 > 0.5 && DeltaPhi3 > 0.3) || (NJets > 3 && MET > 300. && HT > 300. && DeltaPhi1 > 0.5 && DeltaPhi2 > 0.5 && DeltaPhi3 > 0.3 && DeltaPhi4 > 0.3);
 }
 
+template<typename ntupleType> bool MuonJetFilterCut(ntupleType* ntuple) {
+  bool MuonJetFilter = true;
+  for (int i=0 ; i < ntuple->Jets->size(); i++) {
+    float jet_deltaPhi = CalcdPhi(ntuple->Jets->at(i).Phi(), ntuple->METPhi);
+    if (ntuple->Jets->at(i).Pt()>200.0 &&
+      ntuple->Jets_muonEnergyFraction->at(i)>0.5 &&
+      jet_deltaPhi > (TMath::Pi() - 0.4) ) {
+        MuonJetFilter = false;
+        break;
+    }
+  }
+  return MuonJetFilter;
+}
+
+template<typename ntupleType> bool METRatioFilterCut(ntupleType* ntuple) {
+  return (ntuple->MET/ntuple->CaloMET < 5.);
+}
+
 template<typename ntupleType> bool FiltersCut(ntupleType* ntuple) {
   TString filename = ntuple->fChain->GetFile()->GetName();
   if (filename.Contains("TChiHH_HToBB")) {
     return (
       ntuple->NVtx>0 &&
-      ntuple->MET/ntuple->CaloMET < 5. &&
-      ntuple->LowNeutralJetFilter==1 &&
-      ntuple->HTRatioDPhiTightFilter==1 &&
-      ntuple->FakeJetFilter==1
+      ntuple->MET/ntuple->CaloMET < 5.
+      //&&
+      // ntuple->LowNeutralJetFilter==1 &&
+      // ntuple->HTRatioDPhiTightFilter==1 &&
+      // ntuple->FakeJetFilter==1
    );
   }
   else {
     return (
-      ntuple->HBHENoiseFilter==1 &&
-      ntuple->eeBadScFilter==1 &&
       ntuple->NVtx>0 &&
-      ntuple->MET/ntuple->CaloMET < 5. &&
-      ntuple->BadPFMuonFilter == 1 &&
+      METRatioFilterCut(ntuple) &&
       ntuple->globalSuperTightHalo2016Filter==1 &&
-      ntuple->LowNeutralJetFilter==1 &&
-      ntuple->HTRatioDPhiTightFilter==1 &&
-      ntuple->FakeJetFilter==1
+      ntuple->HBHENoiseFilter==1 &&
+      ntuple->HBHEIsoNoiseFilter==1 &&
+      ntuple->EcalDeadCellTriggerPrimitiveFilter==1 &&
+      ntuple->BadPFMuonFilter == 1 &&
+      MuonJetFilterCut(ntuple)
+      // ntuple->eeBadScFilter==1 &&
+      // ntuple->LowNeutralJetFilter==1 &&
+      // ntuple->HTRatioDPhiTightFilter==1 &&
+      // ntuple->FakeJetFilter==1
    );
   }
 }
@@ -1151,6 +1232,14 @@ template<typename ntupleType> bool AK8JetLooseMassCut(ntupleType* ntuple) {
  );
 }
 
+template<typename ntupleType> bool AK8JetLooseMassCut_V12(ntupleType* ntuple) {
+  return (
+    ntuple->JetsAK8_prunedMass->at(0) > 50. &&
+    ntuple->JetsAK8_prunedMass->at(0) < 250. &&
+    ntuple->JetsAK8_prunedMass->at(1) > 50. &&
+    ntuple->JetsAK8_prunedMass->at(1) < 250.
+ );
+}
 
 template<typename ntupleType> bool baselineCut(ntupleType* ntuple) {
   int numAK4Jets_cuts = numJets(ntuple);
@@ -1181,7 +1270,7 @@ template<typename ntupleType> bool cutflowDPhiCut(ntupleType* ntuple) {
 template<typename ntupleType> bool cutflowBoostBase(ntupleType* ntuple) {
   return (
     ntuple->MET > 300. && ntuple->HT > 300. &&
-    // FiltersCut(ntuple) &&
+    FiltersCut(ntuple) &&
     DeltaPhiCuts(ntuple) &&
     ntuple->NMuons==0 && ntuple->NElectrons==0 &&
     ntuple->isoElectronTracks+ntuple->isoMuonTracks +ntuple->isoPionTracks==0
@@ -1211,6 +1300,16 @@ template<typename ntupleType> bool cutflowBoostLooseMass(ntupleType* ntuple) {
  );
 }
 
+template<typename ntupleType> bool cutflowBoostLooseMass_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<2) return false;
+  else return (
+    ntuple->JetsAK8_prunedMass->at(0) > 50. &&
+    ntuple->JetsAK8_prunedMass->at(0) < 250. &&
+    ntuple->JetsAK8_prunedMass->at(1) > 50. &&
+    ntuple->JetsAK8_prunedMass->at(1) < 250.
+ );
+}
+
 template<typename ntupleType> bool cutflowBoostBBTag(ntupleType* ntuple) { //change for V18
   TString filename = ntuple->fChain->GetFile()->GetName();
   if (filename.Contains("TChiHH_HToBB") || filename.Contains("T5qqqqZH")) { //V18 signal has newest deep bbtag, so use that in cuts
@@ -1225,6 +1324,12 @@ template<typename ntupleType> bool cutflowBoostBBTag(ntupleType* ntuple) { //cha
   }
 }
 
+// template<typename ntupleType> bool cutflowBoostBBTag(ntupleType* ntuple) { //V12
+//     float this_bbtag = 0.30;
+//     if (ntuple->JetsAK8->size()<2 || ntuple->JetsAK8_doubleBDiscriminator->size()<2) return false;
+//     else return (ntuple->JetsAK8_doubleBDiscriminator->at(0) > this_bbtag && ntuple->JetsAK8_doubleBDiscriminator->at(1) > this_bbtag);
+// }
+
 template<typename ntupleType> bool cutflowBoostTightMass(ntupleType* ntuple) {
   if (ntuple->JetsAK8->size()<2) return false;
   else return (
@@ -1235,10 +1340,20 @@ template<typename ntupleType> bool cutflowBoostTightMass(ntupleType* ntuple) {
  );
 }
 
+template<typename ntupleType> bool cutflowBoostTightMass_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<2) return false;
+  else return (
+    ntuple->JetsAK8_prunedMass->at(0) > 85. &&
+    ntuple->JetsAK8_prunedMass->at(0) < 135. &&
+    ntuple->JetsAK8_prunedMass->at(1) > 85. &&
+    ntuple->JetsAK8_prunedMass->at(1) < 135.
+ );
+}
+
 template<typename ntupleType> bool boostedBaselineCut(ntupleType* ntuple) {
   return (
     baselineCut(ntuple) &&
-    ntuple->MET > 300. &&
+    ntuple->MET > 250. && // ntuple->MET > 300. &&
     ntuple->HT > 600. &&
     ntuple->JetsAK8->size() >= 2 &&
     ntuple->JetsAK8->at(0).Pt() > 300. &&
@@ -1247,6 +1362,21 @@ template<typename ntupleType> bool boostedBaselineCut(ntupleType* ntuple) {
     ntuple->JetsAK8->at(1).Pt() > 300. &&
     ntuple->JetsAK8_softDropMass->at(1) > 50. &&
     ntuple->JetsAK8_softDropMass->at(1) < 250.
+ );
+}
+
+template<typename ntupleType> bool boostedBaselineCut_V12(ntupleType* ntuple) {
+  return (
+    baselineCut(ntuple) &&
+    ntuple->MET > 300. &&
+    ntuple->HT > 600. &&
+    ntuple->JetsAK8->size() >= 2 &&
+    ntuple->JetsAK8->at(0).Pt() > 300. &&
+    ntuple->JetsAK8_prunedMass->at(0) > 50. &&
+    ntuple->JetsAK8_prunedMass->at(0) < 250. &&
+    ntuple->JetsAK8->at(1).Pt() > 300. &&
+    ntuple->JetsAK8_prunedMass->at(1) > 50. &&
+    ntuple->JetsAK8_prunedMass->at(1) < 250.
  );
 }
 
@@ -1405,12 +1535,46 @@ template<typename ntupleType> bool doubleTaggingLooseCut(ntupleType* ntuple) { /
  );
 }
 
+
+// template<typename ntupleType> bool singleHiggsTagLooseCut(ntupleType* ntuple) { //change for V18
+//   float this_bbtag = 0.30;
+//   return ((ntuple->JetsAK8_doubleBDiscriminator->at(0) > this_bbtag)
+//   && (ntuple->JetsAK8_doubleBDiscriminator->at(1) < this_bbtag)) ||
+//   ((ntuple->JetsAK8_doubleBDiscriminator->at(0) < this_bbtag)
+//   && (ntuple->JetsAK8_doubleBDiscriminator->at(1) > this_bbtag));
+// }
+//
+// template<typename ntupleType> bool antiTaggingLooseCut(ntupleType* ntuple) { //change for V18
+//   float this_bbtag = 0.30;
+//   return (
+//     (ntuple->JetsAK8_doubleBDiscriminator->at(0) < this_bbtag) &&
+//     (ntuple->JetsAK8_doubleBDiscriminator->at(1) < this_bbtag)
+//  );
+// }
+//
+// template<typename ntupleType> bool doubleTaggingLooseCut(ntupleType* ntuple) { //change for V18
+//   float this_bbtag = 0.30;
+//   return (
+//     ntuple->JetsAK8_doubleBDiscriminator->at(0) > this_bbtag &&
+//     ntuple->JetsAK8_doubleBDiscriminator->at(1) > this_bbtag
+//  );
+// }
+
 template<typename ntupleType> bool doubleMassCut(ntupleType* ntuple) {
   return (
     ntuple->JetsAK8_softDropMass->at(0) > 85. &&
     ntuple->JetsAK8_softDropMass->at(0) < 135. &&
     ntuple->JetsAK8_softDropMass->at(1) > 85. &&
     ntuple->JetsAK8_softDropMass->at(1) < 135.
+ );
+}
+
+template<typename ntupleType> bool doubleMassCut_V12(ntupleType* ntuple) {
+  return (
+    ntuple->JetsAK8_prunedMass->at(0) > 85. &&
+    ntuple->JetsAK8_prunedMass->at(0) < 135. &&
+    ntuple->JetsAK8_prunedMass->at(1) > 85. &&
+    ntuple->JetsAK8_prunedMass->at(1) < 135.
  );
 }
 
@@ -1426,6 +1590,18 @@ template<typename ntupleType> bool singleHiggsTagCut(ntupleType* ntuple) {  //ch
  );
 }
 
+template<typename ntupleType> bool singleHiggsTagCut_V12(ntupleType* ntuple) {  //V12
+  float this_bbtag = 0.30;
+  return (
+    (ntuple->JetsAK8_prunedMass->at(0) > 85. &&
+    ntuple->JetsAK8_prunedMass->at(0) < 135. &&
+    ntuple->JetsAK8_doubleBDiscriminator->at(0) > this_bbtag) ||
+    (ntuple->JetsAK8_prunedMass->at(1) > 85. &&
+    ntuple->JetsAK8_prunedMass->at(1) < 135. &&
+    ntuple->JetsAK8_doubleBDiscriminator->at(1) > this_bbtag)
+ );
+}
+
 template<typename ntupleType> bool doubleHiggsTagCut(ntupleType* ntuple) {  //change for V18
   float this_bbtag = 0.70;
   return (
@@ -1435,6 +1611,18 @@ template<typename ntupleType> bool doubleHiggsTagCut(ntupleType* ntuple) {  //ch
     ntuple->JetsAK8_softDropMass->at(1) > 85. &&
     ntuple->JetsAK8_softDropMass->at(1) < 135. &&
     ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(1) > this_bbtag
+ );
+}
+
+template<typename ntupleType> bool doubleHiggsTagCut_V12(ntupleType* ntuple) {  //V12
+  float this_bbtag = 0.30;
+  return (
+    ntuple->JetsAK8_prunedMass->at(0) > 85. &&
+    ntuple->JetsAK8_prunedMass->at(0) < 135. &&
+    ntuple->JetsAK8_doubleBDiscriminator->at(0) > this_bbtag &&
+    ntuple->JetsAK8_prunedMass->at(1) > 85. &&
+    ntuple->JetsAK8_prunedMass->at(1) < 135. &&
+    ntuple->JetsAK8_doubleBDiscriminator->at(1) > this_bbtag
  );
 }
 
@@ -1461,6 +1649,18 @@ template<typename ntupleType> bool tagSR(ntupleType* ntuple, int i) {  //change 
       ntuple->JetsAK8_softDropMass->at(i) < 135.
    );
   }
+}
+
+template<typename ntupleType> bool tagSR_V12(ntupleType* ntuple, int i) {  //V12
+  if (ntuple->JetsAK8->size()<2) return false;
+    if (ntuple->JetsAK8_doubleBDiscriminator->size() <= i ||
+    ntuple->JetsAK8_prunedMass->size() <= i) return false;
+    float this_bbtag = 0.30;
+    return (
+      ntuple->JetsAK8_doubleBDiscriminator->at(i) > this_bbtag &&
+      ntuple->JetsAK8_prunedMass->at(i) > 85. &&
+      ntuple->JetsAK8_prunedMass->at(i) < 135.
+   );
 }
 
 template<typename ntupleType> bool tagSB(ntupleType* ntuple, int i) {  //change for V18
@@ -1492,6 +1692,20 @@ template<typename ntupleType> bool tagSB(ntupleType* ntuple, int i) {  //change 
   }
 }
 
+template<typename ntupleType> bool tagSB_V12(ntupleType* ntuple, int i) {  //V12
+  if (ntuple->JetsAK8->size()<2) return false;
+    if (ntuple->JetsAK8_doubleBDiscriminator->size() <= i ||
+    ntuple->JetsAK8_prunedMass->size() <= i) return false;
+    float this_bbtag = 0.30;
+    return (
+      ntuple->JetsAK8_doubleBDiscriminator->at(i) > this_bbtag &&
+      ((ntuple->JetsAK8_prunedMass->at(i) < 85. &&
+      ntuple->JetsAK8_prunedMass->at(i) > 50.) ||
+      (ntuple->JetsAK8_prunedMass->at(i) > 135. &&
+      ntuple->JetsAK8_prunedMass->at(i) < 250.))
+   );
+}
+
 template<typename ntupleType> bool antitagSR(ntupleType* ntuple, int i) {  //change for V18
   if (ntuple->JetsAK8->size()<2) return false;
   TString filename = ntuple->fChain->GetFile()->GetName();
@@ -1515,6 +1729,18 @@ template<typename ntupleType> bool antitagSR(ntupleType* ntuple, int i) {  //cha
       ntuple->JetsAK8_softDropMass->at(i) < 135.)
    );
   }
+}
+
+template<typename ntupleType> bool antitagSR_V12(ntupleType* ntuple, int i) {  //V12
+  if (ntuple->JetsAK8->size()<2) return false;
+    if (ntuple->JetsAK8_doubleBDiscriminator->size() <= i ||
+    ntuple->JetsAK8_prunedMass->size() <= i) return false;
+    float this_bbtag = 0.30;
+    return (
+      ntuple->JetsAK8_doubleBDiscriminator->at(i) < this_bbtag &&
+      (ntuple->JetsAK8_prunedMass->at(i) > 85. &&
+      ntuple->JetsAK8_prunedMass->at(i) < 135.)
+   );
 }
 
 template<typename ntupleType> bool antitagSB(ntupleType* ntuple, int i) {  //change for V18
@@ -1543,16 +1769,41 @@ template<typename ntupleType> bool antitagSB(ntupleType* ntuple, int i) {  //cha
       ntuple->JetsAK8_softDropMass->at(i) < 250.))
    );
   }
-
 }
+
+template<typename ntupleType> bool antitagSB_V12(ntupleType* ntuple, int i) {  //V12
+    if (ntuple->JetsAK8_doubleBDiscriminator->size() <= i ||
+    ntuple->JetsAK8_prunedMass->size() <= i) return false;
+    float this_bbtag = 0.30;
+    return (
+      ntuple->JetsAK8_doubleBDiscriminator->at(i) < this_bbtag &&
+      ((ntuple->JetsAK8_prunedMass->at(i) < 85. &&
+      ntuple->JetsAK8_prunedMass->at(i) > 50.) ||
+      (ntuple->JetsAK8_prunedMass->at(i) > 135. &&
+      ntuple->JetsAK8_prunedMass->at(i) < 250.))
+   );
+}
+
 
 template<typename ntupleType> bool antitagSRCut(ntupleType* ntuple) {
   if (ntuple->JetsAK8->size()<2) return false;
   return (antitagSR(ntuple,0) && antitagSR(ntuple,1));
 }
 
-template<typename ntupleType> bool newantitagSRCut(ntupleType* ntuple) {
-  return (newantitagSR(ntuple,0) && newantitagSR(ntuple,1));
+template<typename ntupleType> bool antitagSRCut_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<2) return false;
+  return (antitagSR_V12(ntuple,0) && antitagSR_V12(ntuple,1));
+}
+
+template<typename ntupleType> float antitagSRWeight(ntupleType* ntuple) {
+  float weight = 0;
+    //histo is PassFailWeightsVsSoftdropmass, defined at top
+  if (antitagSRCut(ntuple)){
+    float leadJetMass = ntuple->JetsAK8_softDropMass->at(0);
+    int nombin = PassFailWeightsVsSoftdropmass->FindBin(leadJetMass);
+    weight = PassFailWeightsVsSoftdropmass->GetBinContent(nombin);
+  }
+  return weight;
 }
 
 template<typename ntupleType> bool antitagSBCut(ntupleType* ntuple) {
@@ -1562,10 +1813,23 @@ template<typename ntupleType> bool antitagSBCut(ntupleType* ntuple) {
   (antitagSR(ntuple,0) && antitagSB(ntuple,1)));
 }
 
+template<typename ntupleType> bool antitagSBCut_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<2) return false;
+  return ((antitagSB_V12(ntuple,0) && antitagSB_V12(ntuple,1)) ||
+  (antitagSB_V12(ntuple,0) && antitagSR_V12(ntuple,1)) ||
+  (antitagSR_V12(ntuple,0) && antitagSB_V12(ntuple,1)));
+}
+
 template<typename ntupleType> bool tagSRCut(ntupleType* ntuple) {
   if (ntuple->JetsAK8->size()<2) return false;
   return ((tagSR(ntuple,0) && antitagSR(ntuple,1)) ||
   (antitagSR(ntuple,0) && tagSR(ntuple,1)));
+}
+
+template<typename ntupleType> bool tagSRCut_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<2) return false;
+  return ((tagSR_V12(ntuple,0) && antitagSR_V12(ntuple,1)) ||
+  (antitagSR_V12(ntuple,0) && tagSR_V12(ntuple,1)));
 }
 
 template<typename ntupleType> bool tagSBCut(ntupleType* ntuple) {
@@ -1580,9 +1844,26 @@ template<typename ntupleType> bool tagSBCut(ntupleType* ntuple) {
  );
 }
 
+template<typename ntupleType> bool tagSBCut_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<2) return false;
+  return (
+    (tagSB_V12(ntuple,0) && antitagSB_V12(ntuple,1)) ||
+    (tagSR_V12(ntuple,0) && antitagSB_V12(ntuple,1)) ||
+    (tagSB_V12(ntuple,0) && antitagSR_V12(ntuple,1)) ||
+    (antitagSB_V12(ntuple,0) && tagSB_V12(ntuple,1)) ||
+    (antitagSR_V12(ntuple,0) && tagSB_V12(ntuple,1)) ||
+    (antitagSB_V12(ntuple,0) && tagSR_V12(ntuple,1))
+ );
+}
+
 template<typename ntupleType> bool doubletagSRCut(ntupleType* ntuple) {
   if (ntuple->JetsAK8->size()<2) return false;
   return (tagSR(ntuple,0) && tagSR(ntuple,1));
+}
+
+template<typename ntupleType> bool doubletagSRCut_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<2) return false;
+  return (tagSR_V12(ntuple,0) && tagSR_V12(ntuple,1));
 }
 
 template<typename ntupleType> bool doubletagSBCut(ntupleType* ntuple) {
@@ -1591,6 +1872,29 @@ template<typename ntupleType> bool doubletagSBCut(ntupleType* ntuple) {
     (tagSB(ntuple,0) && tagSB(ntuple,1)) ||
     (tagSB(ntuple,0) && tagSR(ntuple,1)) ||
     (tagSR(ntuple,0) && tagSB(ntuple,1))
+ );
+}
+
+template<typename ntupleType> bool doubletagSBCut_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<2) return false;
+  return (
+    (tagSB_V12(ntuple,0) && tagSB_V12(ntuple,1)) ||
+    (tagSB_V12(ntuple,0) && tagSR_V12(ntuple,1)) ||
+    (tagSR_V12(ntuple,0) && tagSB_V12(ntuple,1))
+ );
+}
+
+template<typename ntupleType> bool doubletagSB2Cut(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<2) return false;
+  return (
+    tagSR(ntuple,0) && (tagSR(ntuple,1) || tagSB(ntuple,1))
+ );
+}
+
+template<typename ntupleType> bool doubletagSB2Cut_V12(ntupleType* ntuple) {
+  if (ntuple->JetsAK8->size()<2) return false;
+  return (
+    tagSR_V12(ntuple,0) && (tagSR_V12(ntuple,1) || tagSB_V12(ntuple,1))
  );
 }
 

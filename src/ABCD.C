@@ -11,55 +11,50 @@
 #include <TF1.h>
 
 
-
 void makeABCDPlot(vector<TH1F*> dem_histos, TString type, TString tagType);
+void makeAsummptionPlot(vector<TH1F*> dem_histos, TString BkgType);
 void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType, TString jetType, TString tagType);
-
-void makeDoubleBPlots(vector<TH1F*> dem_histos, TString bkgType, TString which);
 void makeStackPlot(vector<TH1F*> h_QCD,vector<TH1F*> h_TT,vector<TH1F*> h_WJets,vector<TH1F*> h_ZJets, vector<TH1F*> h_T5HH1300,vector<TH1F*> h_T5HH1700,vector<TH1F*> h_T5HH2100,TString which);
 void makeSingleLeptStackPlot(vector<TH1F*> h_TT,vector<TH1F*> h_WJets,TString which);
-
 void QuickROC(TH1F* signalHist, TH1F* bkgHist, TString which);
-
 void makeMETStack(TH1F* h_QCD,TH1F* h_TT,TH1F* h_WJets,TH1F* h_ZJets, TH1F* h_T5HH1300,TH1F* h_T5HH1700,TH1F* h_T5HH2100,TString which);
-
 void tableMCyields();
+void makeClosureStackPlot(vector<TH1F*> QCD_histos, vector<TH1F*> TT_histos, vector<TH1F*> WJets_histos,vector<TH1F*> ZJets_histos, vector<TH1F*> sum_histos);
+void makeTestClosurePlot(TH1F* antitagSR, TH1F* notagSB,TH1F* doubletagSR);
+void makeTestClosurePlot2(TH1F* notagSB,TH1F* doubletagSR);
+
 
 ofstream myfile;
 bool getDeviation = false;
 bool runABCDPlots = true;
-bool runRPFPlots = false;
+bool runRPFPlots = true;
 bool runCompareDoubleB = false;
 bool runDoubleBStack = false;
 bool runStacks = false;
 bool runMETStacks = false;
 bool runROC = false;
-
-bool useDeepDoubleB = true;
-
+bool runAssumpt = true;
+bool runClosurePlots = true;
 
 string whichRegion = "signal";
 // string whichRegion = "singleLept";
 // string whichRegion = "photon";
 
+TFile * f = TFile::Open("ALPHABETBoost_V17.root");
+TFile * fSignal = TFile::Open("ALPHABETBoost_V17_signalOnly.root");
 
+TFile * fPhoton;
+TFile * fSingleLept;
 
+TFile* fout = new TFile("ABCDPlots_V17.root","recreate");
+TDirectory *cdABCD  = fout->mkdir("ABCD");
+TDirectory *cdClose = fout->mkdir("Closure");
+TDirectory *cdAssum = fout->mkdir("Assumption");
+TDirectory *cdRPFFinal  = fout->mkdir("RPF");
+TDirectory *cdRPF  = fout->mkdir("RPF_Support");
+TDirectory *cdOther  = fout->mkdir("OtherPlots");
 
 void runABCD() {
-  // TFile * f = TFile::Open("ALPHABEThistos_signal.root");
-  // TFile * fSignal = TFile::Open("ALPHABEThistosMC2016_signalOnly.root");
-
-  TFile * f = TFile::Open("ALPHABEThistos_resAllVeto_bkg.root");
-
-  // TFile * f = TFile::Open("ALPHABEThistos_V17bkg_resVeto.root");
-  // TFile * fSignal = TFile::Open("ALPHABEThistos_V17Signal.root");
-  TFile * fSignal = TFile::Open("ALPHABEThistos_NoVeto_signal.root");
-
-  // TFile * fPhoton = TFile::Open("ALPHABEThistos_photon.root");
-  // TFile * fSingleLept = TFile::Open("ALPHABEThistos_singleLept.root");
-  TFile * fPhoton;
-  TFile * fSingleLept;
-
   TH1F * h_A_sum; TH1F * h_B_sum; TH1F * h_A1_sum; TH1F * h_B1_sum; TH1F *h_C_sum; TH1F *h_D_sum;
   TH1F * h_A_QCD; TH1F * h_B_QCD; TH1F * h_A1_QCD; TH1F * h_B1_QCD; TH1F * h_C_QCD; TH1F * h_D_QCD;
   TH1F * h_A_GJets; TH1F * h_B_GJets; TH1F * h_A1_GJets; TH1F * h_B1_GJets; TH1F * h_C_GJets; TH1F * h_D_GJets;
@@ -73,7 +68,6 @@ void runABCD() {
   TH1F * h_A_TChiHH1000; TH1F * h_B_TChiHH1000; TH1F * h_A1_TChiHH1000; TH1F * h_B1_TChiHH1000; TH1F * h_C_TChiHH1000; TH1F * h_D_TChiHH1000;
   TH1F * h_A_TChiHH1300; TH1F * h_B_TChiHH1300; TH1F * h_A1_TChiHH1300; TH1F * h_B1_TChiHH1300; TH1F * h_C_TChiHH1300; TH1F * h_D_TChiHH1300;
   TH1F * h_A_TChiHH1500; TH1F * h_B_TChiHH1500; TH1F * h_A1_TChiHH1500; TH1F * h_B1_TChiHH1500; TH1F * h_C_TChiHH1500; TH1F * h_D_TChiHH1500;
-
 
   TH1F * h_J1M_doubletagSR_sum; TH1F * h_J2M_doubletagSR_sum; TH1F * h_J1M_doubletagSB_sum; TH1F * h_J2M_doubletagSB_sum;
   TH1F * h_J1M_antitagSR_sum; TH1F * h_J2M_antitagSR_sum; TH1F * h_J1M_antitagSB_sum; TH1F * h_J2M_antitagSB_sum;
@@ -148,52 +142,6 @@ void runABCD() {
   TH1F * h_J1Pt_antitagSR_T5HH2100; TH1F * h_J2Pt_antitagSR_T5HH2100; TH1F * h_J1Pt_antitagSB_T5HH2100; TH1F * h_J2Pt_antitagSB_T5HH2100;
   TH1F * h_J1Pt_tagSR_T5HH2100; TH1F * h_J2Pt_tagSR_T5HH2100; TH1F * h_J1Pt_tagSB_T5HH2100; TH1F * h_J2Pt_tagSB_T5HH2100;
 
-
-  TH1F * h_doubleB_J1_SBLow_WJets; TH1F * h_doubleB_J1_SR_WJets; TH1F * h_doubleB_J1_SBHigh_WJets;
-  TH1F * h_doubleB_J1_SBLow_ZJets; TH1F * h_doubleB_J1_SR_ZJets; TH1F * h_doubleB_J1_SBHigh_ZJets;
-  TH1F * h_doubleB_J1_SBLow_TT; TH1F * h_doubleB_J1_SR_TT; TH1F * h_doubleB_J1_SBHigh_TT;
-  TH1F * h_doubleB_J1_SBLow_QCD; TH1F * h_doubleB_J1_SR_QCD; TH1F * h_doubleB_J1_SBHigh_QCD;
-  TH1F * h_doubleB_J1_SBLow_GJets; TH1F * h_doubleB_J1_SR_GJets; TH1F * h_doubleB_J1_SBHigh_GJets;
-  TH1F * h_doubleB_J1_SBLow_T5HH1300; TH1F * h_doubleB_J1_SR_T5HH1300; TH1F * h_doubleB_J1_SBHigh_T5HH1300;
-  TH1F * h_doubleB_J1_SBLow_T5HH1700; TH1F * h_doubleB_J1_SR_T5HH1700; TH1F * h_doubleB_J1_SBHigh_T5HH1700;
-  TH1F * h_doubleB_J1_SBLow_T5HH2100; TH1F * h_doubleB_J1_SR_T5HH2100; TH1F * h_doubleB_J1_SBHigh_T5HH2100;
-
-  // TH1F * h_doubleBH_J1_SBLow_WJets; TH1F * h_doubleBH_J1_SR_WJets; TH1F * h_doubleBH_J1_SBHigh_WJets;
-  // TH1F * h_doubleBH_J1_SBLow_ZJets; TH1F * h_doubleBH_J1_SR_ZJets; TH1F * h_doubleBH_J1_SBHigh_ZJets;
-  // TH1F * h_doubleBH_J1_SBLow_TT; TH1F * h_doubleBH_J1_SR_TT; TH1F * h_doubleBH_J1_SBHigh_TT;
-  // TH1F * h_doubleBH_J1_SBLow_QCD; TH1F * h_doubleBH_J1_SR_QCD; TH1F * h_doubleBH_J1_SBHigh_QCD;
-  // TH1F * h_doubleBH_J1_SBLow_GJets; TH1F * h_doubleBH_J1_SR_GJets; TH1F * h_doubleBH_J1_SBHigh_GJets;
-  // TH1F * h_doubleBH_J1_SBLow_T5HH1300; TH1F * h_doubleBH_J1_SR_T5HH1300; TH1F * h_doubleBH_J1_SBHigh_T5HH1300;
-  // TH1F * h_doubleBH_J1_SBLow_T5HH1700; TH1F * h_doubleBH_J1_SR_T5HH1700; TH1F * h_doubleBH_J1_SBHigh_T5HH1700;
-  // TH1F * h_doubleBH_J1_SBLow_T5HH2100; TH1F * h_doubleBH_J1_SR_T5HH2100; TH1F * h_doubleBH_J1_SBHigh_T5HH2100;
-
-  TH1F * h_doubleB_J2_SBLow_WJets; TH1F * h_doubleB_J2_SR_WJets; TH1F * h_doubleB_J2_SBHigh_WJets;
-  TH1F * h_doubleB_J2_SBLow_ZJets; TH1F * h_doubleB_J2_SR_ZJets; TH1F * h_doubleB_J2_SBHigh_ZJets;
-  TH1F * h_doubleB_J2_SBLow_TT; TH1F * h_doubleB_J2_SR_TT; TH1F * h_doubleB_J2_SBHigh_TT;
-  TH1F * h_doubleB_J2_SBLow_QCD; TH1F * h_doubleB_J2_SR_QCD; TH1F * h_doubleB_J2_SBHigh_QCD;
-  TH1F * h_doubleB_J2_SBLow_GJets; TH1F * h_doubleB_J2_SR_GJets; TH1F * h_doubleB_J2_SBHigh_GJets;
-  TH1F * h_doubleB_J2_SBLow_T5HH1300; TH1F * h_doubleB_J2_SR_T5HH1300; TH1F * h_doubleB_J2_SBHigh_T5HH1300;
-  TH1F * h_doubleB_J2_SBLow_T5HH1700; TH1F * h_doubleB_J2_SR_T5HH1700; TH1F * h_doubleB_J2_SBHigh_T5HH1700;
-  TH1F * h_doubleB_J2_SBLow_T5HH2100; TH1F * h_doubleB_J2_SR_T5HH2100; TH1F * h_doubleB_J2_SBHigh_T5HH2100;
-
-  // TH1F * h_doubleBH_J2_SBLow_WJets; TH1F * h_doubleBH_J2_SR_WJets; TH1F * h_doubleBH_J2_SBHigh_WJets;
-  // TH1F * h_doubleBH_J2_SBLow_ZJets; TH1F * h_doubleBH_J2_SR_ZJets; TH1F * h_doubleBH_J2_SBHigh_ZJets;
-  // TH1F * h_doubleBH_J2_SBLow_TT; TH1F * h_doubleBH_J2_SR_TT; TH1F * h_doubleBH_J2_SBHigh_TT;
-  // TH1F * h_doubleBH_J2_SBLow_QCD; TH1F * h_doubleBH_J2_SR_QCD; TH1F * h_doubleBH_J2_SBHigh_QCD;
-  // TH1F * h_doubleBH_J2_SBLow_GJets; TH1F * h_doubleBH_J2_SR_GJets; TH1F * h_doubleBH_J2_SBHigh_GJets;
-  // TH1F * h_doubleBH_J2_SBLow_T5HH1300; TH1F * h_doubleBH_J2_SR_T5HH1300; TH1F * h_doubleBH_J2_SBHigh_T5HH1300;
-  // TH1F * h_doubleBH_J2_SBLow_T5HH1700; TH1F * h_doubleBH_J2_SR_T5HH1700; TH1F * h_doubleBH_J2_SBHigh_T5HH1700;
-  // TH1F * h_doubleBH_J2_SBLow_T5HH2100; TH1F * h_doubleBH_J2_SR_T5HH2100; TH1F * h_doubleBH_J2_SBHigh_T5HH2100;
-
-  // TH1F * h_tau32_J1_SBLow_WJets; TH1F * h_tau32_J1_SR_WJets; TH1F * h_tau32_J1_SBHigh_WJets;
-  // TH1F * h_tau32_J1_SBLow_ZJets; TH1F * h_tau32_J1_SR_ZJets; TH1F * h_tau32_J1_SBHigh_ZJets;
-  // TH1F * h_tau32_J1_SBLow_TT; TH1F * h_tau32_J1_SR_TT; TH1F * h_tau32_J1_SBHigh_TT;
-  // TH1F * h_tau32_J1_SBLow_QCD; TH1F * h_tau32_J1_SR_QCD; TH1F * h_tau32_J1_SBHigh_QCD;
-  // TH1F * h_tau32_J1_SBLow_GJets; TH1F * h_tau32_J1_SR_GJets; TH1F * h_tau32_J1_SBHigh_GJets;
-  // TH1F * h_tau32_J1_SBLow_T5HH1300; TH1F * h_tau32_J1_SR_T5HH1300; TH1F * h_tau32_J1_SBHigh_T5HH1300;
-  // TH1F * h_tau32_J1_SBLow_T5HH1700; TH1F * h_tau32_J1_SR_T5HH1700; TH1F * h_tau32_J1_SBHigh_T5HH1700;
-  // TH1F * h_tau32_J1_SBLow_T5HH2100; TH1F * h_tau32_J1_SR_T5HH2100; TH1F * h_tau32_J1_SBHigh_T5HH2100;
-
   TH1F * h_MET_all_ZJets; TH1F * h_MET_Single_ZJets; TH1F * h_MET_Double_ZJets;
   TH1F * h_MET_all_WJets; TH1F * h_MET_Single_WJets; TH1F * h_MET_Double_WJets;
   TH1F * h_MET_all_TT; TH1F * h_MET_Single_TT; TH1F * h_MET_Double_TT;
@@ -202,12 +150,16 @@ void runABCD() {
   TH1F * h_MET_all_T5HH1700; TH1F * h_MET_Single_T5HH1700; TH1F * h_MET_Double_T5HH1700;
   TH1F * h_MET_all_T5HH2100; TH1F * h_MET_Single_T5HH2100; TH1F * h_MET_Double_T5HH2100;
 
+  TH1F * h_notagSR_sum; TH1F * h_notagSB_sum;
+  TH1F * h_notagSR_ZJets; TH1F * h_notagSB_ZJets;
+  TH1F * h_notagSR_WJets; TH1F * h_notagSB_WJets;
+  TH1F * h_notagSR_TT; TH1F * h_notagSB_TT;
+  TH1F * h_notagSR_QCD; TH1F * h_notagSB_QCD;
 
   if (whichRegion=="signal") {
     h_A_sum = (TH1F*)f->Get("MET_doubletagSR_sum"); h_B_sum = (TH1F*)f->Get("MET_doubletagSB_sum");
     h_A1_sum = (TH1F*)f->Get("MET_tagSR_sum"); h_B1_sum = (TH1F*)f->Get("MET_tagSB_sum");
     h_C_sum = (TH1F*)f->Get("MET_antitagSR_sum"); h_D_sum = (TH1F*)f->Get("MET_antitagSB_sum");
-
     h_A_TT = (TH1F*)f->Get("MET_doubletagSR_TT"); h_B_TT = (TH1F*)f->Get("MET_doubletagSB_TT");
     h_A1_TT = (TH1F*)f->Get("MET_tagSR_TT"); h_B1_TT = (TH1F*)f->Get("MET_tagSB_TT");
     h_C_TT = (TH1F*)f->Get("MET_antitagSR_TT"); h_D_TT = (TH1F*)f->Get("MET_antitagSB_TT");
@@ -224,6 +176,11 @@ void runABCD() {
     h_A1_QCD = (TH1F*)f->Get("MET_tagSR_QCD"); h_B1_QCD = (TH1F*)f->Get("MET_tagSB_QCD");
     h_C_QCD = (TH1F*)f->Get("MET_antitagSR_QCD"); h_D_QCD = (TH1F*)f->Get("MET_antitagSB_QCD");
 
+    h_notagSR_sum = (TH1F*)f->Get("MET_notagSR_sum"); h_notagSB_sum = (TH1F*)f->Get("MET_notagSB_sum");
+    h_notagSR_ZJets = (TH1F*)f->Get("MET_notagSR_ZJets"); h_notagSB_ZJets = (TH1F*)f->Get("MET_notagSB_ZJets");
+    h_notagSR_WJets = (TH1F*)f->Get("MET_notagSR_WJets"); h_notagSB_WJets = (TH1F*)f->Get("MET_notagSB_WJets");
+    h_notagSR_TT = (TH1F*)f->Get("MET_notagSR_TT"); h_notagSB_TT = (TH1F*)f->Get("MET_notagSB_TT");
+    h_notagSR_QCD = (TH1F*)f->Get("MET_notagSR_QCD"); h_notagSB_QCD = (TH1F*)f->Get("MET_notagSB_QCD");
 
     h_A_TChiHH200 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH200"); h_B_TChiHH200 = (TH1F*)fSignal->Get("MET_doubletagSB_TChiHH200");
     h_A1_TChiHH200 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH200"); h_B1_TChiHH200 = (TH1F*)fSignal->Get("MET_tagSB_TChiHH200");
@@ -249,209 +206,120 @@ void runABCD() {
     h_A1_TChiHH1500 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH1500"); h_B1_TChiHH1500 = (TH1F*)fSignal->Get("MET_tagSB_TChiHH1500");
     h_C_TChiHH1500 = (TH1F*)fSignal->Get("MET_antitagSR_TChiHH1500"); h_D_TChiHH1500 = (TH1F*)fSignal->Get("MET_antitagSB_TChiHH1500");
 
-    h_J1M_doubletagSR_sum = (TH1F*)f->Get("J1_m_doubletagSR_sum"); h_J2M_doubletagSR_sum = (TH1F*)f->Get("J2_m_doubletagSR_sum");
-    h_J1M_doubletagSB_sum = (TH1F*)f->Get("J1_m_doubletagSB_sum"); h_J2M_doubletagSB_sum = (TH1F*)f->Get("J2_m_doubletagSB_sum");
-    h_J1M_antitagSR_sum = (TH1F*)f->Get("J1_m_antitagSR_sum"); h_J2M_antitagSR_sum = (TH1F*)f->Get("J2_m_antitagSR_sum");
-    h_J1M_antitagSB_sum = (TH1F*)f->Get("J1_m_antitagSB_sum"); h_J2M_antitagSB_sum = (TH1F*)f->Get("J2_m_antitagSB_sum");
-    h_J1M_tagSR_sum = (TH1F*)f->Get("J1_m_tagSR_sum"); h_J2M_tagSR_sum = (TH1F*)f->Get("J2_m_tagSR_sum");
-    h_J1M_tagSB_sum = (TH1F*)f->Get("J1_m_tagSB_sum"); h_J2M_tagSB_sum = (TH1F*)f->Get("J2_m_tagSB_sum");
+    h_J1M_doubletagSR_sum = (TH1F*)f->Get("J1pt_M_doubletagSR_sum"); h_J2M_doubletagSR_sum = (TH1F*)f->Get("J2pt_M_doubletagSR_sum");
+    h_J1M_doubletagSB_sum = (TH1F*)f->Get("J1pt_M_doubletagSB_sum"); h_J2M_doubletagSB_sum = (TH1F*)f->Get("J2pt_M_doubletagSB_sum");
+    h_J1M_antitagSR_sum = (TH1F*)f->Get("J1pt_M_antitagSR_sum"); h_J2M_antitagSR_sum = (TH1F*)f->Get("J2pt_M_antitagSR_sum");
+    h_J1M_antitagSB_sum = (TH1F*)f->Get("J1pt_M_antitagSB_sum"); h_J2M_antitagSB_sum = (TH1F*)f->Get("J2pt_M_antitagSB_sum");
+    h_J1M_tagSR_sum = (TH1F*)f->Get("J1pt_M_tagSR_sum"); h_J2M_tagSR_sum = (TH1F*)f->Get("J2pt_M_tagSR_sum");
+    h_J1M_tagSB_sum = (TH1F*)f->Get("J1pt_M_tagSB_sum"); h_J2M_tagSB_sum = (TH1F*)f->Get("J2pt_M_tagSB_sum");
 
-    h_J1M_doubletagSR_ZJets = (TH1F*)f->Get("J1_m_doubletagSR_ZJets"); h_J2M_doubletagSR_ZJets = (TH1F*)f->Get("J2_m_doubletagSR_ZJets");
-    h_J1M_doubletagSB_ZJets = (TH1F*)f->Get("J1_m_doubletagSB_ZJets"); h_J2M_doubletagSB_ZJets = (TH1F*)f->Get("J2_m_doubletagSB_ZJets");
-    h_J1M_antitagSR_ZJets = (TH1F*)f->Get("J1_m_antitagSR_ZJets"); h_J2M_antitagSR_ZJets = (TH1F*)f->Get("J2_m_antitagSR_ZJets");
-    h_J1M_antitagSB_ZJets = (TH1F*)f->Get("J1_m_antitagSB_ZJets"); h_J2M_antitagSB_ZJets = (TH1F*)f->Get("J2_m_antitagSB_ZJets");
-    h_J1M_tagSR_ZJets = (TH1F*)f->Get("J1_m_tagSR_ZJets"); h_J2M_tagSR_ZJets = (TH1F*)f->Get("J2_m_tagSR_ZJets");
-    h_J1M_tagSB_ZJets = (TH1F*)f->Get("J1_m_tagSB_ZJets"); h_J2M_tagSB_ZJets = (TH1F*)f->Get("J2_m_tagSB_ZJets");
+    h_J1M_doubletagSR_ZJets = (TH1F*)f->Get("J1pt_M_doubletagSR_ZJets"); h_J2M_doubletagSR_ZJets = (TH1F*)f->Get("J2pt_M_doubletagSR_ZJets");
+    h_J1M_doubletagSB_ZJets = (TH1F*)f->Get("J1pt_M_doubletagSB_ZJets"); h_J2M_doubletagSB_ZJets = (TH1F*)f->Get("J2pt_M_doubletagSB_ZJets");
+    h_J1M_antitagSR_ZJets = (TH1F*)f->Get("J1pt_M_antitagSR_ZJets"); h_J2M_antitagSR_ZJets = (TH1F*)f->Get("J2pt_M_antitagSR_ZJets");
+    h_J1M_antitagSB_ZJets = (TH1F*)f->Get("J1pt_M_antitagSB_ZJets"); h_J2M_antitagSB_ZJets = (TH1F*)f->Get("J2pt_M_antitagSB_ZJets");
+    h_J1M_tagSR_ZJets = (TH1F*)f->Get("J1pt_M_tagSR_ZJets"); h_J2M_tagSR_ZJets = (TH1F*)f->Get("J2pt_M_tagSR_ZJets");
+    h_J1M_tagSB_ZJets = (TH1F*)f->Get("J1pt_M_tagSB_ZJets"); h_J2M_tagSB_ZJets = (TH1F*)f->Get("J2pt_M_tagSB_ZJets");
 
-    h_J1M_doubletagSR_QCD = (TH1F*)f->Get("J1_m_doubletagSR_QCD"); h_J2M_doubletagSR_QCD = (TH1F*)f->Get("J2_m_doubletagSR_QCD");
-    h_J1M_doubletagSB_QCD = (TH1F*)f->Get("J1_m_doubletagSB_QCD"); h_J2M_doubletagSB_QCD = (TH1F*)f->Get("J2_m_doubletagSB_QCD");
-    h_J1M_antitagSR_QCD = (TH1F*)f->Get("J1_m_antitagSR_QCD"); h_J2M_antitagSR_QCD = (TH1F*)f->Get("J2_m_antitagSR_QCD");
-    h_J1M_antitagSB_QCD = (TH1F*)f->Get("J1_m_antitagSB_QCD"); h_J2M_antitagSB_QCD = (TH1F*)f->Get("J2_m_antitagSB_QCD");
-    h_J1M_tagSR_QCD = (TH1F*)f->Get("J1_m_tagSR_QCD"); h_J2M_tagSR_QCD = (TH1F*)f->Get("J2_m_tagSR_QCD");
-    h_J1M_tagSB_QCD = (TH1F*)f->Get("J1_m_tagSB_QCD"); h_J2M_tagSB_QCD = (TH1F*)f->Get("J2_m_tagSB_QCD");
+    h_J1M_doubletagSR_QCD = (TH1F*)f->Get("J1pt_M_doubletagSR_QCD"); h_J2M_doubletagSR_QCD = (TH1F*)f->Get("J2pt_M_doubletagSR_QCD");
+    h_J1M_doubletagSB_QCD = (TH1F*)f->Get("J1pt_M_doubletagSB_QCD"); h_J2M_doubletagSB_QCD = (TH1F*)f->Get("J2pt_M_doubletagSB_QCD");
+    h_J1M_antitagSR_QCD = (TH1F*)f->Get("J1pt_M_antitagSR_QCD"); h_J2M_antitagSR_QCD = (TH1F*)f->Get("J2pt_M_antitagSR_QCD");
+    h_J1M_antitagSB_QCD = (TH1F*)f->Get("J1pt_M_antitagSB_QCD"); h_J2M_antitagSB_QCD = (TH1F*)f->Get("J2pt_M_antitagSB_QCD");
+    h_J1M_tagSR_QCD = (TH1F*)f->Get("J1pt_M_tagSR_QCD"); h_J2M_tagSR_QCD = (TH1F*)f->Get("J2pt_M_tagSR_QCD");
+    h_J1M_tagSB_QCD = (TH1F*)f->Get("J1pt_M_tagSB_QCD"); h_J2M_tagSB_QCD = (TH1F*)f->Get("J2pt_M_tagSB_QCD");
 
-    h_J1M_doubletagSR_TT = (TH1F*)f->Get("J1_m_doubletagSR_TT"); h_J2M_doubletagSR_TT = (TH1F*)f->Get("J2_m_doubletagSR_TT");
-    h_J1M_doubletagSB_TT = (TH1F*)f->Get("J1_m_doubletagSB_TT"); h_J2M_doubletagSB_TT = (TH1F*)f->Get("J2_m_doubletagSB_TT");
-    h_J1M_antitagSR_TT = (TH1F*)f->Get("J1_m_antitagSR_TT"); h_J2M_antitagSR_TT = (TH1F*)f->Get("J2_m_antitagSR_TT");
-    h_J1M_antitagSB_TT = (TH1F*)f->Get("J1_m_antitagSB_TT"); h_J2M_antitagSB_TT = (TH1F*)f->Get("J2_m_antitagSB_TT");
-    h_J1M_tagSR_TT = (TH1F*)f->Get("J1_m_tagSR_TT"); h_J2M_tagSR_TT = (TH1F*)f->Get("J2_m_tagSR_TT");
-    h_J1M_tagSB_TT = (TH1F*)f->Get("J1_m_tagSB_TT"); h_J2M_tagSB_TT = (TH1F*)f->Get("J2_m_tagSB_TT");
+    h_J1M_doubletagSR_TT = (TH1F*)f->Get("J1pt_M_doubletagSR_TT"); h_J2M_doubletagSR_TT = (TH1F*)f->Get("J2pt_M_doubletagSR_TT");
+    h_J1M_doubletagSB_TT = (TH1F*)f->Get("J1pt_M_doubletagSB_TT"); h_J2M_doubletagSB_TT = (TH1F*)f->Get("J2pt_M_doubletagSB_TT");
+    h_J1M_antitagSR_TT = (TH1F*)f->Get("J1pt_M_antitagSR_TT"); h_J2M_antitagSR_TT = (TH1F*)f->Get("J2pt_M_antitagSR_TT");
+    h_J1M_antitagSB_TT = (TH1F*)f->Get("J1pt_M_antitagSB_TT"); h_J2M_antitagSB_TT = (TH1F*)f->Get("J2pt_M_antitagSB_TT");
+    h_J1M_tagSR_TT = (TH1F*)f->Get("J1pt_M_tagSR_TT"); h_J2M_tagSR_TT = (TH1F*)f->Get("J2pt_M_tagSR_TT");
+    h_J1M_tagSB_TT = (TH1F*)f->Get("J1pt_M_tagSB_TT"); h_J2M_tagSB_TT = (TH1F*)f->Get("J2pt_M_tagSB_TT");
 
-    h_J1M_doubletagSR_WJets = (TH1F*)f->Get("J1_m_doubletagSR_WJets"); h_J2M_doubletagSR_WJets = (TH1F*)f->Get("J2_m_doubletagSR_WJets");
-    h_J1M_doubletagSB_WJets = (TH1F*)f->Get("J1_m_doubletagSB_WJets"); h_J2M_doubletagSB_WJets = (TH1F*)f->Get("J2_m_doubletagSB_WJets");
-    h_J1M_antitagSR_WJets = (TH1F*)f->Get("J1_m_antitagSR_WJets"); h_J2M_antitagSR_WJets = (TH1F*)f->Get("J2_m_antitagSR_WJets");
-    h_J1M_antitagSB_WJets = (TH1F*)f->Get("J1_m_antitagSB_WJets"); h_J2M_antitagSB_WJets = (TH1F*)f->Get("J2_m_antitagSB_WJets");
-    h_J1M_tagSR_WJets = (TH1F*)f->Get("J1_m_tagSR_WJets"); h_J2M_tagSR_WJets = (TH1F*)f->Get("J2_m_tagSR_WJets");
-    h_J1M_tagSB_WJets = (TH1F*)f->Get("J1_m_tagSB_WJets"); h_J2M_tagSB_WJets = (TH1F*)f->Get("J2_m_tagSB_WJets");
-
+    h_J1M_doubletagSR_WJets = (TH1F*)f->Get("J1pt_M_doubletagSR_WJets"); h_J2M_doubletagSR_WJets = (TH1F*)f->Get("J2pt_M_doubletagSR_WJets");
+    h_J1M_doubletagSB_WJets = (TH1F*)f->Get("J1pt_M_doubletagSB_WJets"); h_J2M_doubletagSB_WJets = (TH1F*)f->Get("J2pt_M_doubletagSB_WJets");
+    h_J1M_antitagSR_WJets = (TH1F*)f->Get("J1pt_M_antitagSR_WJets"); h_J2M_antitagSR_WJets = (TH1F*)f->Get("J2pt_M_antitagSR_WJets");
+    h_J1M_antitagSB_WJets = (TH1F*)f->Get("J1pt_M_antitagSB_WJets"); h_J2M_antitagSB_WJets = (TH1F*)f->Get("J2pt_M_antitagSB_WJets");
+    h_J1M_tagSR_WJets = (TH1F*)f->Get("J1pt_M_tagSR_WJets"); h_J2M_tagSR_WJets = (TH1F*)f->Get("J2pt_M_tagSR_WJets");
+    h_J1M_tagSB_WJets = (TH1F*)f->Get("J1pt_M_tagSB_WJets"); h_J2M_tagSB_WJets = (TH1F*)f->Get("J2pt_M_tagSB_WJets");
 
     //for signal
-    h_J1M_doubletagSR_T5HH1300 = (TH1F*)fSignal->Get("J1_m_doubletagSR_T5qqqqZH1300"); h_J2M_doubletagSR_T5HH1300 = (TH1F*)fSignal->Get("J2_m_doubletagSR_T5qqqqZH1300");
-    h_J1M_doubletagSB_T5HH1300 = (TH1F*)fSignal->Get("J1_m_doubletagSB_T5qqqqZH1300"); h_J2M_doubletagSB_T5HH1300 = (TH1F*)fSignal->Get("J2_m_doubletagSB_T5qqqqZH1300");
-    h_J1M_antitagSR_T5HH1300 = (TH1F*)fSignal->Get("J1_m_antitagSR_T5qqqqZH1300"); h_J2M_antitagSR_T5HH1300 = (TH1F*)fSignal->Get("J2_m_antitagSR_T5qqqqZH1300");
-    h_J1M_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J1_m_antitagSB_T5qqqqZH1300"); h_J2M_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J2_m_antitagSB_T5qqqqZH1300");
-    h_J1M_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J1_m_tagSR_T5qqqqZH1300"); h_J2M_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J2_m_tagSR_T5qqqqZH1300");
-    h_J1M_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J1_m_tagSB_T5qqqqZH1300"); h_J2M_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J2_m_tagSB_T5qqqqZH1300");
+    h_J1M_doubletagSR_T5HH1300 = (TH1F*)fSignal->Get("J1pt_M_doubletagSR_T5qqqqZH1300"); h_J2M_doubletagSR_T5HH1300 = (TH1F*)fSignal->Get("J2pt_M_doubletagSR_T5qqqqZH1300");
+    h_J1M_doubletagSB_T5HH1300 = (TH1F*)fSignal->Get("J1pt_M_doubletagSB_T5qqqqZH1300"); h_J2M_doubletagSB_T5HH1300 = (TH1F*)fSignal->Get("J2pt_M_doubletagSB_T5qqqqZH1300");
+    h_J1M_antitagSR_T5HH1300 = (TH1F*)fSignal->Get("J1pt_M_antitagSR_T5qqqqZH1300"); h_J2M_antitagSR_T5HH1300 = (TH1F*)fSignal->Get("J2pt_M_antitagSR_T5qqqqZH1300");
+    h_J1M_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J1pt_M_antitagSB_T5qqqqZH1300"); h_J2M_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J2pt_M_antitagSB_T5qqqqZH1300");
+    h_J1M_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J1pt_M_tagSR_T5qqqqZH1300"); h_J2M_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J2pt_M_tagSR_T5qqqqZH1300");
+    h_J1M_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J1pt_M_tagSB_T5qqqqZH1300"); h_J2M_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J2pt_M_tagSB_T5qqqqZH1300");
 
-    h_J1M_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J1_m_doubletagSR_T5qqqqZH1700"); h_J2M_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J2_m_doubletagSR_T5qqqqZH1700");
-    h_J1M_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J1_m_doubletagSB_T5qqqqZH1700"); h_J2M_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J2_m_doubletagSB_T5qqqqZH1700");
-    h_J1M_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J1_m_antitagSR_T5qqqqZH1700"); h_J2M_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J2_m_antitagSR_T5qqqqZH1700");
-    h_J1M_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J1_m_antitagSB_T5qqqqZH1700"); h_J2M_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J2_m_antitagSB_T5qqqqZH1700");
-    h_J1M_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J1_m_tagSR_T5qqqqZH1700"); h_J2M_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J2_m_tagSR_T5qqqqZH1700");
-    h_J1M_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J1_m_tagSB_T5qqqqZH1700"); h_J2M_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J2_m_tagSB_T5qqqqZH1700");
+    h_J1M_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_doubletagSR_T5qqqqZH1700"); h_J2M_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_doubletagSR_T5qqqqZH1700");
+    h_J1M_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_doubletagSB_T5qqqqZH1700"); h_J2M_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_doubletagSB_T5qqqqZH1700");
+    h_J1M_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_antitagSR_T5qqqqZH1700"); h_J2M_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_antitagSR_T5qqqqZH1700");
+    h_J1M_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_antitagSB_T5qqqqZH1700"); h_J2M_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_antitagSB_T5qqqqZH1700");
+    h_J1M_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_tagSR_T5qqqqZH1700"); h_J2M_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_tagSR_T5qqqqZH1700");
+    h_J1M_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_tagSB_T5qqqqZH1700"); h_J2M_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_tagSB_T5qqqqZH1700");
 
-    h_J1M_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J1_m_doubletagSR_T5qqqqZH2100"); h_J2M_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J2_m_doubletagSR_T5qqqqZH2100");
-    h_J1M_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J1_m_doubletagSB_T5qqqqZH2100"); h_J2M_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J2_m_doubletagSB_T5qqqqZH2100");
-    h_J1M_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J1_m_antitagSR_T5qqqqZH2100"); h_J2M_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J2_m_antitagSR_T5qqqqZH2100");
-    h_J1M_antitagSB_T5HH2100 = (TH1F*)fSignal->Get("J1_m_antitagSB_T5qqqqZH2100"); h_J2M_antitagSB_T5HH2100 = (TH1F*)fSignal->Get("J2_m_antitagSB_T5qqqqZH2100");
-    h_J1M_tagSR_T5HH2100 = (TH1F*)fSignal->Get("J1_m_tagSR_T5qqqqZH2100"); h_J2M_tagSR_T5HH2100 = (TH1F*)fSignal->Get("J2_m_tagSR_T5qqqqZH2100");
-    h_J1M_tagSB_T5HH2100 = (TH1F*)fSignal->Get("J1_m_tagSB_T5qqqqZH2100"); h_J2M_tagSB_T5HH2100 = (TH1F*)fSignal->Get("J2_m_tagSB_T5qqqqZH2100");
-
+    h_J1M_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_M_doubletagSR_T5qqqqZH2100"); h_J2M_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_M_doubletagSR_T5qqqqZH2100");
+    h_J1M_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J1pt_M_doubletagSB_T5qqqqZH2100"); h_J2M_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J2pt_M_doubletagSB_T5qqqqZH2100");
+    h_J1M_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_M_antitagSR_T5qqqqZH2100"); h_J2M_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_M_antitagSR_T5qqqqZH2100");
+    h_J1M_antitagSB_T5HH2100 = (TH1F*)fSignal->Get("J1pt_M_antitagSB_T5qqqqZH2100"); h_J2M_antitagSB_T5HH2100 = (TH1F*)fSignal->Get("J2pt_M_antitagSB_T5qqqqZH2100");
+    h_J1M_tagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_M_tagSR_T5qqqqZH2100"); h_J2M_tagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_M_tagSR_T5qqqqZH2100");
+    h_J1M_tagSB_T5HH2100 = (TH1F*)fSignal->Get("J1pt_M_tagSB_T5qqqqZH2100"); h_J2M_tagSB_T5HH2100 = (TH1F*)fSignal->Get("J2pt_M_tagSB_T5qqqqZH2100");
 
     //For pt
-    h_J1Pt_doubletagSR_sum = (TH1F*)f->Get("J1_pt_doubletagSR_sum"); h_J2Pt_doubletagSR_sum = (TH1F*)f->Get("J2_pt_doubletagSR_sum");
-    h_J1Pt_doubletagSB_sum = (TH1F*)f->Get("J1_pt_doubletagSB_sum"); h_J2Pt_doubletagSB_sum = (TH1F*)f->Get("J2_pt_doubletagSB_sum");
-    h_J1Pt_antitagSR_sum = (TH1F*)f->Get("J1_pt_antitagSR_sum"); h_J2Pt_antitagSR_sum = (TH1F*)f->Get("J2_pt_antitagSR_sum");
-    h_J1Pt_antitagSB_sum = (TH1F*)f->Get("J1_pt_antitagSB_sum"); h_J2Pt_antitagSB_sum = (TH1F*)f->Get("J2_pt_antitagSB_sum");
-    h_J1Pt_tagSR_sum = (TH1F*)f->Get("J1_pt_tagSR_sum"); h_J2Pt_tagSR_sum = (TH1F*)f->Get("J2_pt_tagSR_sum");
-    h_J1Pt_tagSB_sum = (TH1F*)f->Get("J1_pt_tagSB_sum"); h_J2Pt_tagSB_sum = (TH1F*)f->Get("J2_pt_tagSB_sum");
+    h_J1Pt_doubletagSR_sum = (TH1F*)f->Get("J1pt_Pt_doubletagSR_sum"); h_J2Pt_doubletagSR_sum = (TH1F*)f->Get("J2pt_Pt_doubletagSR_sum");
+    h_J1Pt_doubletagSB_sum = (TH1F*)f->Get("J1pt_Pt_doubletagSB_sum"); h_J2Pt_doubletagSB_sum = (TH1F*)f->Get("J2pt_Pt_doubletagSB_sum");
+    h_J1Pt_antitagSR_sum = (TH1F*)f->Get("J1pt_Pt_antitagSR_sum"); h_J2Pt_antitagSR_sum = (TH1F*)f->Get("J2pt_Pt_antitagSR_sum");
+    h_J1Pt_antitagSB_sum = (TH1F*)f->Get("J1pt_Pt_antitagSB_sum"); h_J2Pt_antitagSB_sum = (TH1F*)f->Get("J2pt_Pt_antitagSB_sum");
+    h_J1Pt_tagSR_sum = (TH1F*)f->Get("J1pt_Pt_tagSR_sum"); h_J2Pt_tagSR_sum = (TH1F*)f->Get("J2pt_Pt_tagSR_sum");
+    h_J1Pt_tagSB_sum = (TH1F*)f->Get("J1pt_Pt_tagSB_sum"); h_J2Pt_tagSB_sum = (TH1F*)f->Get("J2pt_Pt_tagSB_sum");
 
-    h_J1Pt_doubletagSR_ZJets = (TH1F*)f->Get("J1_pt_doubletagSR_ZJets"); h_J2Pt_doubletagSR_ZJets = (TH1F*)f->Get("J2_pt_doubletagSR_ZJets");
-    h_J1Pt_doubletagSB_ZJets = (TH1F*)f->Get("J1_pt_doubletagSB_ZJets"); h_J2Pt_doubletagSB_ZJets = (TH1F*)f->Get("J2_pt_doubletagSB_ZJets");
-    h_J1Pt_antitagSR_ZJets = (TH1F*)f->Get("J1_pt_antitagSR_ZJets"); h_J2Pt_antitagSR_ZJets = (TH1F*)f->Get("J2_pt_antitagSR_ZJets");
-    h_J1Pt_antitagSB_ZJets = (TH1F*)f->Get("J1_pt_antitagSB_ZJets"); h_J2Pt_antitagSB_ZJets = (TH1F*)f->Get("J2_pt_antitagSB_ZJets");
-    h_J1Pt_tagSR_ZJets = (TH1F*)f->Get("J1_pt_tagSR_ZJets"); h_J2Pt_tagSR_ZJets = (TH1F*)f->Get("J2_pt_tagSR_ZJets");
-    h_J1Pt_tagSB_ZJets = (TH1F*)f->Get("J1_pt_tagSB_ZJets"); h_J2Pt_tagSB_ZJets = (TH1F*)f->Get("J2_pt_tagSB_ZJets");
+    h_J1Pt_doubletagSR_ZJets = (TH1F*)f->Get("J1pt_Pt_doubletagSR_ZJets"); h_J2Pt_doubletagSR_ZJets = (TH1F*)f->Get("J2pt_Pt_doubletagSR_ZJets");
+    h_J1Pt_doubletagSB_ZJets = (TH1F*)f->Get("J1pt_Pt_doubletagSB_ZJets"); h_J2Pt_doubletagSB_ZJets = (TH1F*)f->Get("J2pt_Pt_doubletagSB_ZJets");
+    h_J1Pt_antitagSR_ZJets = (TH1F*)f->Get("J1pt_Pt_antitagSR_ZJets"); h_J2Pt_antitagSR_ZJets = (TH1F*)f->Get("J2pt_Pt_antitagSR_ZJets");
+    h_J1Pt_antitagSB_ZJets = (TH1F*)f->Get("J1pt_Pt_antitagSB_ZJets"); h_J2Pt_antitagSB_ZJets = (TH1F*)f->Get("J2pt_Pt_antitagSB_ZJets");
+    h_J1Pt_tagSR_ZJets = (TH1F*)f->Get("J1pt_Pt_tagSR_ZJets"); h_J2Pt_tagSR_ZJets = (TH1F*)f->Get("J2pt_Pt_tagSR_ZJets");
+    h_J1Pt_tagSB_ZJets = (TH1F*)f->Get("J1pt_Pt_tagSB_ZJets"); h_J2Pt_tagSB_ZJets = (TH1F*)f->Get("J2pt_Pt_tagSB_ZJets");
 
-    h_J1Pt_doubletagSR_QCD = (TH1F*)f->Get("J1_pt_doubletagSR_QCD"); h_J2Pt_doubletagSR_QCD = (TH1F*)f->Get("J2_pt_doubletagSR_QCD");
-    h_J1Pt_doubletagSB_QCD = (TH1F*)f->Get("J1_pt_doubletagSB_QCD"); h_J2Pt_doubletagSB_QCD = (TH1F*)f->Get("J2_pt_doubletagSB_QCD");
-    h_J1Pt_antitagSR_QCD = (TH1F*)f->Get("J1_pt_antitagSR_QCD"); h_J2Pt_antitagSR_QCD = (TH1F*)f->Get("J2_pt_antitagSR_QCD");
-    h_J1Pt_antitagSB_QCD = (TH1F*)f->Get("J1_pt_antitagSB_QCD"); h_J2Pt_antitagSB_QCD = (TH1F*)f->Get("J2_pt_antitagSB_QCD");
-    h_J1Pt_tagSR_QCD = (TH1F*)f->Get("J1_pt_tagSR_QCD"); h_J2Pt_tagSR_QCD = (TH1F*)f->Get("J2_pt_tagSR_QCD");
-    h_J1Pt_tagSB_QCD = (TH1F*)f->Get("J1_pt_tagSB_QCD"); h_J2Pt_tagSB_QCD = (TH1F*)f->Get("J2_pt_tagSB_QCD");
+    h_J1Pt_doubletagSR_QCD = (TH1F*)f->Get("J1pt_Pt_doubletagSR_QCD"); h_J2Pt_doubletagSR_QCD = (TH1F*)f->Get("J2pt_Pt_doubletagSR_QCD");
+    h_J1Pt_doubletagSB_QCD = (TH1F*)f->Get("J1pt_Pt_doubletagSB_QCD"); h_J2Pt_doubletagSB_QCD = (TH1F*)f->Get("J2pt_Pt_doubletagSB_QCD");
+    h_J1Pt_antitagSR_QCD = (TH1F*)f->Get("J1pt_Pt_antitagSR_QCD"); h_J2Pt_antitagSR_QCD = (TH1F*)f->Get("J2pt_Pt_antitagSR_QCD");
+    h_J1Pt_antitagSB_QCD = (TH1F*)f->Get("J1pt_Pt_antitagSB_QCD"); h_J2Pt_antitagSB_QCD = (TH1F*)f->Get("J2pt_Pt_antitagSB_QCD");
+    h_J1Pt_tagSR_QCD = (TH1F*)f->Get("J1pt_Pt_tagSR_QCD"); h_J2Pt_tagSR_QCD = (TH1F*)f->Get("J2pt_Pt_tagSR_QCD");
+    h_J1Pt_tagSB_QCD = (TH1F*)f->Get("J1pt_Pt_tagSB_QCD"); h_J2Pt_tagSB_QCD = (TH1F*)f->Get("J2pt_Pt_tagSB_QCD");
 
-    h_J1Pt_doubletagSR_TT = (TH1F*)f->Get("J1_pt_doubletagSR_TT"); h_J2Pt_doubletagSR_TT = (TH1F*)f->Get("J2_pt_doubletagSR_TT");
-    h_J1Pt_doubletagSB_TT = (TH1F*)f->Get("J1_pt_doubletagSB_TT"); h_J2Pt_doubletagSB_TT = (TH1F*)f->Get("J2_pt_doubletagSB_TT");
-    h_J1Pt_antitagSR_TT = (TH1F*)f->Get("J1_pt_antitagSR_TT"); h_J2Pt_antitagSR_TT = (TH1F*)f->Get("J2_pt_antitagSR_TT");
-    h_J1Pt_antitagSB_TT = (TH1F*)f->Get("J1_pt_antitagSB_TT"); h_J2Pt_antitagSB_TT = (TH1F*)f->Get("J2_pt_antitagSB_TT");
-    h_J1Pt_tagSR_TT = (TH1F*)f->Get("J1_pt_tagSR_TT"); h_J2Pt_tagSR_TT = (TH1F*)f->Get("J2_pt_tagSR_TT");
-    h_J1Pt_tagSB_TT = (TH1F*)f->Get("J1_pt_tagSB_TT"); h_J2Pt_tagSB_TT = (TH1F*)f->Get("J2_pt_tagSB_TT");
+    h_J1Pt_doubletagSR_TT = (TH1F*)f->Get("J1pt_Pt_doubletagSR_TT"); h_J2Pt_doubletagSR_TT = (TH1F*)f->Get("J2pt_Pt_doubletagSR_TT");
+    h_J1Pt_doubletagSB_TT = (TH1F*)f->Get("J1pt_Pt_doubletagSB_TT"); h_J2Pt_doubletagSB_TT = (TH1F*)f->Get("J2pt_Pt_doubletagSB_TT");
+    h_J1Pt_antitagSR_TT = (TH1F*)f->Get("J1pt_Pt_antitagSR_TT"); h_J2Pt_antitagSR_TT = (TH1F*)f->Get("J2pt_Pt_antitagSR_TT");
+    h_J1Pt_antitagSB_TT = (TH1F*)f->Get("J1pt_Pt_antitagSB_TT"); h_J2Pt_antitagSB_TT = (TH1F*)f->Get("J2pt_Pt_antitagSB_TT");
+    h_J1Pt_tagSR_TT = (TH1F*)f->Get("J1pt_Pt_tagSR_TT"); h_J2Pt_tagSR_TT = (TH1F*)f->Get("J2pt_Pt_tagSR_TT");
+    h_J1Pt_tagSB_TT = (TH1F*)f->Get("J1pt_Pt_tagSB_TT"); h_J2Pt_tagSB_TT = (TH1F*)f->Get("J2pt_Pt_tagSB_TT");
 
-    h_J1Pt_doubletagSR_WJets = (TH1F*)f->Get("J1_pt_doubletagSR_WJets"); h_J2Pt_doubletagSR_WJets = (TH1F*)f->Get("J2_pt_doubletagSR_WJets");
-    h_J1Pt_doubletagSB_WJets = (TH1F*)f->Get("J1_pt_doubletagSB_WJets"); h_J2Pt_doubletagSB_WJets = (TH1F*)f->Get("J2_pt_doubletagSB_WJets");
-    h_J1Pt_antitagSR_WJets = (TH1F*)f->Get("J1_pt_antitagSR_WJets"); h_J2Pt_antitagSR_WJets = (TH1F*)f->Get("J2_pt_antitagSR_WJets");
-    h_J1Pt_antitagSB_WJets = (TH1F*)f->Get("J1_pt_antitagSB_WJets"); h_J2Pt_antitagSB_WJets = (TH1F*)f->Get("J2_pt_antitagSB_WJets");
-    h_J1Pt_tagSR_WJets = (TH1F*)f->Get("J1_pt_tagSR_WJets"); h_J2Pt_tagSR_WJets = (TH1F*)f->Get("J2_pt_tagSR_WJets");
-    h_J1Pt_tagSB_WJets = (TH1F*)f->Get("J1_pt_tagSB_WJets"); h_J2Pt_tagSB_WJets = (TH1F*)f->Get("J2_pt_tagSB_WJets");
-
+    h_J1Pt_doubletagSR_WJets = (TH1F*)f->Get("J1pt_Pt_doubletagSR_WJets"); h_J2Pt_doubletagSR_WJets = (TH1F*)f->Get("J2pt_Pt_doubletagSR_WJets");
+    h_J1Pt_doubletagSB_WJets = (TH1F*)f->Get("J1pt_Pt_doubletagSB_WJets"); h_J2Pt_doubletagSB_WJets = (TH1F*)f->Get("J2pt_Pt_doubletagSB_WJets");
+    h_J1Pt_antitagSR_WJets = (TH1F*)f->Get("J1pt_Pt_antitagSR_WJets"); h_J2Pt_antitagSR_WJets = (TH1F*)f->Get("J2pt_Pt_antitagSR_WJets");
+    h_J1Pt_antitagSB_WJets = (TH1F*)f->Get("J1pt_Pt_antitagSB_WJets"); h_J2Pt_antitagSB_WJets = (TH1F*)f->Get("J2pt_Pt_antitagSB_WJets");
+    h_J1Pt_tagSR_WJets = (TH1F*)f->Get("J1pt_Pt_tagSR_WJets"); h_J2Pt_tagSR_WJets = (TH1F*)f->Get("J2pt_Pt_tagSR_WJets");
+    h_J1Pt_tagSB_WJets = (TH1F*)f->Get("J1pt_Pt_tagSB_WJets"); h_J2Pt_tagSB_WJets = (TH1F*)f->Get("J2pt_Pt_tagSB_WJets");
 
     //for signal
-    h_J1Pt_doubletagSR_T5HH1300 = (TH1F*)fSignal->Get("J1_pt_doubletagSR_T5qqqqZH1300"); h_J2Pt_doubletagSR_T5HH1300 = (TH1F*)fSignal->Get("J2_pt_doubletagSR_T5qqqqZH1300");
-    h_J1Pt_doubletagSB_T5HH1300 = (TH1F*)fSignal->Get("J1_pt_doubletagSB_T5qqqqZH1300"); h_J2Pt_doubletagSB_T5HH1300 = (TH1F*)fSignal->Get("J2_pt_doubletagSB_T5qqqqZH1300");
-    h_J1Pt_antitagSR_T5HH1300 = (TH1F*)fSignal->Get("J1_pt_antitagSR_T5qqqqZH1300"); h_J2Pt_antitagSR_T5HH1300 = (TH1F*)fSignal->Get("J2_pt_antitagSR_T5qqqqZH1300");
-    h_J1Pt_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J1_pt_antitagSB_T5qqqqZH1300"); h_J2Pt_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J2_pt_antitagSB_T5qqqqZH1300");
-    h_J1Pt_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J1_pt_tagSR_T5qqqqZH1300"); h_J2Pt_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J2_pt_tagSR_T5qqqqZH1300");
-    h_J1Pt_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J1_pt_tagSB_T5qqqqZH1300"); h_J2Pt_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J2_pt_tagSB_T5qqqqZH1300");
+    h_J1Pt_doubletagSR_T5HH1300 = (TH1F*)fSignal->Get("J1pt_Pt_doubletagSR_T5qqqqZH1300"); h_J2Pt_doubletagSR_T5HH1300 = (TH1F*)fSignal->Get("J2pt_Pt_doubletagSR_T5qqqqZH1300");
+    h_J1Pt_doubletagSB_T5HH1300 = (TH1F*)fSignal->Get("J1pt_Pt_doubletagSB_T5qqqqZH1300"); h_J2Pt_doubletagSB_T5HH1300 = (TH1F*)fSignal->Get("J2pt_Pt_doubletagSB_T5qqqqZH1300");
+    h_J1Pt_antitagSR_T5HH1300 = (TH1F*)fSignal->Get("J1pt_Pt_antitagSR_T5qqqqZH1300"); h_J2Pt_antitagSR_T5HH1300 = (TH1F*)fSignal->Get("J2pt_Pt_antitagSR_T5qqqqZH1300");
+    h_J1Pt_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J1pt_Pt_antitagSB_T5qqqqZH1300"); h_J2Pt_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J2pt_Pt_antitagSB_T5qqqqZH1300");
+    h_J1Pt_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J1pt_Pt_tagSR_T5qqqqZH1300"); h_J2Pt_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J2pt_Pt_tagSR_T5qqqqZH1300");
+    h_J1Pt_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J1pt_Pt_tagSB_T5qqqqZH1300"); h_J2Pt_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J2pt_Pt_tagSB_T5qqqqZH1300");
 
-    h_J1Pt_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J1_pt_doubletagSR_T5qqqqZH1700"); h_J2Pt_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J2_pt_doubletagSR_T5qqqqZH1700");
-    h_J1Pt_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J1_pt_doubletagSB_T5qqqqZH1700"); h_J2Pt_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J2_pt_doubletagSB_T5qqqqZH1700");
-    h_J1Pt_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J1_pt_antitagSR_T5qqqqZH1700"); h_J2Pt_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J2_pt_antitagSR_T5qqqqZH1700");
-    h_J1Pt_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J1_pt_antitagSB_T5qqqqZH1700"); h_J2Pt_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J2_pt_antitagSB_T5qqqqZH1700");
-    h_J1Pt_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J1_pt_tagSR_T5qqqqZH1700"); h_J2Pt_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J2_pt_tagSR_T5qqqqZH1700");
-    h_J1Pt_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J1_pt_tagSB_T5qqqqZH1700"); h_J2Pt_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J2_pt_tagSB_T5qqqqZH1700");
+    h_J1Pt_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_doubletagSR_T5qqqqZH1700"); h_J2Pt_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_doubletagSR_T5qqqqZH1700");
+    h_J1Pt_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_doubletagSB_T5qqqqZH1700"); h_J2Pt_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_doubletagSB_T5qqqqZH1700");
+    h_J1Pt_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_antitagSR_T5qqqqZH1700"); h_J2Pt_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_antitagSR_T5qqqqZH1700");
+    h_J1Pt_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_antitagSB_T5qqqqZH1700"); h_J2Pt_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_antitagSB_T5qqqqZH1700");
+    h_J1Pt_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_tagSR_T5qqqqZH1700"); h_J2Pt_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_tagSR_T5qqqqZH1700");
+    h_J1Pt_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_tagSB_T5qqqqZH1700"); h_J2Pt_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_tagSB_T5qqqqZH1700");
 
-    h_J1Pt_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J1_pt_doubletagSR_T5qqqqZH2100"); h_J2Pt_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J2_pt_doubletagSR_T5qqqqZH2100");
-    h_J1Pt_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J1_pt_doubletagSB_T5qqqqZH2100"); h_J2Pt_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J2_pt_doubletagSB_T5qqqqZH2100");
-    h_J1Pt_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J1_pt_antitagSR_T5qqqqZH2100"); h_J2Pt_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J2_pt_antitagSR_T5qqqqZH2100");
-    h_J1Pt_antitagSB_T5HH2100 = (TH1F*)fSignal->Get("J1_pt_antitagSB_T5qqqqZH2100"); h_J2Pt_antitagSB_T5HH2100 = (TH1F*)fSignal->Get("J2_pt_antitagSB_T5qqqqZH2100");
-    h_J1Pt_tagSR_T5HH2100 = (TH1F*)fSignal->Get("J1_pt_tagSR_T5qqqqZH2100"); h_J2Pt_tagSR_T5HH2100 = (TH1F*)fSignal->Get("J2_pt_tagSR_T5qqqqZH2100");
-    h_J1Pt_tagSB_T5HH2100 = (TH1F*)fSignal->Get("J1_pt_tagSB_T5qqqqZH2100"); h_J2Pt_tagSB_T5HH2100 = (TH1F*)fSignal->Get("J2_pt_tagSB_T5qqqqZH2100");
-
-
-    if (useDeepDoubleB){
-      h_doubleB_J1_SBLow_ZJets = (TH1F*)f->Get("J1_DeepDoubleB_SBLow_ZJets"); h_doubleB_J1_SR_ZJets = (TH1F*)f->Get("J1_DeepDoubleB_SR_ZJets");
-      h_doubleB_J1_SBHigh_ZJets = (TH1F*)f->Get("J1_DeepDoubleB_SBHigh_ZJets");
-      h_doubleB_J1_SBLow_QCD = (TH1F*)f->Get("J1_DeepDoubleB_SBLow_QCD"); h_doubleB_J1_SR_QCD = (TH1F*)f->Get("J1_DeepDoubleB_SR_QCD");
-      h_doubleB_J1_SBHigh_QCD = (TH1F*)f->Get("J1_DeepDoubleB_SBHigh_QCD");
-      h_doubleB_J1_SBLow_WJets = (TH1F*)f->Get("J1_DeepDoubleB_SBLow_WJets"); h_doubleB_J1_SR_WJets = (TH1F*)f->Get("J1_DeepDoubleB_SR_WJets");
-      h_doubleB_J1_SBHigh_WJets = (TH1F*)f->Get("J1_DeepDoubleB_SBHigh_WJets");
-      h_doubleB_J1_SBLow_TT = (TH1F*)f->Get("J1_DeepDoubleB_SBLow_TT"); h_doubleB_J1_SR_TT = (TH1F*)f->Get("J1_DeepDoubleB_SR_TT");
-      h_doubleB_J1_SBHigh_TT = (TH1F*)f->Get("J1_DeepDoubleB_SBHigh_TT");
-
-      h_doubleB_J1_SBLow_T5HH1300 = (TH1F*)fSignal->Get("J1_DeepDoubleB_SBLow_T5qqqqZH1300"); h_doubleB_J1_SR_T5HH1300 = (TH1F*)fSignal->Get("J1_DeepDoubleB_SR_T5qqqqZH1300");
-      h_doubleB_J1_SBHigh_T5HH1300 = (TH1F*)fSignal->Get("J1_DeepDoubleB_SBHigh_T5qqqqZH1300");
-      h_doubleB_J1_SBLow_T5HH1700 = (TH1F*)fSignal->Get("J1_DeepDoubleB_SBLow_T5qqqqZH1700"); h_doubleB_J1_SR_T5HH1700 = (TH1F*)fSignal->Get("J1_DeepDoubleB_SR_T5qqqqZH1700");
-      h_doubleB_J1_SBHigh_T5HH1700 = (TH1F*)fSignal->Get("J1_DeepDoubleB_SBHigh_T5qqqqZH1700");
-      h_doubleB_J1_SBLow_T5HH2100 = (TH1F*)fSignal->Get("J1_DeepDoubleB_SBLow_T5qqqqZH2100"); h_doubleB_J1_SR_T5HH2100 = (TH1F*)fSignal->Get("J1_DeepDoubleB_SR_T5qqqqZH2100");
-      h_doubleB_J1_SBHigh_T5HH2100 = (TH1F*)fSignal->Get("J1_DeepDoubleB_SBHigh_T5qqqqZH2100");
-
-      h_doubleB_J2_SBLow_ZJets = (TH1F*)f->Get("J2_DeepDoubleB_SBLow_ZJets"); h_doubleB_J2_SR_ZJets = (TH1F*)f->Get("J2_DeepDoubleB_SR_ZJets");
-      h_doubleB_J2_SBHigh_ZJets = (TH1F*)f->Get("J2_DeepDoubleB_SBHigh_ZJets");
-      h_doubleB_J2_SBLow_QCD = (TH1F*)f->Get("J2_DeepDoubleB_SBLow_QCD"); h_doubleB_J2_SR_QCD = (TH1F*)f->Get("J2_DeepDoubleB_SR_QCD");
-      h_doubleB_J2_SBHigh_QCD = (TH1F*)f->Get("J2_DeepDoubleB_SBHigh_QCD");
-      h_doubleB_J2_SBLow_WJets = (TH1F*)f->Get("J2_DeepDoubleB_SBLow_WJets"); h_doubleB_J2_SR_WJets = (TH1F*)f->Get("J2_DeepDoubleB_SR_WJets");
-      h_doubleB_J2_SBHigh_WJets = (TH1F*)f->Get("J2_DeepDoubleB_SBHigh_WJets");
-      h_doubleB_J2_SBLow_TT = (TH1F*)f->Get("J2_DeepDoubleB_SBLow_TT"); h_doubleB_J2_SR_TT = (TH1F*)f->Get("J2_DeepDoubleB_SR_TT");
-      h_doubleB_J2_SBHigh_TT = (TH1F*)f->Get("J2_DeepDoubleB_SBHigh_TT");
-
-      h_doubleB_J2_SBLow_T5HH1300 = (TH1F*)fSignal->Get("J2_DeepDoubleB_SBLow_T5qqqqZH1300"); h_doubleB_J2_SR_T5HH1300 = (TH1F*)fSignal->Get("J2_DeepDoubleB_SR_T5qqqqZH1300");
-      h_doubleB_J2_SBHigh_T5HH1300 = (TH1F*)fSignal->Get("J2_DeepDoubleB_SBHigh_T5qqqqZH1300");
-      h_doubleB_J2_SBLow_T5HH1700 = (TH1F*)fSignal->Get("J2_DeepDoubleB_SBLow_T5qqqqZH1700"); h_doubleB_J2_SR_T5HH1700 = (TH1F*)fSignal->Get("J2_DeepDoubleB_SR_T5qqqqZH1700");
-      h_doubleB_J2_SBHigh_T5HH1700 = (TH1F*)fSignal->Get("J2_DeepDoubleB_SBHigh_T5qqqqZH1700");
-      h_doubleB_J2_SBLow_T5HH2100 = (TH1F*)fSignal->Get("J2_DeepDoubleB_SBLow_T5qqqqZH2100"); h_doubleB_J2_SR_T5HH2100 = (TH1F*)fSignal->Get("J2_DeepDoubleB_SR_T5qqqqZH2100");
-      h_doubleB_J2_SBHigh_T5HH2100 = (TH1F*)fSignal->Get("J2_DeepDoubleB_SBHigh_T5qqqqZH2100");
-    }
-
-    else {
-      h_doubleB_J1_SBLow_ZJets = (TH1F*)f->Get("J1_DoubleB_SBLow_ZJets"); h_doubleB_J1_SR_ZJets = (TH1F*)f->Get("J1_DoubleB_SR_ZJets");
-      h_doubleB_J1_SBHigh_ZJets = (TH1F*)f->Get("J1_DoubleB_SBHigh_ZJets");
-      h_doubleB_J1_SBLow_QCD = (TH1F*)f->Get("J1_DoubleB_SBLow_QCD"); h_doubleB_J1_SR_QCD = (TH1F*)f->Get("J1_DoubleB_SR_QCD");
-      h_doubleB_J1_SBHigh_QCD = (TH1F*)f->Get("J1_DoubleB_SBHigh_QCD");
-      h_doubleB_J1_SBLow_WJets = (TH1F*)f->Get("J1_DoubleB_SBLow_WJets"); h_doubleB_J1_SR_WJets = (TH1F*)f->Get("J1_DoubleB_SR_WJets");
-      h_doubleB_J1_SBHigh_WJets = (TH1F*)f->Get("J1_DoubleB_SBHigh_WJets");
-      h_doubleB_J1_SBLow_TT = (TH1F*)f->Get("J1_DoubleB_SBLow_TT"); h_doubleB_J1_SR_TT = (TH1F*)f->Get("J1_DoubleB_SR_TT");
-      h_doubleB_J1_SBHigh_TT = (TH1F*)f->Get("J1_DoubleB_SBHigh_TT");
-
-      h_doubleB_J1_SBLow_T5HH1300 = (TH1F*)fSignal->Get("J1_DoubleB_SBLow_T5qqqqZH1300"); h_doubleB_J1_SR_T5HH1300 = (TH1F*)fSignal->Get("J1_DoubleB_SR_T5qqqqZH1300");
-      h_doubleB_J1_SBHigh_T5HH1300 = (TH1F*)fSignal->Get("J1_DoubleB_SBHigh_T5qqqqZH1300");
-      h_doubleB_J1_SBLow_T5HH1700 = (TH1F*)fSignal->Get("J1_DoubleB_SBLow_T5qqqqZH1700"); h_doubleB_J1_SR_T5HH1700 = (TH1F*)fSignal->Get("J1_DoubleB_SR_T5qqqqZH1700");
-      h_doubleB_J1_SBHigh_T5HH1700 = (TH1F*)fSignal->Get("J1_DoubleB_SBHigh_T5qqqqZH1700");
-      h_doubleB_J1_SBLow_T5HH2100 = (TH1F*)fSignal->Get("J1_DoubleB_SBLow_T5qqqqZH2100"); h_doubleB_J1_SR_T5HH2100 = (TH1F*)fSignal->Get("J1_DoubleB_SR_T5qqqqZH2100");
-      h_doubleB_J1_SBHigh_T5HH2100 = (TH1F*)fSignal->Get("J1_DoubleB_SBHigh_T5qqqqZH2100");
-
-
-      h_doubleB_J2_SBLow_ZJets = (TH1F*)f->Get("J2_DoubleB_SBLow_ZJets"); h_doubleB_J2_SR_ZJets = (TH1F*)f->Get("J2_DoubleB_SR_ZJets");
-      h_doubleB_J2_SBHigh_ZJets = (TH1F*)f->Get("J2_DoubleB_SBHigh_ZJets");
-      h_doubleB_J2_SBLow_QCD = (TH1F*)f->Get("J2_DoubleB_SBLow_QCD"); h_doubleB_J2_SR_QCD = (TH1F*)f->Get("J2_DoubleB_SR_QCD");
-      h_doubleB_J2_SBHigh_QCD = (TH1F*)f->Get("J2_DoubleB_SBHigh_QCD");
-      h_doubleB_J2_SBLow_WJets = (TH1F*)f->Get("J2_DoubleB_SBLow_WJets"); h_doubleB_J2_SR_WJets = (TH1F*)f->Get("J2_DoubleB_SR_WJets");
-      h_doubleB_J2_SBHigh_WJets = (TH1F*)f->Get("J2_DoubleB_SBHigh_WJets");
-      h_doubleB_J2_SBLow_TT = (TH1F*)f->Get("J2_DoubleB_SBLow_TT"); h_doubleB_J2_SR_TT = (TH1F*)f->Get("J2_DoubleB_SR_TT");
-      h_doubleB_J2_SBHigh_TT = (TH1F*)f->Get("J2_DoubleB_SBHigh_TT");
-
-      h_doubleB_J2_SBLow_T5HH1300 = (TH1F*)fSignal->Get("J2_DoubleB_SBLow_T5qqqqZH1300"); h_doubleB_J2_SR_T5HH1300 = (TH1F*)fSignal->Get("J2_DoubleB_SR_T5qqqqZH1300");
-      h_doubleB_J2_SBHigh_T5HH1300 = (TH1F*)fSignal->Get("J2_DoubleB_SBHigh_T5qqqqZH1300");
-      h_doubleB_J2_SBLow_T5HH1700 = (TH1F*)fSignal->Get("J2_DoubleB_SBLow_T5qqqqZH1700"); h_doubleB_J2_SR_T5HH1700 = (TH1F*)fSignal->Get("J2_DoubleB_SR_T5qqqqZH1700");
-      h_doubleB_J2_SBHigh_T5HH1700 = (TH1F*)fSignal->Get("J2_DoubleB_SBHigh_T5qqqqZH1700");
-      h_doubleB_J2_SBLow_T5HH2100 = (TH1F*)fSignal->Get("J2_DoubleB_SBLow_T5qqqqZH2100"); h_doubleB_J2_SR_T5HH2100 = (TH1F*)fSignal->Get("J2_DoubleB_SR_T5qqqqZH2100");
-      h_doubleB_J2_SBHigh_T5HH2100 = (TH1F*)fSignal->Get("J2_DoubleB_SBHigh_T5qqqqZH2100");
-    }
-
-    // h_tau32_J1_SBLow_ZJets = (TH1F*)f->Get("J1_Tau32_tau32SBLow_ZJets"); h_tau32_J1_SR_ZJets = (TH1F*)f->Get("J1_Tau32_tau32SR_ZJets");
-    // h_tau32_J1_SBHigh_ZJets = (TH1F*)f->Get("J1_Tau32_tau32SBHigh_ZJets");
-    // h_tau32_J1_SBLow_QCD = (TH1F*)f->Get("J1_Tau32_tau32SBLow_QCD"); h_tau32_J1_SR_QCD = (TH1F*)f->Get("J1_Tau32_tau32SR_QCD");
-    // h_tau32_J1_SBHigh_QCD = (TH1F*)f->Get("J1_Tau32_tau32SBHigh_QCD");
-    // h_tau32_J1_SBLow_WJets = (TH1F*)f->Get("J1_Tau32_tau32SBLow_WJets"); h_tau32_J1_SR_WJets = (TH1F*)f->Get("J1_Tau32_tau32SR_WJets");
-    // h_tau32_J1_SBHigh_WJets = (TH1F*)f->Get("J1_Tau32_tau32SBHigh_WJets");
-    // h_tau32_J1_SBLow_TT = (TH1F*)f->Get("J1_Tau32_tau32SBLow_TT"); h_tau32_J1_SR_TT = (TH1F*)f->Get("J1_Tau32_tau32SR_TT");
-    // h_tau32_J1_SBHigh_TT = (TH1F*)f->Get("J1_Tau32_tau32SBHigh_TT");
-    //
-    // h_tau32_J1_SBLow_T5HH1300 = (TH1F*)fSignal->Get("J1_Tau32_tau32SBLow_T5qqqqZH1300"); h_tau32_J1_SR_T5HH1300 = (TH1F*)fSignal->Get("J1_Tau32_tau32SR_T5qqqqZH1300");
-    // h_tau32_J1_SBHigh_T5HH1300 = (TH1F*)fSignal->Get("J1_Tau32_tau32SBHigh_T5qqqqZH1300");
-    // h_tau32_J1_SBLow_T5HH1700 = (TH1F*)fSignal->Get("J1_Tau32_tau32SBLow_T5qqqqZH1700"); h_tau32_J1_SR_T5HH1700 = (TH1F*)fSignal->Get("J1_Tau32_tau32SR_T5qqqqZH1700");
-    // h_tau32_J1_SBHigh_T5HH1700 = (TH1F*)fSignal->Get("J1_Tau32_tau32SBHigh_T5qqqqZH1700");
-    // h_tau32_J1_SBLow_T5HH2100 = (TH1F*)fSignal->Get("J1_Tau32_tau32SBLow_T5qqqqZH2100"); h_tau32_J1_SR_T5HH2100 = (TH1F*)fSignal->Get("J1_Tau32_tau32SR_T5qqqqZH2100");
-    // h_tau32_J1_SBHigh_T5HH2100 = (TH1F*)fSignal->Get("J1_Tau32_tau32SBHigh_T5qqqqZH2100");
+    h_J1Pt_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_doubletagSR_T5qqqqZH2100"); h_J2Pt_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_doubletagSR_T5qqqqZH2100");
+    h_J1Pt_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_doubletagSB_T5qqqqZH2100"); h_J2Pt_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_doubletagSB_T5qqqqZH2100");
+    h_J1Pt_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_antitagSR_T5qqqqZH2100"); h_J2Pt_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_antitagSR_T5qqqqZH2100");
+    h_J1Pt_antitagSB_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_antitagSB_T5qqqqZH2100"); h_J2Pt_antitagSB_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_antitagSB_T5qqqqZH2100");
+    h_J1Pt_tagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_tagSR_T5qqqqZH2100"); h_J2Pt_tagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_tagSR_T5qqqqZH2100");
+    h_J1Pt_tagSB_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_tagSB_T5qqqqZH2100"); h_J2Pt_tagSB_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_tagSB_T5qqqqZH2100");
 
     //MET plots
     h_MET_all_ZJets = (TH1F*)f->Get("MET_All_ZJets"); h_MET_Single_ZJets = (TH1F*)f->Get("MET_Single_ZJets"); h_MET_Double_ZJets = (TH1F*)f->Get("MET_Double_ZJets");
@@ -472,56 +340,36 @@ void runABCD() {
     h_A1_GJets = (TH1F*)fPhoton->Get("MET_tagSR_GJets"); h_B1_GJets = (TH1F*)fPhoton->Get("MET_tagSB_GJets");
     h_C_GJets = (TH1F*)fPhoton->Get("MET_antitagSR_GJets"); h_D_GJets = (TH1F*)fPhoton->Get("MET_antitagSB_GJets");
 
-    h_J1M_doubletagSR_GJets = (TH1F*)fPhoton->Get("J1_m_doubletagSR_GJets"); h_J2M_doubletagSR_GJets = (TH1F*)fPhoton->Get("J2_m_doubletagSR_GJets");
-    h_J1M_doubletagSB_GJets = (TH1F*)fPhoton->Get("J1_m_doubletagSB_GJets"); h_J2M_doubletagSB_GJets = (TH1F*)fPhoton->Get("J2_m_doubletagSB_GJets");
-    h_J1M_antitagSR_GJets = (TH1F*)fPhoton->Get("J1_m_antitagSR_GJets"); h_J2M_antitagSR_GJets = (TH1F*)fPhoton->Get("J2_m_antitagSR_GJets");
-    h_J1M_antitagSB_GJets = (TH1F*)fPhoton->Get("J1_m_antitagSB_GJets"); h_J2M_antitagSB_GJets = (TH1F*)fPhoton->Get("J2_m_antitagSB_GJets");
-    h_J1M_tagSR_GJets = (TH1F*)fPhoton->Get("J1_m_tagSR_GJets"); h_J2M_tagSR_GJets = (TH1F*)fPhoton->Get("J2_m_tagSR_GJets");
-    h_J1M_tagSB_GJets = (TH1F*)fPhoton->Get("J1_m_tagSB_GJets"); h_J2M_tagSB_GJets = (TH1F*)fPhoton->Get("J2_m_tagSB_GJets");
+    h_J1M_doubletagSR_GJets = (TH1F*)fPhoton->Get("J1pt_M_doubletagSR_GJets"); h_J2M_doubletagSR_GJets = (TH1F*)fPhoton->Get("J2pt_M_doubletagSR_GJets");
+    h_J1M_doubletagSB_GJets = (TH1F*)fPhoton->Get("J1pt_M_doubletagSB_GJets"); h_J2M_doubletagSB_GJets = (TH1F*)fPhoton->Get("J2pt_M_doubletagSB_GJets");
+    h_J1M_antitagSR_GJets = (TH1F*)fPhoton->Get("J1pt_M_antitagSR_GJets"); h_J2M_antitagSR_GJets = (TH1F*)fPhoton->Get("J2pt_M_antitagSR_GJets");
+    h_J1M_antitagSB_GJets = (TH1F*)fPhoton->Get("J1pt_M_antitagSB_GJets"); h_J2M_antitagSB_GJets = (TH1F*)fPhoton->Get("J2pt_M_antitagSB_GJets");
+    h_J1M_tagSR_GJets = (TH1F*)fPhoton->Get("J1pt_M_tagSR_GJets"); h_J2M_tagSR_GJets = (TH1F*)fPhoton->Get("J2pt_M_tagSR_GJets");
+    h_J1M_tagSB_GJets = (TH1F*)fPhoton->Get("J1pt_M_tagSB_GJets"); h_J2M_tagSB_GJets = (TH1F*)fPhoton->Get("J2pt_M_tagSB_GJets");
 
-    h_J1M_doubletagSR_QCD = (TH1F*)fPhoton->Get("J1_m_doubletagSR_QCD"); h_J2M_doubletagSR_QCD = (TH1F*)fPhoton->Get("J2_m_doubletagSR_QCD");
-    h_J1M_doubletagSB_QCD = (TH1F*)fPhoton->Get("J1_m_doubletagSB_QCD"); h_J2M_doubletagSB_QCD = (TH1F*)fPhoton->Get("J2_m_doubletagSB_QCD");
-    h_J1M_antitagSR_QCD = (TH1F*)fPhoton->Get("J1_m_antitagSR_QCD"); h_J2M_antitagSR_QCD = (TH1F*)fPhoton->Get("J2_m_antitagSR_QCD");
-    h_J1M_antitagSB_QCD = (TH1F*)fPhoton->Get("J1_m_antitagSB_QCD"); h_J2M_antitagSB_QCD = (TH1F*)fPhoton->Get("J2_m_antitagSB_QCD");
-    h_J1M_tagSR_QCD = (TH1F*)fPhoton->Get("J1_m_tagSR_QCD"); h_J2M_tagSR_QCD = (TH1F*)fPhoton->Get("J2_m_tagSR_QCD");
-    h_J1M_tagSB_QCD = (TH1F*)fPhoton->Get("J1_m_tagSB_QCD"); h_J2M_tagSB_QCD = (TH1F*)fPhoton->Get("J2_m_tagSB_QCD");
+    h_J1M_doubletagSR_QCD = (TH1F*)fPhoton->Get("J1pt_M_doubletagSR_QCD"); h_J2M_doubletagSR_QCD = (TH1F*)fPhoton->Get("J2pt_M_doubletagSR_QCD");
+    h_J1M_doubletagSB_QCD = (TH1F*)fPhoton->Get("J1pt_M_doubletagSB_QCD"); h_J2M_doubletagSB_QCD = (TH1F*)fPhoton->Get("J2pt_M_doubletagSB_QCD");
+    h_J1M_antitagSR_QCD = (TH1F*)fPhoton->Get("J1pt_M_antitagSR_QCD"); h_J2M_antitagSR_QCD = (TH1F*)fPhoton->Get("J2pt_M_antitagSR_QCD");
+    h_J1M_antitagSB_QCD = (TH1F*)fPhoton->Get("J1pt_M_antitagSB_QCD"); h_J2M_antitagSB_QCD = (TH1F*)fPhoton->Get("J2pt_M_antitagSB_QCD");
+    h_J1M_tagSR_QCD = (TH1F*)fPhoton->Get("J1pt_M_tagSR_QCD"); h_J2M_tagSR_QCD = (TH1F*)fPhoton->Get("J2pt_M_tagSR_QCD");
+    h_J1M_tagSB_QCD = (TH1F*)fPhoton->Get("J1pt_M_tagSB_QCD"); h_J2M_tagSB_QCD = (TH1F*)fPhoton->Get("J2pt_M_tagSB_QCD");
 
-    h_J1Pt_doubletagSR_QCD = (TH1F*)fPhoton->Get("J1_pt_doubletagSR_QCD"); h_J2Pt_doubletagSR_QCD = (TH1F*)fPhoton->Get("J2_pt_doubletagSR_QCD");
-    h_J1Pt_doubletagSB_QCD = (TH1F*)fPhoton->Get("J1_pt_doubletagSB_QCD"); h_J2Pt_doubletagSB_QCD = (TH1F*)fPhoton->Get("J2_pt_doubletagSB_QCD");
-    h_J1Pt_antitagSR_QCD = (TH1F*)fPhoton->Get("J1_pt_antitagSR_QCD"); h_J2Pt_antitagSR_QCD = (TH1F*)fPhoton->Get("J2_pt_antitagSR_QCD");
-    h_J1Pt_antitagSB_QCD = (TH1F*)fPhoton->Get("J1_pt_antitagSB_QCD"); h_J2Pt_antitagSB_QCD = (TH1F*)fPhoton->Get("J2_pt_antitagSB_QCD");
-    h_J1Pt_tagSR_QCD = (TH1F*)fPhoton->Get("J1_pt_tagSR_QCD"); h_J2Pt_tagSR_QCD = (TH1F*)fPhoton->Get("J2_pt_tagSR_QCD");
-    h_J1Pt_tagSB_QCD = (TH1F*)fPhoton->Get("J1_pt_tagSB_QCD"); h_J2Pt_tagSB_QCD = (TH1F*)fPhoton->Get("J2_pt_tagSB_QCD");
+    h_J1Pt_doubletagSR_QCD = (TH1F*)fPhoton->Get("J1pt_Pt_doubletagSR_QCD"); h_J2Pt_doubletagSR_QCD = (TH1F*)fPhoton->Get("J2pt_Pt_doubletagSR_QCD");
+    h_J1Pt_doubletagSB_QCD = (TH1F*)fPhoton->Get("J1pt_Pt_doubletagSB_QCD"); h_J2Pt_doubletagSB_QCD = (TH1F*)fPhoton->Get("J2pt_Pt_doubletagSB_QCD");
+    h_J1Pt_antitagSR_QCD = (TH1F*)fPhoton->Get("J1pt_Pt_antitagSR_QCD"); h_J2Pt_antitagSR_QCD = (TH1F*)fPhoton->Get("J2pt_Pt_antitagSR_QCD");
+    h_J1Pt_antitagSB_QCD = (TH1F*)fPhoton->Get("J1pt_Pt_antitagSB_QCD"); h_J2Pt_antitagSB_QCD = (TH1F*)fPhoton->Get("J2pt_Pt_antitagSB_QCD");
+    h_J1Pt_tagSR_QCD = (TH1F*)fPhoton->Get("J1pt_Pt_tagSR_QCD"); h_J2Pt_tagSR_QCD = (TH1F*)fPhoton->Get("J2pt_Pt_tagSR_QCD");
+    h_J1Pt_tagSB_QCD = (TH1F*)fPhoton->Get("J1pt_Pt_tagSB_QCD"); h_J2Pt_tagSB_QCD = (TH1F*)fPhoton->Get("J2pt_Pt_tagSB_QCD");
 
-    h_J1Pt_doubletagSR_GJets = (TH1F*)fPhoton->Get("J1_pt_doubletagSR_GJets"); h_J2Pt_doubletagSR_GJets = (TH1F*)fPhoton->Get("J2_pt_doubletagSR_GJets");
-    h_J1Pt_doubletagSB_GJets = (TH1F*)fPhoton->Get("J1_pt_doubletagSB_GJets"); h_J2Pt_doubletagSB_GJets = (TH1F*)fPhoton->Get("J2_pt_doubletagSB_GJets");
-    h_J1Pt_antitagSR_GJets = (TH1F*)fPhoton->Get("J1_pt_antitagSR_GJets"); h_J2Pt_antitagSR_GJets = (TH1F*)fPhoton->Get("J2_pt_antitagSR_GJets");
-    h_J1Pt_antitagSB_GJets = (TH1F*)fPhoton->Get("J1_pt_antitagSB_GJets"); h_J2Pt_antitagSB_GJets = (TH1F*)fPhoton->Get("J2_pt_antitagSB_GJets");
-    h_J1Pt_tagSR_GJets = (TH1F*)fPhoton->Get("J1_pt_tagSR_GJets"); h_J2Pt_tagSR_GJets = (TH1F*)fPhoton->Get("J2_pt_tagSR_GJets");
-    h_J1Pt_tagSB_GJets = (TH1F*)fPhoton->Get("J1_pt_tagSB_GJets"); h_J2Pt_tagSB_GJets = (TH1F*)fPhoton->Get("J2_pt_tagSB_GJets");
-
+    h_J1Pt_doubletagSR_GJets = (TH1F*)fPhoton->Get("J1pt_Pt_doubletagSR_GJets"); h_J2Pt_doubletagSR_GJets = (TH1F*)fPhoton->Get("J2pt_Pt_doubletagSR_GJets");
+    h_J1Pt_doubletagSB_GJets = (TH1F*)fPhoton->Get("J1pt_Pt_doubletagSB_GJets"); h_J2Pt_doubletagSB_GJets = (TH1F*)fPhoton->Get("J2pt_Pt_doubletagSB_GJets");
+    h_J1Pt_antitagSR_GJets = (TH1F*)fPhoton->Get("J1pt_Pt_antitagSR_GJets"); h_J2Pt_antitagSR_GJets = (TH1F*)fPhoton->Get("J2pt_Pt_antitagSR_GJets");
+    h_J1Pt_antitagSB_GJets = (TH1F*)fPhoton->Get("J1pt_Pt_antitagSB_GJets"); h_J2Pt_antitagSB_GJets = (TH1F*)fPhoton->Get("J2pt_Pt_antitagSB_GJets");
+    h_J1Pt_tagSR_GJets = (TH1F*)fPhoton->Get("J1pt_Pt_tagSR_GJets"); h_J2Pt_tagSR_GJets = (TH1F*)fPhoton->Get("J2pt_Pt_tagSR_GJets");
+    h_J1Pt_tagSB_GJets = (TH1F*)fPhoton->Get("J1pt_Pt_tagSB_GJets"); h_J2Pt_tagSB_GJets = (TH1F*)fPhoton->Get("J2pt_Pt_tagSB_GJets");
   }
 
   if (whichRegion=="singleLept") {
-
-    if (useDeepDoubleB){
-      h_doubleB_J1_SBLow_WJets = (TH1F*)fSingleLept->Get("J1_DeepDoubleB_SBLow_WJets"); h_doubleB_J1_SR_WJets = (TH1F*)fSingleLept->Get("J1_DeepDoubleB_SR_WJets");
-      h_doubleB_J1_SBHigh_WJets = (TH1F*)fSingleLept->Get("J1_DeepDoubleB_SBHigh_WJets");
-      h_doubleB_J1_SBLow_TT = (TH1F*)fSingleLept->Get("J1_DeepDoubleB_SBLow_TT"); h_doubleB_J1_SR_TT = (TH1F*)fSingleLept->Get("J1_DeepDoubleB_SR_TT");
-      h_doubleB_J1_SBHigh_TT = (TH1F*)fSingleLept->Get("J1_DeepDoubleB_SBHigh_TT");
-    }
-    else {
-      h_doubleB_J1_SBLow_WJets = (TH1F*)fSingleLept->Get("J1_DoubleB_SBLow_WJets"); h_doubleB_J1_SR_WJets = (TH1F*)fSingleLept->Get("J1_DoubleB_SR_WJets");
-      h_doubleB_J1_SBHigh_WJets = (TH1F*)fSingleLept->Get("J1_DoubleB_SBHigh_WJets");
-      h_doubleB_J1_SBLow_TT = (TH1F*)fSingleLept->Get("J1_DoubleB_SBLow_TT"); h_doubleB_J1_SR_TT = (TH1F*)fSingleLept->Get("J1_DoubleB_SR_TT");
-      h_doubleB_J1_SBHigh_TT = (TH1F*)fSingleLept->Get("J1_DoubleB_SBHigh_TT");
-    }
-
-    // h_tau32_J1_SBLow_WJets = (TH1F*)fSingleLept->Get("J1_Tau32_tau32SBLow_WJets"); h_tau32_J1_SR_WJets = (TH1F*)fSingleLept->Get("J1_Tau32_tau32SR_WJets");
-    // h_tau32_J1_SBHigh_WJets = (TH1F*)fSingleLept->Get("J1_Tau32_tau32SBHigh_WJets");
-    // h_tau32_J1_SBLow_TT = (TH1F*)fSingleLept->Get("J1_Tau32_tau32SBLow_TT"); h_tau32_J1_SR_TT = (TH1F*)fSingleLept->Get("J1_Tau32_tau32SR_TT");
-    // h_tau32_J1_SBHigh_TT = (TH1F*)fSingleLept->Get("J1_Tau32_tau32SBHigh_TT");
-
     h_A_sum = (TH1F*)fSingleLept->Get("MET_doubletagSR_sum"); h_B_sum = (TH1F*)fSingleLept->Get("MET_doubletagSB_sum");
     h_A1_sum = (TH1F*)fSingleLept->Get("MET_tagSR_sum"); h_B1_sum = (TH1F*)fSingleLept->Get("MET_tagSB_sum");
     h_C_sum = (TH1F*)fSingleLept->Get("MET_antitagSR_sum"); h_D_sum = (TH1F*)fSingleLept->Get("MET_antitagSB_sum");
@@ -534,41 +382,40 @@ void runABCD() {
     h_A1_WJets = (TH1F*)fSingleLept->Get("MET_tagSR_WJets"); h_B1_WJets = (TH1F*)fSingleLept->Get("MET_tagSB_WJets");
     h_C_WJets = (TH1F*)fSingleLept->Get("MET_antitagSR_WJets");   h_D_WJets = (TH1F*)fSingleLept->Get("MET_antitagSB_WJets");
 
-    h_J1M_doubletagSR_sum = (TH1F*)fSingleLept->Get("J1_m_doubletagSR_sum"); h_J2M_doubletagSR_sum = (TH1F*)fSingleLept->Get("J2_m_doubletagSR_sum");
-    h_J1M_doubletagSB_sum = (TH1F*)fSingleLept->Get("J1_m_doubletagSB_sum"); h_J2M_doubletagSB_sum = (TH1F*)fSingleLept->Get("J2_m_doubletagSB_sum");
-    h_J1M_antitagSR_sum = (TH1F*)fSingleLept->Get("J1_m_antitagSR_sum"); h_J2M_antitagSR_sum = (TH1F*)fSingleLept->Get("J2_m_antitagSR_sum");
-    h_J1M_antitagSB_sum = (TH1F*)fSingleLept->Get("J1_m_antitagSB_sum"); h_J2M_antitagSB_sum = (TH1F*)fSingleLept->Get("J2_m_antitagSB_sum");
-    h_J1M_tagSR_sum = (TH1F*)fSingleLept->Get("J1_m_tagSR_sum"); h_J2M_tagSR_sum = (TH1F*)fSingleLept->Get("J2_m_tagSR_sum");
-    h_J1M_tagSB_sum = (TH1F*)fSingleLept->Get("J1_m_tagSB_sum"); h_J2M_tagSB_sum = (TH1F*)fSingleLept->Get("J2_m_tagSB_sum");
+    h_J1M_doubletagSR_sum = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSR_sum"); h_J2M_doubletagSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSR_sum");
+    h_J1M_doubletagSB_sum = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSB_sum"); h_J2M_doubletagSB_sum = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSB_sum");
+    h_J1M_antitagSR_sum = (TH1F*)fSingleLept->Get("J1pt_M_antitagSR_sum"); h_J2M_antitagSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_antitagSR_sum");
+    h_J1M_antitagSB_sum = (TH1F*)fSingleLept->Get("J1pt_M_antitagSB_sum"); h_J2M_antitagSB_sum = (TH1F*)fSingleLept->Get("J2pt_M_antitagSB_sum");
+    h_J1M_tagSR_sum = (TH1F*)fSingleLept->Get("J1pt_M_tagSR_sum"); h_J2M_tagSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_tagSR_sum");
+    h_J1M_tagSB_sum = (TH1F*)fSingleLept->Get("J1pt_M_tagSB_sum"); h_J2M_tagSB_sum = (TH1F*)fSingleLept->Get("J2pt_M_tagSB_sum");
 
+    h_J1M_doubletagSR_TT = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSR_TT"); h_J2M_doubletagSR_TT = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSR_TT");
+    h_J1M_doubletagSB_TT = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSB_TT"); h_J2M_doubletagSB_TT = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSB_TT");
+    h_J1M_antitagSR_TT = (TH1F*)fSingleLept->Get("J1pt_M_antitagSR_TT"); h_J2M_antitagSR_TT = (TH1F*)fSingleLept->Get("J2pt_M_antitagSR_TT");
+    h_J1M_antitagSB_TT = (TH1F*)fSingleLept->Get("J1pt_M_antitagSB_TT"); h_J2M_antitagSB_TT = (TH1F*)fSingleLept->Get("J2pt_M_antitagSB_TT");
+    h_J1M_tagSR_TT = (TH1F*)fSingleLept->Get("J1pt_M_tagSR_TT"); h_J2M_tagSR_TT = (TH1F*)fSingleLept->Get("J2pt_M_tagSR_TT");
+    h_J1M_tagSB_TT = (TH1F*)fSingleLept->Get("J1pt_M_tagSB_TT"); h_J2M_tagSB_TT = (TH1F*)fSingleLept->Get("J2pt_M_tagSB_TT");
 
-    h_J1M_doubletagSR_TT = (TH1F*)fSingleLept->Get("J1_m_doubletagSR_TT"); h_J2M_doubletagSR_TT = (TH1F*)fSingleLept->Get("J2_m_doubletagSR_TT");
-    h_J1M_doubletagSB_TT = (TH1F*)fSingleLept->Get("J1_m_doubletagSB_TT"); h_J2M_doubletagSB_TT = (TH1F*)fSingleLept->Get("J2_m_doubletagSB_TT");
-    h_J1M_antitagSR_TT = (TH1F*)fSingleLept->Get("J1_m_antitagSR_TT"); h_J2M_antitagSR_TT = (TH1F*)fSingleLept->Get("J2_m_antitagSR_TT");
-    h_J1M_antitagSB_TT = (TH1F*)fSingleLept->Get("J1_m_antitagSB_TT"); h_J2M_antitagSB_TT = (TH1F*)fSingleLept->Get("J2_m_antitagSB_TT");
-    h_J1M_tagSR_TT = (TH1F*)fSingleLept->Get("J1_m_tagSR_TT"); h_J2M_tagSR_TT = (TH1F*)fSingleLept->Get("J2_m_tagSR_TT");
-    h_J1M_tagSB_TT = (TH1F*)fSingleLept->Get("J1_m_tagSB_TT"); h_J2M_tagSB_TT = (TH1F*)fSingleLept->Get("J2_m_tagSB_TT");
+    h_J1M_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSR_WJets"); h_J2M_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSR_WJets");
+    h_J1M_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSB_WJets"); h_J2M_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSB_WJets");
+    h_J1M_antitagSR_WJets = (TH1F*)fSingleLept->Get("J1pt_M_antitagSR_WJets"); h_J2M_antitagSR_WJets = (TH1F*)fSingleLept->Get("J2pt_M_antitagSR_WJets");
+    h_J1M_antitagSB_WJets = (TH1F*)fSingleLept->Get("J1pt_M_antitagSB_WJets"); h_J2M_antitagSB_WJets = (TH1F*)fSingleLept->Get("J2pt_M_antitagSB_WJets");
+    h_J1M_tagSR_WJets = (TH1F*)fSingleLept->Get("J1pt_M_tagSR_WJets"); h_J2M_tagSR_WJets = (TH1F*)fSingleLept->Get("J2pt_M_tagSR_WJets");
+    h_J1M_tagSB_WJets = (TH1F*)fSingleLept->Get("J1pt_M_tagSB_WJets"); h_J2M_tagSB_WJets = (TH1F*)fSingleLept->Get("J2pt_M_tagSB_WJets");
 
-    h_J1M_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J1_m_doubletagSR_WJets"); h_J2M_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J2_m_doubletagSR_WJets");
-    h_J1M_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J1_m_doubletagSB_WJets"); h_J2M_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J2_m_doubletagSB_WJets");
-    h_J1M_antitagSR_WJets = (TH1F*)fSingleLept->Get("J1_m_antitagSR_WJets"); h_J2M_antitagSR_WJets = (TH1F*)fSingleLept->Get("J2_m_antitagSR_WJets");
-    h_J1M_antitagSB_WJets = (TH1F*)fSingleLept->Get("J1_m_antitagSB_WJets"); h_J2M_antitagSB_WJets = (TH1F*)fSingleLept->Get("J2_m_antitagSB_WJets");
-    h_J1M_tagSR_WJets = (TH1F*)fSingleLept->Get("J1_m_tagSR_WJets"); h_J2M_tagSR_WJets = (TH1F*)fSingleLept->Get("J2_m_tagSR_WJets");
-    h_J1M_tagSB_WJets = (TH1F*)fSingleLept->Get("J1_m_tagSB_WJets"); h_J2M_tagSB_WJets = (TH1F*)fSingleLept->Get("J2_m_tagSB_WJets");
+    h_J1Pt_doubletagSR_TT = (TH1F*)fSingleLept->Get("J1pt_Pt_doubletagSR_TT"); h_J2Pt_doubletagSR_TT = (TH1F*)fSingleLept->Get("J2pt_Pt_doubletagSR_TT");
+    h_J1Pt_doubletagSB_TT = (TH1F*)fSingleLept->Get("J1pt_Pt_doubletagSB_TT"); h_J2Pt_doubletagSB_TT = (TH1F*)fSingleLept->Get("J2pt_Pt_doubletagSB_TT");
+    h_J1Pt_antitagSR_TT = (TH1F*)fSingleLept->Get("J1pt_Pt_antitagSR_TT"); h_J2Pt_antitagSR_TT = (TH1F*)fSingleLept->Get("J2pt_Pt_antitagSR_TT");
+    h_J1Pt_antitagSB_TT = (TH1F*)fSingleLept->Get("J1pt_Pt_antitagSB_TT"); h_J2Pt_antitagSB_TT = (TH1F*)fSingleLept->Get("J2pt_Pt_antitagSB_TT");
+    h_J1Pt_tagSR_TT = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSR_TT"); h_J2Pt_tagSR_TT = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSR_TT");
+    h_J1Pt_tagSB_TT = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSB_TT"); h_J2Pt_tagSB_TT = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSB_TT");
 
-    h_J1Pt_doubletagSR_TT = (TH1F*)fSingleLept->Get("J1_pt_doubletagSR_TT"); h_J2Pt_doubletagSR_TT = (TH1F*)fSingleLept->Get("J2_pt_doubletagSR_TT");
-    h_J1Pt_doubletagSB_TT = (TH1F*)fSingleLept->Get("J1_pt_doubletagSB_TT"); h_J2Pt_doubletagSB_TT = (TH1F*)fSingleLept->Get("J2_pt_doubletagSB_TT");
-    h_J1Pt_antitagSR_TT = (TH1F*)fSingleLept->Get("J1_pt_antitagSR_TT"); h_J2Pt_antitagSR_TT = (TH1F*)fSingleLept->Get("J2_pt_antitagSR_TT");
-    h_J1Pt_antitagSB_TT = (TH1F*)fSingleLept->Get("J1_pt_antitagSB_TT"); h_J2Pt_antitagSB_TT = (TH1F*)fSingleLept->Get("J2_pt_antitagSB_TT");
-    h_J1Pt_tagSR_TT = (TH1F*)fSingleLept->Get("J1_pt_tagSR_TT"); h_J2Pt_tagSR_TT = (TH1F*)fSingleLept->Get("J2_pt_tagSR_TT");
-    h_J1Pt_tagSB_TT = (TH1F*)fSingleLept->Get("J1_pt_tagSB_TT"); h_J2Pt_tagSB_TT = (TH1F*)fSingleLept->Get("J2_pt_tagSB_TT");
-
-    h_J1Pt_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J1_pt_doubletagSR_WJets"); h_J2Pt_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J2_pt_doubletagSR_WJets");
-    h_J1Pt_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J1_pt_doubletagSB_WJets"); h_J2Pt_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J2_pt_doubletagSB_WJets");
-    h_J1Pt_antitagSR_WJets = (TH1F*)fSingleLept->Get("J1_pt_antitagSR_WJets"); h_J2Pt_antitagSR_WJets = (TH1F*)fSingleLept->Get("J2_pt_antitagSR_WJets");
-    h_J1Pt_antitagSB_WJets = (TH1F*)fSingleLept->Get("J1_pt_antitagSB_WJets"); h_J2Pt_antitagSB_WJets = (TH1F*)fSingleLept->Get("J2_pt_antitagSB_WJets");
-    h_J1Pt_tagSR_WJets = (TH1F*)fSingleLept->Get("J1_pt_tagSR_WJets"); h_J2Pt_tagSR_WJets = (TH1F*)fSingleLept->Get("J2_pt_tagSR_WJets");
-    h_J1Pt_tagSB_WJets = (TH1F*)fSingleLept->Get("J1_pt_tagSB_WJets"); h_J2Pt_tagSB_WJets = (TH1F*)fSingleLept->Get("J2_pt_tagSB_WJets");
+    h_J1Pt_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_doubletagSR_WJets"); h_J2Pt_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_doubletagSR_WJets");
+    h_J1Pt_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_doubletagSB_WJets"); h_J2Pt_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_doubletagSB_WJets");
+    h_J1Pt_antitagSR_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_antitagSR_WJets"); h_J2Pt_antitagSR_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_antitagSR_WJets");
+    h_J1Pt_antitagSB_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_antitagSB_WJets"); h_J2Pt_antitagSB_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_antitagSB_WJets");
+    h_J1Pt_tagSR_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSR_WJets"); h_J2Pt_tagSR_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSR_WJets");
+    h_J1Pt_tagSB_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSB_WJets"); h_J2Pt_tagSB_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSB_WJets");
   }
 
   vector<TH1F*> histos_ABCD_sum = {h_A_sum, h_B_sum, h_C_sum, h_D_sum};
@@ -598,7 +445,6 @@ void runABCD() {
   vector<TH1F*> histos_A1B1CD_TChiHH1000 = {h_A1_TChiHH1000, h_B1_TChiHH1000, h_C_TChiHH1000, h_D_TChiHH1000};
   vector<TH1F*> histos_A1B1CD_TChiHH1300 = {h_A1_TChiHH1300, h_B1_TChiHH1300, h_C_TChiHH1300, h_D_TChiHH1300};
   vector<TH1F*> histos_A1B1CD_TChiHH1500 = {h_A1_TChiHH1500, h_B1_TChiHH1500, h_C_TChiHH1500, h_D_TChiHH1500};
-
 
   vector<TH1F*> histos_Rpf_J1_sum = {h_J1M_doubletagSR_sum, h_J1M_doubletagSB_sum, h_J1M_antitagSR_sum, h_J1M_antitagSB_sum};
   vector<TH1F*> histos_Rpf_J2_sum = {h_J2M_doubletagSR_sum, h_J2M_doubletagSB_sum, h_J2M_antitagSR_sum, h_J2M_antitagSB_sum};
@@ -630,31 +476,6 @@ void runABCD() {
   vector<TH1F*> histos_Rpfsingle_J1_ZJets = {h_J1M_tagSR_ZJets, h_J1M_tagSB_ZJets, h_J1M_antitagSR_ZJets, h_J1M_antitagSB_ZJets};
   vector<TH1F*> histos_Rpfsingle_J2_ZJets = {h_J2M_tagSR_ZJets, h_J2M_tagSB_ZJets, h_J2M_antitagSR_ZJets, h_J2M_antitagSB_ZJets};
 
-
-  vector<TH1F*> histos_doubleBJ1_ZJets = {h_doubleB_J1_SBLow_ZJets,h_doubleB_J1_SR_ZJets,h_doubleB_J1_SBHigh_ZJets};
-  vector<TH1F*> histos_doubleBJ1_WJets = {h_doubleB_J1_SBLow_WJets,h_doubleB_J1_SR_WJets,h_doubleB_J1_SBHigh_WJets};
-  vector<TH1F*> histos_doubleBJ1_TT = {h_doubleB_J1_SBLow_TT,h_doubleB_J1_SR_TT,h_doubleB_J1_SBHigh_TT};
-  vector<TH1F*> histos_doubleBJ1_QCD = {h_doubleB_J1_SBLow_QCD,h_doubleB_J1_SR_QCD,h_doubleB_J1_SBHigh_QCD};
-  vector<TH1F*> histos_doubleBJ1_T5HH1300 = {h_doubleB_J1_SBLow_T5HH1300,h_doubleB_J1_SR_T5HH1300,h_doubleB_J1_SBHigh_T5HH1300};
-  vector<TH1F*> histos_doubleBJ1_T5HH1700 = {h_doubleB_J1_SBLow_T5HH1700,h_doubleB_J1_SR_T5HH1700,h_doubleB_J1_SBHigh_T5HH1700};
-  vector<TH1F*> histos_doubleBJ1_T5HH2100 = {h_doubleB_J1_SBLow_T5HH2100,h_doubleB_J1_SR_T5HH2100,h_doubleB_J1_SBHigh_T5HH2100};
-
-  // vector<TH1F*> histos_doubleBHJ1_ZJets = {h_doubleBH_J1_SBLow_ZJets,h_doubleBH_J1_SR_ZJets,h_doubleBH_J1_SBHigh_ZJets};
-  // vector<TH1F*> histos_doubleBHJ1_WJets = {h_doubleBH_J1_SBLow_WJets,h_doubleBH_J1_SR_WJets,h_doubleBH_J1_SBHigh_WJets};
-  // vector<TH1F*> histos_doubleBHJ1_TT = {h_doubleBH_J1_SBLow_TT,h_doubleBH_J1_SR_TT,h_doubleBH_J1_SBHigh_TT};
-  // vector<TH1F*> histos_doubleBHJ1_QCD = {h_doubleBH_J1_SBLow_QCD,h_doubleBH_J1_SR_QCD,h_doubleBH_J1_SBHigh_QCD};
-  // vector<TH1F*> histos_doubleBHJ1_T5HH1300 = {h_doubleBH_J1_SBLow_T5HH1300,h_doubleBH_J1_SR_T5HH1300,h_doubleBH_J1_SBHigh_T5HH1300};
-  // vector<TH1F*> histos_doubleBHJ1_T5HH1700 = {h_doubleBH_J1_SBLow_T5HH1700,h_doubleBH_J1_SR_T5HH1700,h_doubleBH_J1_SBHigh_T5HH1700};
-  // vector<TH1F*> histos_doubleBHJ1_T5HH2100 = {h_doubleBH_J1_SBLow_T5HH2100,h_doubleBH_J1_SR_T5HH2100,h_doubleBH_J1_SBHigh_T5HH2100};
-  //
-  // vector<TH1F*> histos_tau32_ZJets = {h_tau32_J1_SBLow_ZJets,h_tau32_J1_SR_ZJets,h_tau32_J1_SBHigh_ZJets};
-  // vector<TH1F*> histos_tau32_WJets = {h_tau32_J1_SBLow_WJets,h_tau32_J1_SR_WJets,h_tau32_J1_SBHigh_WJets};
-  // vector<TH1F*> histos_tau32_TT = {h_tau32_J1_SBLow_TT,h_tau32_J1_SR_TT,h_tau32_J1_SBHigh_TT};
-  // vector<TH1F*> histos_tau32_QCD = {h_tau32_J1_SBLow_QCD,h_tau32_J1_SR_QCD,h_tau32_J1_SBHigh_QCD};
-  // vector<TH1F*> histos_tau32_T5HH1300 = {h_tau32_J1_SBLow_T5HH1300,h_tau32_J1_SR_T5HH1300,h_tau32_J1_SBHigh_T5HH1300};
-  // vector<TH1F*> histos_tau32_T5HH1700 = {h_tau32_J1_SBLow_T5HH1700,h_tau32_J1_SR_T5HH1700,h_tau32_J1_SBHigh_T5HH1700};
-  // vector<TH1F*> histos_tau32_T5HH2100 = {h_tau32_J1_SBLow_T5HH2100,h_tau32_J1_SR_T5HH2100,h_tau32_J1_SBHigh_T5HH2100};
-
   vector<TH1F*> histos_j1mass_ZJets = {h_J1M_doubletagSR_ZJets,h_J1M_doubletagSB_ZJets,h_J1M_tagSR_ZJets,h_J1M_tagSB_ZJets, h_J1M_antitagSR_ZJets, h_J1M_antitagSB_ZJets};
   vector<TH1F*> histos_j1mass_WJets = {h_J1M_doubletagSR_WJets,h_J1M_doubletagSB_WJets,h_J1M_tagSR_WJets,h_J1M_tagSB_WJets, h_J1M_antitagSR_WJets, h_J1M_antitagSB_WJets};
   vector<TH1F*> histos_j1mass_TT    = {h_J1M_doubletagSR_TT,h_J1M_doubletagSB_TT,h_J1M_tagSR_TT,h_J1M_tagSB_TT, h_J1M_antitagSR_TT, h_J1M_antitagSB_TT};
@@ -670,7 +491,6 @@ void runABCD() {
   vector<TH1F*> histos_j2mass_T5HH1300 = {h_J2M_doubletagSR_T5HH1300,h_J2M_doubletagSB_T5HH1300,h_J2M_tagSR_T5HH1300,h_J2M_tagSB_T5HH1300, h_J2M_antitagSR_T5HH1300, h_J2M_antitagSB_T5HH1300};
   vector<TH1F*> histos_j2mass_T5HH1700 = {h_J2M_doubletagSR_T5HH1700,h_J2M_doubletagSB_T5HH1700,h_J2M_tagSR_T5HH1700,h_J2M_tagSB_T5HH1700, h_J2M_antitagSR_T5HH1700, h_J2M_antitagSB_T5HH1700};
   vector<TH1F*> histos_j2mass_T5HH2100 = {h_J2M_doubletagSR_T5HH2100,h_J2M_doubletagSB_T5HH2100,h_J2M_tagSR_T5HH2100,h_J2M_tagSB_T5HH2100, h_J2M_antitagSR_T5HH2100, h_J2M_antitagSB_T5HH2100};
-
 
   vector<TH1F*> histos_j1pt_ZJets = {h_J1Pt_doubletagSR_ZJets,h_J1Pt_doubletagSB_ZJets,h_J1Pt_tagSR_ZJets,h_J1Pt_tagSB_ZJets, h_J1Pt_antitagSR_ZJets, h_J1Pt_antitagSB_ZJets};
   vector<TH1F*> histos_j1pt_WJets = {h_J1Pt_doubletagSR_WJets,h_J1Pt_doubletagSB_WJets,h_J1Pt_tagSR_WJets,h_J1Pt_tagSB_WJets, h_J1Pt_antitagSR_WJets, h_J1Pt_antitagSB_WJets};
@@ -688,51 +508,59 @@ void runABCD() {
   vector<TH1F*> histos_j2pt_T5HH1700 = {h_J2Pt_doubletagSR_T5HH1700,h_J2Pt_doubletagSB_T5HH1700,h_J2Pt_tagSR_T5HH1700,h_J2Pt_tagSB_T5HH1700, h_J2Pt_antitagSR_T5HH1700, h_J2Pt_antitagSB_T5HH1700};
   vector<TH1F*> histos_j2pt_T5HH2100 = {h_J2Pt_doubletagSR_T5HH2100,h_J2Pt_doubletagSB_T5HH2100,h_J2Pt_tagSR_T5HH2100,h_J2Pt_tagSB_T5HH2100, h_J2Pt_antitagSR_T5HH2100, h_J2Pt_antitagSB_T5HH2100};
 
+  vector<TH1F*> histos_assump_sum = {h_notagSR_sum,h_notagSB_sum};
+  vector<TH1F*> histos_assump_ZJets = {h_notagSR_ZJets,h_notagSB_ZJets};
+  vector<TH1F*> histos_assump_WJets = {h_notagSR_WJets,h_notagSB_WJets};
+  vector<TH1F*> histos_assump_TT = {h_notagSR_TT,h_notagSB_TT};
+  vector<TH1F*> histos_assump_QCD = {h_notagSR_QCD,h_notagSB_QCD};
+
+  if (runClosurePlots){
+    makeClosureStackPlot(histos_ABCD_QCD,histos_ABCD_TT,histos_ABCD_WJets,histos_ABCD_ZJets,histos_ABCD_sum);
+    makeTestClosurePlot(h_C_sum, h_notagSB_sum, h_A_sum);
+  }
+
   if (runABCDPlots){
     if (whichRegion=="signal"){
-      // makeABCDPlot(histos_ABCD_sum, "BkgSum", "Double");  //This is broken...
-
+      makeABCDPlot(histos_ABCD_sum, "BkgSum", "Double");
       makeABCDPlot(histos_ABCD_QCD, "QCD", "Double");
       makeABCDPlot(histos_ABCD_TT, "TT", "Double");
       makeABCDPlot(histos_ABCD_WJets, "WJets", "Double");
       makeABCDPlot(histos_ABCD_ZJets, "ZJets", "Double");
 
-      // makeABCDPlot(histos_ABCD_TChiHH200, "TChiHH200", "Double");
-      // makeABCDPlot(histos_ABCD_TChiHH400, "TChiHH400", "Double");
-      // makeABCDPlot(histos_ABCD_TChiHH700, "TChiHH700", "Double");
-      // makeABCDPlot(histos_ABCD_TChiHH1000, "TChiHH1000", "Double");
-      // makeABCDPlot(histos_ABCD_TChiHH1300, "TChiHH1300", "Double");
-      // makeABCDPlot(histos_ABCD_TChiHH1500, "TChiHH1500", "Double");
-
-      //
-      // makeABCDPlot(histos_A1B1CD_sum, "BkgSum", "Single"); //This is broken...
+      makeABCDPlot(histos_A1B1CD_sum, "BkgSum", "Single");
       makeABCDPlot(histos_A1B1CD_QCD, "QCD", "Single");
       makeABCDPlot(histos_A1B1CD_TT, "TT", "Single");
       makeABCDPlot(histos_A1B1CD_WJets, "WJets", "Single");
       makeABCDPlot(histos_A1B1CD_ZJets, "ZJets", "Single");
     }
-    else if (whichRegion=="singleLept"){
-      makeABCDPlot(histos_ABCD_sum, "BkgSum", "Double");
-      makeABCDPlot(histos_ABCD_TT, "TT", "Double");
-      makeABCDPlot(histos_ABCD_WJets, "WJets", "Double");
 
-      makeABCDPlot(histos_ABCD_sum, "BkgSum", "Single");
-      makeABCDPlot(histos_A1B1CD_TT, "TT", "Single");
-      makeABCDPlot(histos_A1B1CD_WJets, "WJets", "Single");
-    }
-    else if (whichRegion=="photon"){
-      makeABCDPlot(histos_ABCD_QCD, "QCD", "Double");
-      makeABCDPlot(histos_ABCD_GJets, "GJets", "Double");
-      makeABCDPlot(histos_A1B1CD_QCD, "QCD", "Single");
-      makeABCDPlot(histos_A1B1CD_GJets, "GJets", "Single");
-    }
-
-
+    // else if (whichRegion=="singleLept"){
+    //   makeABCDPlot(histos_ABCD_sum, "BkgSum", "Double");
+    //   makeABCDPlot(histos_ABCD_TT, "TT", "Double");
+    //   makeABCDPlot(histos_ABCD_WJets, "WJets", "Double");
+    //
+    //   makeABCDPlot(histos_ABCD_sum, "BkgSum", "Single");
+    //   makeABCDPlot(histos_A1B1CD_TT, "TT", "Single");
+    //   makeABCDPlot(histos_A1B1CD_WJets, "WJets", "Single");
+    // }
+    // else if (whichRegion=="photon"){
+    //   makeABCDPlot(histos_ABCD_QCD, "QCD", "Double");
+    //   makeABCDPlot(histos_ABCD_GJets, "GJets", "Double");
+    //   makeABCDPlot(histos_A1B1CD_QCD, "QCD", "Single");
+    //   makeABCDPlot(histos_A1B1CD_GJets, "GJets", "Single");
+    // }
   }
 
-  if (runRPFPlots){
-    myfile.open("Rpf_deviations.txt");
+  if (runAssumpt) {
+    makeAsummptionPlot(histos_assump_sum, "BkgSum");
+    makeAsummptionPlot(histos_assump_ZJets, "ZJets");
+    makeAsummptionPlot(histos_assump_WJets, "WJets");
+    makeAsummptionPlot(histos_assump_TT, "TT");
+    makeAsummptionPlot(histos_assump_QCD, "QCD");
+   }
 
+  if (runRPFPlots){
+    // myfile.open("Rpf_deviations.txt");
     if (whichRegion=="signal"){
       //J1 Double tag region
       makeRpfPlot(histos_Rpf_J1_sum, "BkgSum", "J1", "Double");
@@ -762,49 +590,44 @@ void runABCD() {
       makeRpfPlot(histos_Rpfsingle_J2_WJets, "WJets", "J2", "Single");
       makeRpfPlot(histos_Rpfsingle_J2_ZJets, "ZJets", "J2", "Single");
     }
-    if (whichRegion=="singleLept"){
-      //J1 Double tag region
-      makeRpfPlot(histos_Rpf_J1_TT, "TT", "J1", "Double");
-      makeRpfPlot(histos_Rpf_J1_WJets, "WJets", "J1", "Double");
+    // if (whichRegion=="singleLept"){
+    //   //J1 Double tag region
+    //   makeRpfPlot(histos_Rpf_J1_TT, "TT", "J1", "Double");
+    //   makeRpfPlot(histos_Rpf_J1_WJets, "WJets", "J1", "Double");
+    //
+    //   //J1 Single tag region
+    //   makeRpfPlot(histos_Rpfsingle_J1_TT, "TT", "J1", "Single");
+    //   makeRpfPlot(histos_Rpfsingle_J1_WJets, "WJets", "J1", "Single");
+    //
+    //   //J2 double tag region
+    //   makeRpfPlot(histos_Rpf_J2_TT, "TT", "J2", "Double");
+    //   makeRpfPlot(histos_Rpf_J2_WJets, "WJets", "J2", "Double");
+    //
+    //   //J2 single tag region
+    //   makeRpfPlot(histos_Rpfsingle_J2_TT, "TT", "J2", "Single");
+    //   makeRpfPlot(histos_Rpfsingle_J2_WJets, "WJets", "J2", "Single");
+    // }
+    // if (whichRegion=="photon"){
+    //   //J1 Double tag region
+    //   makeRpfPlot(histos_Rpf_J1_QCD, "QCD", "J1", "Double");
+    //   makeRpfPlot(histos_Rpf_J1_GJets, "GJets", "J1", "Double");
+    //
+    //   //J1 Single tag region
+    //   makeRpfPlot(histos_Rpfsingle_J1_QCD, "QCD", "J1", "Single");
+    //   makeRpfPlot(histos_Rpfsingle_J1_GJets, "GJets", "J1", "Single");
+    //
+    //   //J2 double tag region
+    //   makeRpfPlot(histos_Rpf_J2_QCD, "QCD", "J2", "Double");
+    //   makeRpfPlot(histos_Rpf_J2_GJets, "GJets", "J2", "Double");
+    //
+    //   //J2 single tag region
+    //   makeRpfPlot(histos_Rpfsingle_J2_QCD, "QCD", "J2", "Single");
+    //   makeRpfPlot(histos_Rpfsingle_J2_GJets, "GJets", "J2", "Single");
+    // }
 
-      //J1 Single tag region
-      makeRpfPlot(histos_Rpfsingle_J1_TT, "TT", "J1", "Single");
-      makeRpfPlot(histos_Rpfsingle_J1_WJets, "WJets", "J1", "Single");
-
-      //J2 double tag region
-      makeRpfPlot(histos_Rpf_J2_TT, "TT", "J2", "Double");
-      makeRpfPlot(histos_Rpf_J2_WJets, "WJets", "J2", "Double");
-
-      //J2 single tag region
-      makeRpfPlot(histos_Rpfsingle_J2_TT, "TT", "J2", "Single");
-      makeRpfPlot(histos_Rpfsingle_J2_WJets, "WJets", "J2", "Single");
-    }
-    if (whichRegion=="photon"){
-      //J1 Double tag region
-      makeRpfPlot(histos_Rpf_J1_QCD, "QCD", "J1", "Double");
-      makeRpfPlot(histos_Rpf_J1_GJets, "GJets", "J1", "Double");
-
-      //J1 Single tag region
-      makeRpfPlot(histos_Rpfsingle_J1_QCD, "QCD", "J1", "Single");
-      makeRpfPlot(histos_Rpfsingle_J1_GJets, "GJets", "J1", "Single");
-
-      //J2 double tag region
-      makeRpfPlot(histos_Rpf_J2_QCD, "QCD", "J2", "Double");
-      makeRpfPlot(histos_Rpf_J2_GJets, "GJets", "J2", "Double");
-
-      //J2 single tag region
-      makeRpfPlot(histos_Rpfsingle_J2_QCD, "QCD", "J2", "Single");
-      makeRpfPlot(histos_Rpfsingle_J2_GJets, "GJets", "J2", "Single");
-    }
-
-    myfile.close();
+    // myfile.close();
   }
 
-  if (runDoubleBStack && whichRegion=="signal") {
-    makeStackPlot(histos_doubleBJ1_QCD,histos_doubleBJ1_TT,histos_doubleBJ1_WJets,histos_doubleBJ1_ZJets,histos_doubleBJ1_T5HH1300,histos_doubleBJ1_T5HH1700,histos_doubleBJ1_T5HH2100,"DoubleB");
-    // makeStackPlot(histos_doubleBHJ1_QCD,histos_doubleBHJ1_TT,histos_doubleBHJ1_WJets,histos_doubleBHJ1_ZJets,histos_doubleBHJ1_T5HH1300,histos_doubleBHJ1_T5HH1700,histos_doubleBHJ1_T5HH2100,"DoubleB-H");
-    // makeStackPlot(histos_tau32_QCD,histos_tau32_TT,histos_tau32_WJets,histos_tau32_ZJets,histos_tau32_T5HH1300,histos_tau32_T5HH1700,histos_tau32_T5HH2100,"tau32");
-  }
 
   if (runStacks && whichRegion=="signal") {
     makeStackPlot(histos_j1mass_QCD,histos_j1mass_TT,histos_j1mass_WJets,histos_j1mass_ZJets,histos_j1mass_T5HH1300,histos_j1mass_T5HH1700,histos_j1mass_T5HH2100,"leadmass");
@@ -813,11 +636,6 @@ void runABCD() {
     makeStackPlot(histos_j1pt_QCD,histos_j1pt_TT,histos_j1pt_WJets,histos_j1pt_ZJets,histos_j1pt_T5HH1300,histos_j1pt_T5HH1700,histos_j1pt_T5HH2100,"leadpt");
     makeStackPlot(histos_j2pt_QCD,histos_j2pt_TT,histos_j2pt_WJets,histos_j2pt_ZJets,histos_j2pt_T5HH1300,histos_j2pt_T5HH1700,histos_j2pt_T5HH2100,"subleadpt");
 
-    makeStackPlot(histos_doubleBJ1_QCD,histos_doubleBJ1_TT,histos_doubleBJ1_WJets,histos_doubleBJ1_ZJets,histos_doubleBJ1_T5HH1300,histos_doubleBJ1_T5HH1700,histos_doubleBJ1_T5HH2100,"DoubleB");
-    // makeStackPlot(histos_doubleBHJ1_QCD,histos_doubleBHJ1_TT,histos_doubleBHJ1_WJets,histos_doubleBHJ1_ZJets,histos_doubleBHJ1_T5HH1300,histos_doubleBHJ1_T5HH1700,histos_doubleBHJ1_T5HH2100,"DoubleB-H");
-
-    // makeStackPlot(histos_doubleBJ2_QCD,histos_doubleBJ2_TT,histos_doubleBJ2_WJets,histos_doubleBJ2_ZJets,histos_doubleBJ2_T5HH1300,histos_doubleBJ2_T5HH1700,histos_doubleBJ2_T5HH2100,"DoubleB");
-    // makeStackPlot(histos_doubleBHJ2_QCD,histos_doubleBHJ2_TT,histos_doubleBHJ2_WJets,histos_doubleBHJ2_ZJets,histos_doubleBHJ2_T5HH1300,histos_doubleBHJ2_T5HH1700,histos_doubleBHJ2_T5HH2100,"DoubleB-H");
   }
 
   if (runStacks && whichRegion=="singleLept") {
@@ -826,54 +644,12 @@ void runABCD() {
 
     makeSingleLeptStackPlot(histos_j1pt_TT,histos_j1pt_WJets,"leadpt");
     makeSingleLeptStackPlot(histos_j2pt_TT,histos_j2pt_WJets,"subleadpt");
-
-    makeSingleLeptStackPlot(histos_doubleBJ1_TT,histos_doubleBJ1_WJets,"DoubleB");
-    // makeSingleLeptStackPlot(histos_doubleBHJ1_TT,histos_doubleBHJ1_WJets,"DoubleB-H");
   }
 
   if (runMETStacks && whichRegion=="signal") {
     makeMETStack(h_MET_all_QCD,h_MET_all_TT,h_MET_all_WJets,h_MET_all_ZJets,h_MET_all_T5HH1300,h_MET_all_T5HH1700,h_MET_all_T5HH2100,"all");
     makeMETStack(h_MET_Single_QCD,h_MET_Single_TT,h_MET_Single_WJets,h_MET_Single_ZJets,h_MET_Single_T5HH1300,h_MET_Single_T5HH1700,h_MET_Single_T5HH2100,"single");
     makeMETStack(h_MET_Double_QCD,h_MET_Double_TT,h_MET_Double_WJets,h_MET_Double_ZJets,h_MET_Double_T5HH1300,h_MET_Double_T5HH1700,h_MET_Double_T5HH2100,"double");
-  }
-
-
-  if (runCompareDoubleB){
-    if (whichRegion=="signal"){
-      makeDoubleBPlots(histos_doubleBJ1_ZJets, "ZJets","");
-      makeDoubleBPlots(histos_doubleBJ1_WJets, "WJets","");
-      makeDoubleBPlots(histos_doubleBJ1_TT, "TT","");
-      makeDoubleBPlots(histos_doubleBJ1_QCD, "QCD","");
-      makeDoubleBPlots(histos_doubleBJ1_T5HH1300, "T5HH1300","");
-      makeDoubleBPlots(histos_doubleBJ1_T5HH1700, "T5HH1700","");
-      makeDoubleBPlots(histos_doubleBJ1_T5HH2100, "T5HH2100","");
-
-      // makeDoubleBPlots(histos_doubleBHJ1_ZJets, "ZJets","DoubleB-H");
-      // makeDoubleBPlots(histos_doubleBHJ1_WJets, "WJets","DoubleB-H");
-      // makeDoubleBPlots(histos_doubleBHJ1_TT, "TT","DoubleB-H");
-      // makeDoubleBPlots(histos_doubleBHJ1_QCD, "QCD","DoubleB-H");
-      // makeDoubleBPlots(histos_doubleBHJ1_T5HH1300, "T5HH1300","DoubleB-H");
-      // makeDoubleBPlots(histos_doubleBHJ1_T5HH1700, "T5HH1700","DoubleB-H");
-      // makeDoubleBPlots(histos_doubleBHJ1_T5HH2100, "T5HH2100","DoubleB-H");
-      //
-      // makeDoubleBPlots(histos_tau32_ZJets, "ZJets","tau32");
-      // makeDoubleBPlots(histos_tau32_WJets, "WJets","tau32");
-      // makeDoubleBPlots(histos_tau32_TT, "TT","tau32");
-      // makeDoubleBPlots(histos_tau32_QCD, "QCD","tau32");
-      // makeDoubleBPlots(histos_tau32_T5HH1300, "T5HH1300","tau32");
-      // makeDoubleBPlots(histos_tau32_T5HH1700, "T5HH1700","tau32");
-      // makeDoubleBPlots(histos_tau32_T5HH2100, "T5HH2100","tau32");
-    }
-    if (whichRegion=="singleLept"){
-      makeDoubleBPlots(histos_doubleBJ1_WJets, "WJets","");
-      makeDoubleBPlots(histos_doubleBJ1_TT, "TT","");
-
-      // makeDoubleBPlots(histos_doubleBHJ1_WJets, "WJets","DoubleB-H");
-      // makeDoubleBPlots(histos_doubleBHJ1_TT, "TT","DoubleB-H");
-      // makeDoubleBPlots(histos_tau32_WJets, "WJets","tau32");
-      // makeDoubleBPlots(histos_tau32_TT, "TT","tau32");
-    }
-
   }
 
   // if (runROC){
@@ -907,127 +683,109 @@ void runABCD() {
   //   QuickROC(T5HH1300_Added, WJets_Added, "");
   //   QuickROC(T5HH1300_Added, TT_Added, "");
   // }
+
+  fout->Close();
+  f->Close();
+  fSignal->Close();
 } //end method ABCD()
 
 void makeABCDPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString tagType = "") {
-  TH1F *histo_A = dem_histos[0]; TH1F *histo_B = dem_histos[1];
-  TH1F *histo_C = dem_histos[2]; TH1F *histo_D = dem_histos[3];
-  histo_B->Multiply(histo_C);
-  histo_B->Divide(histo_D);
+  TH1F *histo_A = (TH1F*)dem_histos[0]->Clone("histo_A"); TH1F *histo_B = (TH1F*)dem_histos[1]->Clone("histo_B");
+  TH1F *histo_C = (TH1F*)dem_histos[2]->Clone("histo_C"); TH1F *histo_D = (TH1F*)dem_histos[3]->Clone("histo_D");
+  TH1F *histo_pred = (TH1F*)histo_B->Clone("histo_pred");
 
-  TH1F *histo_pred = histo_B;
-  // TH1F histo_ratio = (*histo_pred)/(*histo_A);
+  histo_pred->Multiply(histo_C);histo_pred->Divide(histo_D);
 
-  for (int i = 1; i<=5; i++){
-    if (histo_A->GetBinContent(i)==0){
+  int numMETBins = histo_pred->GetNbinsX();
+  for (int i = 1; i<=numMETBins; i++){
+    if (histo_A->GetBinContent(i)<0.001){
       std::cout<<"Attempting to solve problem"<<std::endl;
       histo_A->SetBinContent(i,0.001);
-      if (histo_A->GetBinError(i)==0) histo_A->SetBinError(i,1.4);
+      if (histo_A->GetBinError(i)<0.001) histo_A->SetBinError(i,1.4);
     }
-    if (histo_pred->GetBinContent(i)==0){
+    if (histo_pred->GetBinContent(i)<0.001){
       std::cout<<"Attempting to solve problem"<<std::endl;
       histo_pred->SetBinContent(i,0.001);
-      if (histo_pred->GetBinError(i)==0) histo_pred->SetBinError(i,1.4);
+      if (histo_pred->GetBinError(i)<0.001) histo_pred->SetBinError(i,1.4);
     }
   }
-  // histo_A->Sumw2();
-  // histo_pred->Sumw2();
 
   TGraphAsymmErrors * graph = new TGraphAsymmErrors(histo_A, histo_pred, "pois");
-
   TString canvName = bkgType+tagType;
-
-  double W = 800;
-  double H = 600;
-  double T = 0.08*H;
-  double B = 0.12*H;
-  double L = 0.08*W;
-  double R = 0.08*W;
+  double W = 800; double H = 600;
+  double T = 0.08*H; double B = 0.12*H;
+  double L = 0.12*W; double R = 0.04*W;
   TCanvas * can_h = new TCanvas(canvName,canvName, 50, 50, W, H);
-  can_h->SetFillColor(0);
-  can_h->SetBorderMode(0);
-  can_h->SetFrameFillStyle(0);
-  can_h->SetFrameBorderMode(0);
-  can_h->SetLeftMargin( L/W );
-  can_h->SetRightMargin( R/W );
-  can_h->SetTopMargin( T/H );
-  can_h->SetBottomMargin( B/H );
-  can_h->SetTickx(0);
-  can_h->SetTicky(0);
+  can_h->SetFillColor(0); can_h->SetBorderMode(0);
+  can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+  can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
+  can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
+  can_h->SetTickx(0); can_h->SetTicky(0);
 
-  double up_height     = 0.8;
-  // double dw_correction = 1.30;
-  double dw_correction = 1.18;
-  double font_size_dw  = 0.1;
+  double up_height = 0.8; // double dw_correction = 1.30;
+  double dw_correction = 1.18; double font_size_dw  = 0.1;
   double dw_height = (1. - up_height) * dw_correction;
   double dw_height_offset = 0.02;
 
   TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
   TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
-  pad1->SetTickx(0);
-  pad1->SetTicky(0);
+  pad1->SetTickx(0); pad1->SetTicky(0);
   pad1->SetPad(0., 1 - up_height, 1., 1.00);
-  pad1->SetFrameFillColor(0);
-  pad1->SetFillColor(0);
-  pad1->SetTopMargin(0.08);
-  pad1->SetLeftMargin(0.08);
-  pad1->SetRightMargin(0.06);
-  // pad1->SetLogy(logy)
+  pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
+  pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.08); pad1->SetRightMargin(0.06);
   pad1->Draw();
 
   pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
-  pad2->SetFillColor(0);
-  pad2->SetFrameFillColor(0);
-  pad2->SetBottomMargin(0.33);
-  pad2->SetTopMargin(0.01);
-  pad2->SetLeftMargin(0.08);
-  pad2->SetRightMargin(0.06);
-  pad2->Draw();
-  pad1->cd();
+  pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
+  pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.01);
+  pad2->SetLeftMargin(0.08); pad2->SetRightMargin(0.06);
+  pad2->Draw(); pad1->cd();
 
   histo_pred->SetStats(0); histo_A->SetStats(0);
-  histo_pred->SetFillColor(kBlue);
-  histo_pred->SetFillStyle(3445);
+  histo_pred->SetFillColor(kBlue); histo_pred->SetFillStyle(3445);
 
-  histo_pred->SetMarkerSize(0);
-  histo_pred->SetLineWidth(1);
+  histo_pred->SetMarkerSize(0); histo_pred->SetLineWidth(1);
   histo_pred->SetLineColor(kBlue);
 
-  histo_A->SetTitle(";;nEvents");
   TString title = bkgType+";;nEvents";
-  histo_pred->SetTitle(title);
-  histo_pred->SetMinimum(0);
-  if (tagType == "Double" && bkgType == "ZJets") histo_pred->SetMaximum(1.0);
+  histo_A->SetTitle(title); histo_pred->SetTitle(title);
+  histo_pred->SetMinimum(0); histo_A->SetMinimum(0);
 
-  if (bkgType == "WJets" && tagType == "Double") histo_pred->SetMaximum(0.5);
-  // histo_pred->SetTitle(";;nEvents");
-  histo_pred->GetYaxis()->SetTitleOffset(0.6);
-  //histo_pred->GetYaxis()->SetTitleSize(0.14);
-  histo_pred->GetXaxis()->SetLabelSize(0);
-  // histo_pred->GetYaxis()->SetNdivisions(505);
   histo_A->SetLineColor(kBlack); histo_A->SetMarkerStyle(20);
   histo_A->SetMarkerColor(kBlack);
 
-  TLegend* legend = new TLegend(0.60,0.7,0.94,0.92);
-  //legend->SetHeader(bkgType,"C"); // option "C" allows to center the header
+  TLegend* legend = new TLegend(0.60,0.7,0.93,0.91);
+  legend->SetBorderSize(0);
   if (tagType=="Double") {
     legend->AddEntry(histo_A,"Simulation: A2","lp");
     legend->AddEntry(histo_pred,"Prediction: B2*C/D","f");
-
   }
   else if (tagType=="Single") {
     legend->AddEntry(histo_A,"Simulation: A1","lp");
     legend->AddEntry(histo_pred,"Prediction: B1*C/D","f");
   }
 
-  histo_pred->Draw("E2");
-  histo_A->Draw("same");
+  float pred_bin1 = histo_pred->GetBinContent(1);
+  float sig_bin1 = histo_A->GetBinContent(1);
+
+  if (pred_bin1>sig_bin1) {
+    histo_pred->GetYaxis()->SetTitleOffset(0.6);
+    histo_pred->GetXaxis()->SetLabelSize(0);
+    histo_pred->Draw("E2");
+    histo_A->Draw("same");
+  }
+  else {
+    histo_A->GetYaxis()->SetTitleOffset(0.6);
+    histo_A->GetXaxis()->SetLabelSize(0);
+    histo_A->Draw("same");
+    histo_pred->Draw("E2 same");
+  }
   legend->Draw("same");
 
   pad2->cd();
-  graph->SetTitle(";MET [GeV];sim/pred");
+  graph->SetTitle(";MET [GeV]; #kappa (Sim/Pred)");
   graph->SetMarkerStyle(20);
-  graph->SetMarkerColor(kBlack);
+  graph->SetLineColor(kBlack); graph->SetMarkerColor(kBlack);
   graph->GetYaxis()->SetTitleOffset(0.25);
   graph->GetYaxis()->SetTitleSize(0.13);
   graph->GetXaxis()->SetTitleOffset(0.9);
@@ -1036,151 +794,207 @@ void makeABCDPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString tagTyp
   graph->GetYaxis()->SetLabelSize(0.14);
   graph->GetXaxis()->SetNdivisions(507);
   graph->GetYaxis()->SetNdivisions(505);
-  // graph->GetXaxis()->SetRangeUser(300,1000);
   // graph->GetYaxis()->SetRangeUser(0.3,1.5);
 
   graph->Draw("APE");
-  graph->GetXaxis()->SetRangeUser(150,1000);
-  if (tagType == "Double" &&  !useDeepDoubleB) graph->GetYaxis()->SetRangeUser(0.0,4.0);
-  else if (tagType == "Double") graph->GetYaxis()->SetRangeUser(0.0,2.0);
-  else if (tagType == "Single" &&  bkgType == "ZJets" && useDeepDoubleB) graph->GetYaxis()->SetRangeUser(0.8,1.6);
-  else if (tagType == "Single" &&  bkgType == "TT" && !useDeepDoubleB) graph->GetYaxis()->SetRangeUser(0.0,1.2);
-  else graph->GetYaxis()->SetRangeUser(0.8,1.2);
+  graph->GetXaxis()->SetRangeUser(250,1400);
+  graph->GetYaxis()->SetRangeUser(-1.0,5.0);
+  if (tagType=="Single") graph->GetYaxis()->SetRangeUser(0.0,2.0);
+  graph->Draw("APE");
+  can_h->Modified(); can_h->Update();
 
-  // if (bkgType == "TT") graph->GetYaxis()->SetRangeUser(0.2,4.5);
-  // graph->Draw("APE");
-
-
-
-  can_h->Modified();
-  can_h->Update();
-
-
-
-  TLine *line = new TLine(150,1.0,1000,1.0);
-  line->SetLineColor(kRed);
-  line->SetLineStyle(2);
+  TLine *line = new TLine(250,1.0,1400,1.0);
+  line->SetLineColor(kRed); line->SetLineStyle(2);
   line->Draw("same");
 
-  TString directory = "ABCDPlots/ABCD_";
-  if (whichRegion == "singleLept") directory = "ABCDPlots/ABCD_SingleLept_";
-  if (whichRegion == "photon") directory = "ABCDPlots/ABCD_Photon_";
-
-  TString savename = directory+tagType+"_"+bkgType;
-  // if (useDeepDoubleB) savename = directory+tagType+"_"+bkgType+"_noVeto";
-  if (useDeepDoubleB) savename = directory+tagType+"_"+bkgType+"_resAllVeto";
-  can_h->SaveAs(savename+".root");
-  can_h->SaveAs(savename+".pdf");
+  TString savename = "ABCD_"+tagType+"_"+bkgType;
+  // TString savename = whichRegion+"_"+tagType+"_"+bkgType;
+  cdABCD->cd();
+  can_h->Write(savename);
 }
 
-void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType = "", TString tagType = "") {
-  TH1D * num   = (TH1D*)dem_histos[0]->Clone("num"+tagType+"_"+jetType+"_"+bkgType);
-  TH1D * denom = (TH1D*)dem_histos[2]->Clone("denom"+tagType+"_"+jetType+"_"+bkgType);
+void makeClosureStackPlot(vector<TH1F*> QCD_histos, vector<TH1F*> TT_histos, vector<TH1F*> WJets_histos,vector<TH1F*> ZJets_histos, vector<TH1F*> sum_histos){
+  TH1F *QCD_histo_A = (TH1F*)QCD_histos[0]->Clone("QCD_histo_A");
+  TH1F *TT_histo_A = (TH1F*)TT_histos[0]->Clone("TT_histo_A");
+  TH1F *WJets_histo_A = (TH1F*)WJets_histos[0]->Clone("WJets_histo_A");
+  TH1F *ZJets_histo_A = (TH1F*)ZJets_histos[0]->Clone("ZJets_histo_A");
 
-  num->Add(dem_histos[1]); denom->Add(dem_histos[3]);
-  num->Rebin(2); denom->Rebin(2);
+  TH1F *sum_B = (TH1F*)sum_histos[1]->Clone("sum_B");
+  TH1F *sum_C = (TH1F*)sum_histos[2]->Clone("sum_C");
+  TH1F *sum_D = (TH1F*)sum_histos[3]->Clone("sum_D");
+  sum_B->Multiply(sum_C); sum_B->Divide(sum_D);
+  TH1F *histo_pred = (TH1F*)sum_B->Clone("histo_pred");
 
-  num->SetMarkerStyle(20); num->SetMarkerSize(0.85);
-  num->SetMinimum(0.0);
-  num->SetLineColor(kRed); num->SetMarkerColor(kRed);
-  num->GetYaxis()->SetTitle("Normalized to unity");
+  TH1F *histo_MC  = (TH1F*)QCD_histo_A->Clone("histo_MC");
+  histo_MC->Add(TT_histo_A); histo_MC->Add(WJets_histo_A); histo_MC->Add(ZJets_histo_A);
 
+  // histo_pred->SetMarkerStyle(20);
+  // histo_pred->SetLineColor(kRed);histo_pred->SetMarkerColor(kRed);
+  histo_pred->SetFillColor(kRed);
+  histo_pred->SetFillStyle(3445);
+  QCD_histo_A->SetLineColor(kGray);QCD_histo_A->SetFillColor(kGray);
+  TT_histo_A->SetLineColor(kCyan+1);TT_histo_A->SetFillColor(kCyan+1);
+  WJets_histo_A->SetLineColor(kBlue);WJets_histo_A->SetFillColor(kBlue);
+  ZJets_histo_A->SetLineColor(kGreen+2);ZJets_histo_A->SetFillColor(kGreen+2);
 
-  denom->SetMarkerStyle(20); denom->SetMarkerSize(0.85);
-  denom->SetMinimum(0.0);
-  denom->SetLineColor(kBlue); denom->SetMarkerColor(kBlue);
+  histo_MC->SetMarkerStyle(20);
+  histo_MC->SetLineColor(kBlack);histo_MC->SetMarkerColor(kBlack);
 
-  TString thisType = tagType+"_"+jetType+"_"+bkgType;
-  TString numTitle = "num"+thisType; TString denomTitle = "denom"+thisType;
-  num->SetTitle(numTitle); denom->SetTitle(denomTitle);
-  TString graphName = "ratio"+thisType;
+  TLegend* legend = new TLegend(0.55,0.65,0.85,0.85,NULL,"brNDC");
+  legend->SetBorderSize(0);
+  legend->SetNColumns(2);
+  legend->AddEntry(QCD_histo_A, "QCD", "F");
+  legend->AddEntry(TT_histo_A, "TT", "F");
+  legend->AddEntry(WJets_histo_A, "WJets", "F");
+  legend->AddEntry(ZJets_histo_A, "ZJets", "F");
+  legend->AddEntry(histo_pred, "Prediction", "F");
+  legend->AddEntry(histo_MC, "MC Truth", "PL");
 
-  // num->Divide(denom);
-  // num->SetName(graphName);
-  // num->GetXaxis()->SetTitle("Soft-drop mass [GeV]");
-  // num->GetYaxis()->SetTitle("R_{p/f}");
-  // num->SetTitle(graphName);
-  // num->GetYaxis()->SetTitleSize(0.055);
-  // num->SetMarkerStyle(20);
-  // num->SetMarkerSize(0.85);
-  // num->SetMinimum(0.0);
-  // num->SetLineColor(kRed);
-  // num->SetMarkerColor(kRed);
+  THStack* stack_closure_MC = new THStack("stack_closure_MC","stack_closure_MC");
+  stack_closure_MC->Add(QCD_histo_A);
+  stack_closure_MC->Add(TT_histo_A);
+  stack_closure_MC->Add(WJets_histo_A);
+  stack_closure_MC->Add(ZJets_histo_A);
 
-  TGraphAsymmErrors * graph = new TGraphAsymmErrors(num, denom, "pois");
-  graph->SetName(graphName);
-  graph->GetXaxis()->SetTitle("Soft-drop mass [GeV]");
-  graph->GetYaxis()->SetTitle("R_{p/f}");
+  TGraphAsymmErrors * graph = new TGraphAsymmErrors(histo_MC, histo_pred, "pois");
+  graph->GetXaxis()->SetTitle("MET [GeV]");
+  graph->GetYaxis()->SetTitle("#kappa (Sim/Pred)");
   graph->SetTitle("");
   graph->GetYaxis()->SetTitleSize(0.055);
   graph->SetMarkerStyle(20);
   graph->SetMarkerSize(0.85);
-  graph->SetMinimum(0.0);
+  // graph->SetMinimum(0.0);
   graph->SetLineColor(kBlack);
   graph->SetMarkerColor(kBlack);
-  graph->GetXaxis()->SetRangeUser(50,250);
+  // graph->GetXaxis()->SetRangeUser(50,250);
 
-  double W = 800;
-  double H = 600;
-  double T = 0.08*H;
-  double B = 0.12*H;
-  double L = 0.15*W;
-  double R = 0.02*W;
-  TCanvas * can_h = new TCanvas(graphName,graphName, 50, 50, W, H);
-  can_h->SetFillColor(0);
-  can_h->SetBorderMode(0);
-  can_h->SetFrameFillStyle(0);
-  can_h->SetFrameBorderMode(0);
-  can_h->SetLeftMargin( L/W );
-  can_h->SetRightMargin( R/W );
-  can_h->SetTopMargin( T/H );
-  can_h->SetBottomMargin( B/H );
-  can_h->SetTickx(0);
-  can_h->SetTicky(0);
-
-  double up_height     = 0.8;
-  double dw_correction = 1.18;
+  TCanvas *c1 = new TCanvas("c1","MC Closure",10,10,1000,800);
+  double up_height     = 0.8; double dw_correction = 1.18;
   double font_size_dw  = 0.1;
   double dw_height = (1. - up_height) * dw_correction;
   double dw_height_offset = 0.02;
 
   TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
   TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
-  pad1->SetTickx(0);
-  pad1->SetTicky(0);
+  pad1->SetTickx(0); pad1->SetTicky(0);
+  // pad1->SetPad(0., 1 - up_height, 1., 1.00);
+  pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
+  pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.10);
+  pad1->SetRightMargin(0.04);
+  pad1->Draw();
+
+  // pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
+  pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
+  pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.03);
+  pad2->SetLeftMargin(0.10); pad2->SetRightMargin(0.04);
+  pad2->Draw(); pad1->cd();
+
+  histo_pred->SetTitle(";;Events (137 fb^{-1})");
+  histo_pred->GetYaxis()->SetTitleOffset(0.7);
+  histo_pred->Draw("E2");
+  stack_closure_MC->Draw("hist same");
+  histo_pred->Draw("E2 same");
+  histo_MC->Draw("same");
+
+  // stack_closure_MC->SetTitle(";MET [GeV];Events (137 fb^{-1})");
+  // stack_closure_MC->Draw("hist");
+  // histo_pred->Draw("same");
+
+  legend->Draw("same");
+
+  pad2->cd();
+  graph->GetYaxis()->SetTitleOffset(0.2);
+  graph->GetYaxis()->SetTitleSize(0.13);
+  graph->GetXaxis()->SetTitleOffset(0.9);
+  graph->GetXaxis()->SetTitleSize(0.14);
+  graph->GetXaxis()->SetLabelSize(0.14);
+  graph->GetYaxis()->SetLabelSize(0.10);
+  // graph->GetXaxis()->SetNdivisions(507);
+  graph->GetYaxis()->SetNdivisions(505);
+  graph->Draw("APE");
+  graph->GetXaxis()->SetRangeUser(250,1400);
+  graph->Draw("APE");
+  TLine *line = new TLine(250,1.0,1400,1.0);
+  line->SetLineColor(kRed); line->SetLineStyle(2);
+  line->Draw("same");
+
+  c1->Modified();c1->Update();
+
+  cdClose->cd();
+  c1->Write("ABCD_Closure");
+}
+
+//Will only need to pass this (I think) two plots, one for SR and one for SB (IF the sum works)
+void makeAsummptionPlot(vector<TH1F*> dem_histos, TString bkgType = "") {
+  TH1D * SR_plot  = (TH1D*)dem_histos[0]->Clone("SR_"+bkgType);
+  TH1D * SB_plot  = (TH1D*)dem_histos[1]->Clone("SB_"+bkgType);
+
+  // SR_plot->Rebin(2); SB_plot->Rebin(2);
+
+  SR_plot->SetMarkerStyle(20); SR_plot->SetMarkerSize(0.85);
+  SR_plot->SetLineColor(kBlack); SR_plot->SetMarkerColor(kBlack);
+  SR_plot->GetYaxis()->SetTitle("Normalized to area");
+
+
+  SB_plot->SetMarkerStyle(20); SB_plot->SetMarkerSize(0.85);
+  SB_plot->SetLineColor(kBlue); SB_plot->SetMarkerColor(kBlue);
+
+  TString SR_plotTitle = "SR_plot"+bkgType; TString SB_plotTitle = "SB_plot"+bkgType;
+  SR_plot->SetTitle(SR_plotTitle); SB_plot->SetTitle(SB_plotTitle);
+
+  TString graphName = "ratio"+bkgType;
+  TGraphAsymmErrors * graph = new TGraphAsymmErrors(SR_plot, SB_plot, "pois");
+  graph->SetName(graphName);
+  graph->SetTitle(";MET [GeV];Ratio SR/SB");
+  graph->GetYaxis()->SetTitleSize(0.055);
+  graph->SetMarkerStyle(20);
+  graph->SetMarkerSize(0.85);
+  // graph->SetMinimum(0.0);
+  graph->SetLineColor(kBlack);
+  graph->SetMarkerColor(kBlack);
+  // graph->GetXaxis()->SetRangeUser(50,250);
+
+  double W = 800; double H = 600;
+  double T = 0.08*H; double B = 0.12*H;
+  double L = 0.15*W; double R = 0.02*W;
+  TCanvas * can_h = new TCanvas(graphName,graphName, 50, 50, W, H);
+  can_h->SetFillColor(0); can_h->SetBorderMode(0);
+  can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+  can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
+  can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
+  can_h->SetTickx(0); can_h->SetTicky(0);
+
+  double up_height     = 0.8; double dw_correction = 1.18;
+  double font_size_dw  = 0.1;
+  double dw_height = (1. - up_height) * dw_correction;
+  double dw_height_offset = 0.02;
+
+  TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
+  TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
+  pad1->SetTickx(0); pad1->SetTicky(0);
   pad1->SetPad(0., 1 - up_height, 1., 1.00);
-  pad1->SetFrameFillColor(0);
-  pad1->SetFillColor(0);
-  pad1->SetTopMargin(0.08);
-  pad1->SetLeftMargin(0.10);
+  pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
+  pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.10);
   pad1->SetRightMargin(0.04);
   pad1->Draw();
 
   pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
-  pad2->SetFillColor(0);
-  pad2->SetFrameFillColor(0);
-  pad2->SetBottomMargin(0.33);
-  pad2->SetTopMargin(0.01);
-  pad2->SetLeftMargin(0.10);
-  pad2->SetRightMargin(0.04);
-  pad2->Draw();
-  pad1->cd();
+  pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
+  pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.01);
+  pad2->SetLeftMargin(0.10); pad2->SetRightMargin(0.04);
+  pad2->Draw(); pad1->cd();
 
-  num->GetXaxis()->SetLabelSize(0);
-  num->SetTitle(thisType);
+  SR_plot->GetXaxis()->SetLabelSize(0);
+  SR_plot->GetYaxis()->SetTitleOffset(0.8);
+  SR_plot->SetTitle(bkgType);
+  SR_plot->DrawNormalized();
+  SB_plot->DrawNormalized("same");
 
-  num->DrawNormalized();
-  denom->DrawNormalized("same");
-
-  TLegend* legend = new TLegend(0.5426065,0.7935484,0.9498246,0.9403226,NULL,"brNDC") ;
-  if (tagType == "Single"){
-    legend->AddEntry(num, "SingleTag (numerator)", "PL");
-    legend->AddEntry(denom, "AntiTag (denominator)", "PL");
-  }
-  else if (tagType == "Double"){
-    legend->AddEntry(num, "DoubleTag (numerator)", "PL");
-    legend->AddEntry(denom, "AntiTag (denominator)", "PL");
-  }
+  // TLegend* legend = new TLegend(0.5426065,0.7935484,0.9498246,0.9403226,NULL,"brNDC") ;
+  TLegend* legend = new TLegend(0.5,0.7,0.95,0.9,NULL,"brNDC") ;
+  legend->SetBorderSize(0);
+  legend->AddEntry(SR_plot, "Higgs Search Region", "PL");
+  legend->AddEntry(SB_plot, "Sideband", "PL");
   legend->Draw();
 
   pad2->cd();
@@ -1193,152 +1007,175 @@ void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType
   // graph->GetXaxis()->SetNdivisions(507);
   graph->GetYaxis()->SetNdivisions(505);
   graph->Draw("APE");
+  graph->GetXaxis()->SetRangeUser(250.,1400.);
+  // graph->Draw("APE");
+  TF1*f0=new TF1("f0","pol0");
+  graph->Fit("f0","Q");
+  gStyle->SetOptFit();
+  can_h->Modified(); can_h->Update();
+
+  cdAssum->cd();
+  can_h->Write(bkgType);
+}
+
+void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType = "", TString tagType = "") {
+  TH1D * num   = (TH1D*)dem_histos[0]->Clone("num"+tagType+"_"+jetType+"_"+bkgType);
+  TH1D * denom = (TH1D*)dem_histos[2]->Clone("denom"+tagType+"_"+jetType+"_"+bkgType);
+  num->Add(dem_histos[1]); denom->Add(dem_histos[3]);
+  num->Rebin(2); denom->Rebin(2);
+
+  num->SetMarkerStyle(20); num->SetMarkerSize(0.85);
+  num->SetLineColor(kRed); num->SetMarkerColor(kRed);
+  denom->SetMarkerStyle(20); denom->SetMarkerSize(0.85);
+  denom->SetLineColor(kBlue); denom->SetMarkerColor(kBlue);
+  num->SetMinimum(0.0);denom->SetMinimum(0.0);
+
+  TString thisType = tagType+"_"+jetType+"_"+bkgType;
+  num->SetTitle(thisType+";;Normalized to area");
+  num->GetYaxis()->SetTitleOffset(0.77);
+  TString numTitle = "num"+thisType; TString denomTitle = "denom"+thisType;
+  // num->SetTitle(numTitle); denom->SetTitle(denomTitle);
+  TString graphName = "ratio"+thisType;
+  // num->Sumw2(); denom->Sumw2(); //already done
+  TGraphAsymmErrors * graph = new TGraphAsymmErrors(num, denom, "pois");
+  graph->SetName(graphName);
+  graph->SetMarkerStyle(20); graph->SetMarkerSize(0.85);
+  graph->SetMinimum(-0.1); graph->GetXaxis()->SetRangeUser(50,250);
+  graph->SetLineColor(kBlack); graph->SetMarkerColor(kBlack);
+
+  double W = 800; double H = 600;
+  double T = 0.08*H; double B = 0.12*H;
+  double L = 0.15*W; double R = 0.02*W;
+  TCanvas * can_h = new TCanvas(graphName,graphName, 50, 50, W, H);
+  can_h->SetFillColor(0); can_h->SetBorderMode(0);
+  can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+  can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
+  can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
+  can_h->SetTickx(0); can_h->SetTicky(0);
+
+  double up_height = 0.8; double dw_correction = 1.18;
+  double font_size_dw  = 0.1; double dw_height_offset = 0.02;
+  double dw_height = (1. - up_height) * dw_correction;
+
+  TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
+  TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
+  pad1->SetTickx(0); pad1->SetTicky(0);
+  pad1->SetPad(0., 1 - up_height, 1., 1.00);
+  pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
+  pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.10); pad1->SetRightMargin(0.04);
+  pad1->Draw();
+
+  pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
+  pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
+  pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.01);
+  pad2->SetLeftMargin(0.10); pad2->SetRightMargin(0.04);
+  pad2->Draw(); pad1->cd();
+
+  num->GetXaxis()->SetLabelSize(0);
+  num->DrawNormalized();
+  denom->DrawNormalized("same");
+
+  TLegend* legend = new TLegend(0.5,0.65,0.95,0.88,NULL,"brNDC") ;
+  legend->SetBorderSize(0);
+  if (tagType == "Single"){
+    legend->AddEntry(num, "1H (numerator)", "PL");
+    legend->AddEntry(denom, "0H (denominator)", "PL");
+    graph->SetTitle(";Soft-drop mass [GeV];R(1H/0H)");
+  }
+  else if (tagType == "Double"){
+    legend->AddEntry(num, "2H (numerator)", "PL");
+    legend->AddEntry(denom, "0H (denominator)", "PL");
+    graph->SetTitle(";Soft-drop mass [GeV];R(2H/0H)");
+  }
+  legend->Draw();
+
+  pad2->cd();
+  graph->Draw("APE");
+  graph->GetYaxis()->SetTitleOffset(0.25); graph->GetYaxis()->SetTitleSize(0.13);
+  graph->GetXaxis()->SetTitleOffset(0.9); graph->GetXaxis()->SetTitleSize(0.14);
+  graph->GetXaxis()->SetLabelSize(0.14); graph->GetYaxis()->SetLabelSize(0.10);
+  // graph->GetXaxis()->SetNdivisions(507);
+  graph->GetYaxis()->SetNdivisions(505);
+
+
+  // graph->GetYaxis()->SetTitleSize(0.055);
+  graph->Draw("APE");
+  graph->GetYaxis()->SetRangeUser(-0.1,0.5);
 
   if (tagType=="Double"){
-    if (bkgType=="QCD") graph->GetYaxis()->SetRangeUser(0,0.5);
-    else if (bkgType=="TT") graph->GetYaxis()->SetRangeUser(0,1.2);
-    else if (bkgType=="WJets" || bkgType=="ZJets") graph->GetYaxis()->SetRangeUser(0,0.03);
+    if (bkgType=="WJets" || bkgType=="ZJets") graph->GetYaxis()->SetRangeUser(-0.005,0.015);
+    else if (bkgType=="BkgSum") graph->GetYaxis()->SetRangeUser(-0.04,0.09);
   }
 
   else if (tagType=="Single"){
-    if (bkgType=="QCD") graph->GetYaxis()->SetRangeUser(0,1.0);
-    else if (bkgType=="TT") graph->GetYaxis()->SetRangeUser(0,3.0);
-    else if (bkgType=="WJets" || bkgType=="ZJets") graph->GetYaxis()->SetRangeUser(0,0.3);
+    if (bkgType=="TT") graph->GetYaxis()->SetRangeUser(0,2.5);
+    else if (bkgType=="WJets" || bkgType=="ZJets") graph->GetYaxis()->SetRangeUser(0.07,0.15);
   }
-  graph->Draw("APE");
+
+  // graph->Draw("APE");
   can_h->Modified();
   can_h->Update();
 
-  // TLine *line = new TLine(300,1.0,1000,1.0);
-  // line->SetLineColor(kRed);
-  // line->SetLineStyle(2);
-  // line->Draw("same");
+  TF1*f0=new TF1("f0","pol0", 50,250);
+  graph->Fit("f0","Q","R",50,180);
+  double p0 = f0->GetParameter(0); //this does, indeed, work
+  double error = f0->GetParError(0);
+  graph->GetFunction("f0")->SetBit(TF1::kNotDraw);
 
-  if (getDeviation){
-    TF1*f0=new TF1("f0","pol0", 50,250);
-    graph->Fit("f0","Q","R",50,180);
-    //TF1 * thisFit = graph->GetFunction("pol0");
-    double p0 = f0->GetParameter(0); //this does, indeed, work
-    graph->GetFunction("f0")->SetBit(TF1::kNotDraw);
+  TLine *line = new TLine(50.0,p0,250.0,p0);
+  line->SetLineColor(kRed);
+  line->SetLineWidth(3);
+  line->SetLineStyle(2);
+  line->Draw("same");
+  std::string lineConst = to_string(p0); std::string lineErr = to_string(error);
+  TString constString = "Const: "+lineConst+" #pm "+ lineErr;
+  TLatex *t = new TLatex(0.2,0.85,constString);
+  t->SetNDC(); t->SetTextFont(52);
+  t->SetTextSize(0.13);
+  t->Draw();
 
-    TLine *line = new TLine(50.0,p0,250.0,p0);
-    line->SetLineColor(kRed);
-    line->SetLineWidth(3);
-    //line->SetLineStyle(2);
-    line->Draw("same");
+  // TF1*f0=new TF1("f0","pol0", 50,250);
+  // // graph->Fit("f0","Q","R",50,250);
+  // graph->Fit("f0","Q","R",50,180);
+  // gStyle->SetOptFit();
 
-
-    int nbinsx = graph->GetN();
-    double ax[nbinsx],ay[nbinsx];
-    vector<double> deviation ={0};
-    for (int i=0; i< nbinsx; i++){
-      graph->GetPoint(i,ax[i],ay[i]);
-      const double x0 = ax[i]; const double y0 = ay[i];
-      const double errorY = graph->GetErrorYlow(i);
-      double dev = (y0-p0)/errorY;
-      deviation.push_back(dev);
-    }
-    myfile<<thisType<<": ";
-    for (int i=0;i< deviation.size();i++) myfile<<deviation[i]<<", ";
-    myfile<<"p0: "<<p0<<endl<<endl;
-
-  }
-
-  TString directory = "RPFPlots/";
-  if (whichRegion == "singleLept") directory = "RPFPlots/SingleLept";
-  if (whichRegion == "photon") directory = "RPFPlots/Photon";
-
-  if (useDeepDoubleB){
-    can_h->SaveAs(directory+"Rpf_"+thisType+"_deepDB.pdf");
-    num->SaveAs(directory+"Num_"+thisType+"_deepDB.root");
-    denom->SaveAs(directory+"Denom_"+thisType+"_deepDB.root");
-    graph->SaveAs(directory+"Ratio_"+thisType+"_deepDB.root");
-  }
-  else {
-    can_h->SaveAs(directory+"Rpf_"+thisType+".pdf");
-    num->SaveAs(directory+"Num_"+thisType+".root");
-    denom->SaveAs(directory+"Denom_"+thisType+".root");
-    graph->SaveAs(directory+"Ratio_"+thisType+".root");
-  }
-
-
-}
-
-void makeDoubleBPlots(vector<TH1F*> dem_histos, TString bkgType = "", TString which = ""){
-  TH1F *h_SBLow = dem_histos[0]; TH1F *h_SR = dem_histos[1]; TH1F *h_SBHigh = dem_histos[2];
-
-  h_SBLow->Rebin(2); h_SR->Rebin(2); h_SBHigh->Rebin(2);
-  double W = 800;
-  double H = 600;
-  double T = 0.08*H;
-  double B = 0.12*H;
-  double L = 0.15*W;
-  double R = 0.02*W;
-  TString graphName = "";
-  if (which =="") graphName = "DoubleB_"+bkgType;
-  // else if (which =="DoubleB-H") graphName = "DoubleBH_"+bkgType;
-  // else if (which =="tau32") graphName = "Tau32_"+bkgType;
-
-  TCanvas * can_h = new TCanvas(graphName,graphName, 50, 50, W, H);
-  can_h->SetFillColor(0);
-  can_h->SetBorderMode(0);
-  can_h->SetFrameFillStyle(0);
-  can_h->SetFrameBorderMode(0);
-  can_h->SetLeftMargin( L/W );
-  can_h->SetRightMargin( R/W );
-  can_h->SetTopMargin( T/H );
-  can_h->SetBottomMargin( B/H );
-  can_h->SetTickx(0);
-  can_h->SetTicky(0);
-  can_h->SetLogy();
-
-  h_SBLow->GetXaxis()->SetTitle("Double-b discriminator");
-  if (useDeepDoubleB) h_SBLow->GetXaxis()->SetTitle("Deep double-b discriminator");
-  // else if (which =="DoubleB-H") h_SBLow->GetXaxis()->SetTitle("Double-b discriminator, H");
-  // else if (which =="tau32") {
-  //   h_SBLow->GetXaxis()->SetTitle("Tau32");
-  //   h_SBLow->GetXaxis()->SetRangeUser(0,1);
+  // if (getDeviation){
+  //   TF1*f0=new TF1("f0","pol0", 50,250);
+  //   graph->Fit("f0","Q","R",50,180);
+  //   //TF1 * thisFit = graph->GetFunction("pol0");
+  //   double p0 = f0->GetParameter(0); //this does, indeed, work
+  //   graph->GetFunction("f0")->SetBit(TF1::kNotDraw);
+  //
+  //   TLine *line = new TLine(50.0,p0,250.0,p0);
+  //   line->SetLineColor(kRed);
+  //   line->SetLineWidth(3);
+  //   //line->SetLineStyle(2);
+  //   line->Draw("same");
+  //
+  //
+  //   int nbinsx = graph->GetN();
+  //   double ax[nbinsx],ay[nbinsx];
+  //   vector<double> deviation ={0};
+  //   for (int i=0; i< nbinsx; i++){
+  //     graph->GetPoint(i,ax[i],ay[i]);
+  //     const double x0 = ax[i]; const double y0 = ay[i];
+  //     const double errorY = graph->GetErrorYlow(i);
+  //     double dev = (y0-p0)/errorY;
+  //     deviation.push_back(dev);
+  //   }
+  //   myfile<<thisType<<": ";
+  //   for (int i=0;i< deviation.size();i++) myfile<<deviation[i]<<", ";
+  //   myfile<<"p0: "<<p0<<endl<<endl;
+  //
   // }
 
-  h_SBLow->GetYaxis()->SetTitle("");
-  h_SBLow->SetTitle(graphName);
+    cdRPFFinal->cd();
+    can_h->Write(thisType);
 
-  h_SBLow->SetMarkerStyle(20); //h_SBLow->SetMarkerSize(0.85);
-  h_SBLow->SetLineColor(kBlack); h_SBLow->SetMarkerColor(kBlack);
-
-  h_SR->SetMarkerStyle(20); //h_SR->SetMarkerSize(0.85);
-  h_SR->SetLineColor(kRed); h_SR->SetMarkerColor(kRed);
-
-  h_SBHigh->SetMarkerStyle(20); //h_SBHigh->SetMarkerSize(0.85);
-  h_SBHigh->SetLineColor(kBlue); h_SBHigh->SetMarkerColor(kBlue);
-
-  TLegend* legend = new TLegend(0.63,0.75,0.98,0.92) ;
-  legend->AddEntry(h_SBLow, "AK8 Mass [50,85]", "PL");
-  legend->AddEntry(h_SR, "AK8 Mass [85,135]", "PL");
-  legend->AddEntry(h_SBHigh, "AK8 Mass [135,250]", "PL");
-  h_SBLow->DrawNormalized();
-  h_SR->DrawNormalized("same");
-  h_SBHigh->DrawNormalized("same");
-  legend->Draw("same");
-
-
-
-  if (useDeepDoubleB) can_h->SaveAs("SupportingPlots/DoubleBCompare_"+bkgType+"_deepDB.pdf");
-  else can_h->SaveAs("SupportingPlots/DoubleBCompare_"+bkgType+".pdf");
-
-  // else if (which =="DoubleB-H") can_h->SaveAs("SupportingPlots/DoubleBHCompare_"+bkgType+".pdf");
-  // else if (which =="tau32") can_h->SaveAs("SupportingPlots/Tau32Compare_"+bkgType+".pdf");
-
-  // h_SBLow->ClearUnderflowAndOverflow();
-  // double failIntegralSBLow = h_SBLow->Integral(0,16)/h_SBLow->Integral()*100;
-  // double failIntegralSBHigh = h_SBHigh->Integral(0,16)/h_SBHigh->Integral()*100;
-  // double failIntegralSR = h_SR->Integral(0,16)/h_SR->Integral()*100;
-  //
-  // cout<<bkgType<<": ";
-  // cout<<"Percent failing, low mass: "<<failIntegralSBLow<<endl;
-  // cout<<"Percent failing, SR: "<<failIntegralSR<<endl;
-  // cout<<"Percent failing, high mass: "<<failIntegralSBHigh<<endl<<endl;
-
+    cdRPF->cd();
+    num->Write("Num_"+thisType);
+    denom->Write("Denom_"+thisType);
+    graph->Write("RPFRatio_"+thisType);
 }
 
 void makeStackPlot(vector<TH1F*> h_QCD,vector<TH1F*> h_TT,vector<TH1F*> h_WJets,vector<TH1F*> h_ZJets, vector<TH1F*> h_T5HH1300,vector<TH1F*> h_T5HH1700,vector<TH1F*> h_T5HH2100, TString which = ""){
@@ -1398,27 +1235,17 @@ void makeStackPlot(vector<TH1F*> h_QCD,vector<TH1F*> h_TT,vector<TH1F*> h_WJets,
   h_T5HH2100_stack->SetMarkerStyle(1); h_T5HH2100_stack->SetMarkerColor(kMagenta);
   h_T5HH2100_stack->SetLineColor(kMagenta);
 
-  // h_ZJets_stack->GetXaxis()->SetTitle("double-B discriminator"); h_ZJets_stack->GetYaxis()->SetTitle("Events");
-  // h_WJets_stack->GetXaxis()->SetTitle("double-B discriminator"); h_WJets_stack->GetYaxis()->SetTitle("Events");
-  // h_TT_stack->GetXaxis()->SetTitle("double-B discriminator"); h_TT_stack->GetYaxis()->SetTitle("Events");
-  // h_QCD_stack->GetXaxis()->SetTitle("double-B discriminator"); h_QCD_stack->GetYaxis()->SetTitle("Events");
-
   THStack * doubleBStack = new THStack("hs","");
   doubleBStack->Add(h_ZJets_stack);
   doubleBStack->Add(h_WJets_stack);
   doubleBStack->Add(h_TT_stack);
   doubleBStack->Add(h_QCD_stack);
 
-  double W = 800;
-  double H = 600;
-  double T = 0.08*H;
-  double B = 0.12*H;
-  double L = 0.08*W;
-  double R = 0.08*W;
-
+  double W = 800; double H = 600;
+  double T = 0.08*H; double B = 0.12*H;
+  double L = 0.08*W; double R = 0.08*W;
   TString graphName = "";
-  if (which =="doubleB" && useDeepDoubleB) graphName = "DeepDoubleB_Stack";
-  else if (which == "doubleB") graphName = "DoubleB_Stack";
+  if (which == "doubleB") graphName = "DoubleB_Stack";
   else if (which == "tau32") graphName = "Tau32_Stack";
   else if (which == "leadmass") graphName = "LeadMass_Stack";
   else if (which == "subleadmass") graphName = "SubLeadMass_Stack";
@@ -1426,34 +1253,18 @@ void makeStackPlot(vector<TH1F*> h_QCD,vector<TH1F*> h_TT,vector<TH1F*> h_WJets,
   else if (which == "subleadpt") graphName = "SubLeadPt_Stack";
 
   TCanvas * can_h = new TCanvas(graphName,graphName, 50, 50, W, H);
-  can_h->SetFillColor(0);
-  can_h->SetBorderMode(0);
-  can_h->SetFrameFillStyle(0);
-  can_h->SetFrameBorderMode(0);
-  can_h->SetLeftMargin( L/W );
-  can_h->SetRightMargin( R/W );
-  can_h->SetTopMargin( T/H );
-  can_h->SetBottomMargin( B/H );
-  can_h->SetTickx(0);
-  can_h->SetTicky(0);
+  can_h->SetFillColor(0); can_h->SetBorderMode(0);
+  can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+  can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
+  can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
+  can_h->SetTickx(0); can_h->SetTicky(0);
   can_h->SetLogy();
 
   doubleBStack->Draw("hist");
   doubleBStack->GetYaxis()->SetTitle("Events");
-  doubleBStack->SetMinimum(0.1);
-  doubleBStack->SetMaximum(300);
+  doubleBStack->SetMinimum(0.1); doubleBStack->SetMaximum(300);
 
-  // if (which == "tau32") {
-  //   doubleBStack->GetXaxis()->SetRangeUser(0,1);
-  //   doubleBStack->SetMaximum(300);
-  // }
-  // if (which == "DoubleB-H") {
-  //   doubleBStack->SetMaximum(300);
-  // }
-
-
-  if (which =="DoubleB" && useDeepDoubleB) doubleBStack->GetXaxis()->SetTitle("Deep double-B discriminator");
-  else if (which == "DoubleB") doubleBStack->GetXaxis()->SetTitle("double-B discriminator");
+  if (which == "DoubleB") doubleBStack->GetXaxis()->SetTitle("double-B discriminator");
   else if (which == "tau32") doubleBStack->GetXaxis()->SetTitle("Tau32");
   else if (which == "leadmass") doubleBStack->GetXaxis()->SetTitle("Lead jet soft-drop mass [GeV]");
   else if (which == "subleadmass") doubleBStack->GetXaxis()->SetTitle("Sub-lead jet soft-drop mass [GeV]");
@@ -1475,22 +1286,15 @@ void makeStackPlot(vector<TH1F*> h_QCD,vector<TH1F*> h_TT,vector<TH1F*> h_WJets,
   legend->AddEntry(h_T5HH2100_stack, "T5HH2100", "l");
   legend->SetNColumns(4);
   legend->SetBorderSize(0);
-
   legend->Draw("same");
-  can_h->Update();
-  can_h->Modified();
+  can_h->Update();can_h->Modified();
 
-
-  if (which =="DoubleB" && useDeepDoubleB) can_h->SaveAs("SupportingPlots/DeepDoubleBCompare_Stack.pdf");
-  else if (which == "DoubleB") can_h->SaveAs("SupportingPlots/DoubleBCompare_Stack.pdf");
-  else if (which == "tau32") can_h->SaveAs("SupportingPlots/Tau32Compare_Stack.pdf");
-  else if (which == "leadmass") can_h->SaveAs("SupportingPlots/LeadJetMass_Stack.pdf");
-  else if (which == "subleadmass") can_h->SaveAs("SupportingPlots/SubLeadJetMass_Stack.pdf");
-  else if (which == "leadpt") can_h->SaveAs("SupportingPlots/LeadJetPt_Stack.pdf");
-  else if (which == "subleadpt") can_h->SaveAs("SupportingPlots/SubLeadJetPt_Stack.pdf");
+  TString savename = which+"_Stack";
+  cdOther->cd();
+  can_h->Write(savename);
 }
 
-void makeSingleLeptStackPlot(vector<TH1F*> h_TT,vector<TH1F*> h_WJets, TString which = ""){
+void makeSingleLeptStackPlot(vector<TH1F*> h_TT,vector<TH1F*> h_WJets, TString which = "") {
   TH1D *h_TT_stack = (TH1D*)h_TT[0]->Clone("TTAll");
   h_TT_stack->Add(h_TT[1]); h_TT_stack->Add(h_TT[2]);
   if (which!="DoubleB" && which!="DoubleB-H" && which!="tau32"){
@@ -1507,56 +1311,28 @@ void makeSingleLeptStackPlot(vector<TH1F*> h_TT,vector<TH1F*> h_WJets, TString w
   h_WJets_stack->SetFillColor(kBlue);
   h_WJets_stack->SetMarkerStyle(21); h_WJets_stack->SetMarkerColor(kBlue);
 
-
   THStack * doubleBStack = new THStack("hs","");
   doubleBStack->Add(h_WJets_stack);
   doubleBStack->Add(h_TT_stack);
 
-  double W = 800;
-  double H = 600;
-  double T = 0.08*H;
-  double B = 0.12*H;
-  double L = 0.08*W;
-  double R = 0.08*W;
+  double W = 800; double H = 600;
+  double T = 0.08*H; double B = 0.12*H;
+  double L = 0.08*W; double R = 0.08*W;
 
-  TString graphName = "";
-  if (which =="DoubleB" && useDeepDoubleB) graphName = "DeepDoubleB_Stack";
-  else if (which == "DoubleB") graphName = "DoubleB_Stack";
-  else if (which == "tau32") graphName = "Tau32_Stack";
-  else if (which == "leadmass") graphName = "LeadMass_Stack";
-  else if (which == "subleadmass") graphName = "SubLeadMass_Stack";
-  else if (which == "leadpt") graphName = "LeadPt_Stack";
-  else if (which == "subleadpt") graphName = "SubLeadPt_Stack";
-
+  TString graphName = which+"_Stack";
   TCanvas * can_h = new TCanvas(graphName,graphName, 50, 50, W, H);
-  can_h->SetFillColor(0);
-  can_h->SetBorderMode(0);
-  can_h->SetFrameFillStyle(0);
-  can_h->SetFrameBorderMode(0);
-  can_h->SetLeftMargin( L/W );
-  can_h->SetRightMargin( R/W );
-  can_h->SetTopMargin( T/H );
-  can_h->SetBottomMargin( B/H );
-  can_h->SetTickx(0);
-  can_h->SetTicky(0);
+  can_h->SetFillColor(0); can_h->SetBorderMode(0);
+  can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+  can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
+  can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
+  can_h->SetTickx(0); can_h->SetTicky(0);
   can_h->SetLogy();
 
   doubleBStack->Draw("hist");
   doubleBStack->GetYaxis()->SetTitle("Events");
-  doubleBStack->SetMinimum(0.1);
-  doubleBStack->SetMaximum(300);
+  doubleBStack->SetMinimum(0.1); doubleBStack->SetMaximum(300);
 
-  // if (which == "tau32") {
-  //   doubleBStack->GetXaxis()->SetRangeUser(0,1);
-  //   doubleBStack->SetMaximum(300);
-  // }
-  // if (which == "DoubleB-H") {
-  //   doubleBStack->SetMaximum(300);
-  // }
-
-
-  if (which =="DoubleB" && useDeepDoubleB) doubleBStack->GetXaxis()->SetTitle("Deep double-B discriminator");
-  else if (which == "DoubleB") doubleBStack->GetXaxis()->SetTitle("double-B discriminator");
+  if (which == "DoubleB") doubleBStack->GetXaxis()->SetTitle("double-B discriminator");
   else if (which == "tau32") doubleBStack->GetXaxis()->SetTitle("Tau32");
   else if (which == "leadmass") doubleBStack->GetXaxis()->SetTitle("Lead jet soft-drop mass [GeV]");
   else if (which == "subleadmass") doubleBStack->GetXaxis()->SetTitle("Sub-lead jet soft-drop mass [GeV]");
@@ -1568,19 +1344,12 @@ void makeSingleLeptStackPlot(vector<TH1F*> h_TT,vector<TH1F*> h_WJets, TString w
   legend->AddEntry(h_WJets_stack, "WJets", "f");
   legend->SetNColumns(4);
   legend->SetBorderSize(0);
-
   legend->Draw("same");
-  can_h->Update();
-  can_h->Modified();
+  can_h->Update(); can_h->Modified();
 
-
-  if (which =="DoubleB" && useDeepDoubleB) can_h->SaveAs("SupportingPlots/SingleLeptDeepDoubleBCompare_Stack.pdf");
-  else if (which == "DoubleB") can_h->SaveAs("SupportingPlots/SingleLeptDoubleBCompare_Stack.pdf");
-  else if (which == "tau32") can_h->SaveAs("SupportingPlots/SingleLeptTau32Compare_Stack.pdf");
-  else if (which == "leadmass") can_h->SaveAs("SupportingPlots/SingleLeptLeadJetMass_Stack.pdf");
-  else if (which == "subleadmass") can_h->SaveAs("SupportingPlots/SingleLeptSubLeadJetMass_Stack.pdf");
-  else if (which == "leadpt") can_h->SaveAs("SupportingPlots/SingleLeptLeadJetPt_Stack.pdf");
-  else if (which == "subleadpt") can_h->SaveAs("SupportingPlots/SingleLeptSubLeadJetPt_Stack.pdf");
+  TString savename = which+"_SingleLept_Stack";
+  cdOther->cd();
+  can_h->Write(savename);
 }
 
 
@@ -1595,59 +1364,28 @@ void makeMETStack(TH1F* h_QCD,TH1F* h_TT,TH1F* h_WJets,TH1F* h_ZJets, TH1F* h_T5
   h_T5HH1700->SetMarkerStyle(1); h_T5HH1700->SetMarkerColor(kYellow); h_T5HH1700->SetLineColor(kYellow);
   h_T5HH2100->SetMarkerStyle(1); h_T5HH2100->SetMarkerColor(kMagenta); h_T5HH2100->SetLineColor(kMagenta);
 
-
   THStack * METStack = new THStack("hs","");
   METStack->Add(h_ZJets);
   METStack->Add(h_WJets);
   METStack->Add(h_TT);
   METStack->Add(h_QCD);
 
-  double W = 800;
-  double H = 600;
-  double T = 0.08*H;
-  double B = 0.12*H;
-  double L = 0.08*W;
-  double R = 0.08*W;
+  double W = 800; double H = 600;
+  double T = 0.08*H; double B = 0.12*H;
+  double L = 0.08*W; double R = 0.08*W;
 
-  TString graphName = "";
-  if (which =="all") graphName = "MET_Stack";
-  else if (which == "single") graphName = "MET_Stack_Single";
-  else if (which == "double") graphName = "MET_Stack_Double";
-
-
+  TString graphName = "METStack_"+which;
   TCanvas * can_h = new TCanvas(graphName,graphName, 50, 50, W, H);
-  can_h->SetFillColor(0);
-  can_h->SetBorderMode(0);
-  can_h->SetFrameFillStyle(0);
-  can_h->SetFrameBorderMode(0);
-  can_h->SetLeftMargin( L/W );
-  can_h->SetRightMargin( R/W );
-  can_h->SetTopMargin( T/H );
-  can_h->SetBottomMargin( B/H );
-  can_h->SetTickx(0);
-  can_h->SetTicky(0);
+  can_h->SetFillColor(0); can_h->SetBorderMode(0);
+  can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+  can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
+  can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
+  can_h->SetTickx(0); can_h->SetTicky(0);
   can_h->SetLogy();
 
   METStack->Draw("hist");
-  METStack->GetYaxis()->SetTitle("Events");
-  METStack->SetMinimum(0.1);
-  METStack->SetMaximum(300);
-
-  if (which == "all") {
-    METStack->SetMinimum(.5);
-    METStack->SetMaximum(2000);
-  }
-
-  // if (which == "tau32") {
-  //   doubleBStack->GetXaxis()->SetRangeUser(0,1);
-  //   doubleBStack->SetMaximum(300);
-  // }
-  // if (which == "DoubleB-H") {
-  //   doubleBStack->SetMaximum(300);
-  // }
-
-  METStack->GetXaxis()->SetTitle("MET [GeV]");
-
+  METStack->SetTitle(";MET [GeV];Events");
+  METStack->SetMinimum(0.1); METStack->SetMaximum(300);
 
   h_T5HH1300->Draw("same l");
   h_T5HH1700->Draw("same l");
@@ -1665,47 +1403,29 @@ void makeMETStack(TH1F* h_QCD,TH1F* h_TT,TH1F* h_WJets,TH1F* h_ZJets, TH1F* h_T5
   legend->SetBorderSize(0);
 
   legend->Draw("same");
-  can_h->Update();
-  can_h->Modified();
+  can_h->Update(); can_h->Modified();
 
-  TString savename = "SupportingPlots/MET"+which+"_Stack.pdf";
-  if (useDeepDoubleB) savename = "SupportingPlots/MET"+which+"_deepDB_Stack.pdf";
-  can_h->SaveAs(savename);
-
-  // if (which =="all") can_h->SaveAs("SupportingPlots/MET_Stack.pdf");
-  // else if (which == "single") can_h->SaveAs("SupportingPlots/METSingle_Stack.pdf");
-  // else if (which == "double") can_h->SaveAs("SupportingPlots/METDouble_Stack.pdf");
+  TString savename = "MET"+which+"_Stack";
+  // if (useDeepDoubleB) savename = "MET"+which+"_deepDB_Stack";
+  cdOther->cd();
+  can_h->Write(savename);
 }
 
 
 void QuickROC(TH1F* signalHist, TH1F* bkgHist, TString which = ""){
-  TString graphName = "";
-  if (which =="") graphName = "DoubleB";
-  else if (which == "DoubleB-H") graphName = "DoubleBH";
-  else if (which == "tau32") graphName = "Tau32";
-
-  double W = 800;
-  double H = 600;
-  double T = 0.08*H;
-  double B = 0.12*H;
-  double L = 0.08*W;
-  double R = 0.08*W;
-
+  TString graphName = which;
+  double W = 800; double H = 600;
+  double T = 0.08*H; double B = 0.12*H;
+  double L = 0.08*W; double R = 0.08*W;
   TCanvas * can_h = new TCanvas(graphName,graphName, 50, 50, W, H);
 
-  can_h->SetFillColor(0);
-  can_h->SetBorderMode(0);
-  can_h->SetFrameFillStyle(0);
-  can_h->SetFrameBorderMode(0);
-  can_h->SetLeftMargin( L/W );
-  can_h->SetRightMargin( R/W );
-  can_h->SetTopMargin( T/H );
-  can_h->SetBottomMargin( B/H );
-  can_h->SetTickx(0);
-  can_h->SetTicky(0);
+  can_h->SetFillColor(0); can_h->SetBorderMode(0);
+  can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+  can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
+  can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
+  can_h->SetTickx(0); can_h->SetTicky(0);
 
   signalHist->SetLineColor(kRed);
-
   TLegend* leg2=new TLegend(0.6,0.65,0.88,0.85);
   leg2->AddEntry(signalHist, "T5HH", "F");
   leg2->AddEntry(bkgHist, "TT", "F");
@@ -1715,10 +1435,8 @@ void QuickROC(TH1F* signalHist, TH1F* bkgHist, TString which = ""){
   float totalNumBkg = bkgHist->Integral();
 
   double x[100], y[100];
-  // std::cout<<"num bins sig: "<< numBins<<", num bins bkg: "<< bkgHist->GetNbinsX()<<std::endl;
   for(int i=1; i<=numBins; ++i){
     int cutbin=bkgHist->FindBin(bkgHist->GetBinLowEdge(i));
-    // std::cout<<"Cutbin: "<<cutbin<<std::endl;
     double bkg=bkgHist->Integral(1, cutbin);
     double sig=signalHist->Integral(1,cutbin);
     double sigEff = 1 - sig/totalNumSig;
@@ -1732,60 +1450,31 @@ void QuickROC(TH1F* signalHist, TH1F* bkgHist, TString which = ""){
     y[i] = bkgRej;
   }
   TGraph* gr = new TGraph(numBins,x,y);
-
   gr->SetLineColor(kRed);
-
   gr->Draw();
   if (which =="")  gr->SetTitle("MVA double-b discriminator");
   else if (which == "DoubleB-H")  gr->SetTitle("Deep double-b discriminator");
   gr->GetXaxis()->SetTitle("Signal efficiency (T5HH1300)");
   gr->GetYaxis()->SetTitle("Background rejection (TT)");
   gr->GetYaxis()->SetRangeUser(0.5,1.0);
-  can_h->Modified();
-  can_h->Update();
+  can_h->Modified(); can_h->Update();
 
-
-  if (which =="") can_h->SaveAs("SupportingPlots/DoubleB_ROC_TT.pdf");
-  else if (which == "DoubleB-H") can_h->SaveAs("SupportingPlots/DoubleBH_ROC_TT.pdf");
-  // else if (which == "tau32") can_h->SaveAs("SupportingPlots/Tau32_ROC.pdf");
+  TString savename = "ROC_doubleB";
+  cdOther->cd();
+  can_h->Write(savename);
 }
 
 void ABCD1(){
   TFile * f = TFile::Open("ALPHABEThistos_V12_METonly.root");
   TFile * fSignal = TFile::Open("ALPHABEThistos_V12_METonly_signalOnly.root");
 
-
   TH1F* h_MET_double_QCD = (TH1F*)f->Get("MET_doubletagSR_QCD");
   TH1F* h_MET_double_TT = (TH1F*)f->Get("MET_doubletagSR_TT");
   TH1F* h_MET_double_WJets = (TH1F*)f->Get("MET_doubletagSR_WJets");
   TH1F* h_MET_double_ZJets = (TH1F*)f->Get("MET_doubletagSR_ZJets");
 
-
   TH1F* h_MET_double_TChiHH400 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH400");
-
-  // TH1F* h_MET_double_TChiHH425 = (TH1F*)f->Get("MET_doubletagSR_TChiHH425");
-  // TH1F* h_MET_double_TChiHH450 = (TH1F*)f->Get("MET_doubletagSR_TChiHH450");
-  // TH1F* h_MET_double_TChiHH475 = (TH1F*)f->Get("MET_doubletagSR_TChiHH475");
-  // TH1F* h_MET_double_TChiHH500 = (TH1F*)f->Get("MET_doubletagSR_TChiHH500");
-  // TH1F* h_MET_double_TChiHH525 = (TH1F*)f->Get("MET_doubletagSR_TChiHH525");
-  // TH1F* h_MET_double_TChiHH550 = (TH1F*)f->Get("MET_doubletagSR_TChiHH550");
-  // TH1F* h_MET_double_TChiHH575 = (TH1F*)f->Get("MET_doubletagSR_TChiHH575");
-  // TH1F* h_MET_double_TChiHH600 = (TH1F*)f->Get("MET_doubletagSR_TChiHH600");
-  // TH1F* h_MET_double_TChiHH625 = (TH1F*)f->Get("MET_doubletagSR_TChiHH625");
-  // TH1F* h_MET_double_TChiHH650 = (TH1F*)f->Get("MET_doubletagSR_TChiHH650");
-  // TH1F* h_MET_double_TChiHH675 = (TH1F*)f->Get("MET_doubletagSR_TChiHH675");
   TH1F* h_MET_double_TChiHH700 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH700");
-  // TH1F* h_MET_double_TChiHH725 = (TH1F*)f->Get("MET_doubletagSR_TChiHH725");
-  // TH1F* h_MET_double_TChiHH750 = (TH1F*)f->Get("MET_doubletagSR_TChiHH750");
-  // TH1F* h_MET_double_TChiHH775 = (TH1F*)f->Get("MET_doubletagSR_TChiHH775");
-  // TH1F* h_MET_double_TChiHH800 = (TH1F*)f->Get("MET_doubletagSR_TChiHH800");
-  // TH1F* h_MET_double_TChiHH825 = (TH1F*)f->Get("MET_doubletagSR_TChiHH825");
-  // TH1F* h_MET_double_TChiHH850 = (TH1F*)f->Get("MET_doubletagSR_TChiHH850");
-  // TH1F* h_MET_double_TChiHH875 = (TH1F*)f->Get("MET_doubletagSR_TChiHH875");
-  // TH1F* h_MET_double_TChiHH900 = (TH1F*)f->Get("MET_doubletagSR_TChiHH900");
-  // TH1F* h_MET_double_TChiHH925 = (TH1F*)f->Get("MET_doubletagSR_TChiHH925");
-  // TH1F* h_MET_double_TChiHH950 = (TH1F*)f->Get("MET_doubletagSR_TChiHH950");
-  // TH1F* h_MET_double_TChiHH975 = (TH1F*)f->Get("MET_doubletagSR_TChiHH975");
   TH1F* h_MET_double_TChiHH1000 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH1000");
 
   TH1F* h_MET_single_QCD = (TH1F*)f->Get("MET_tagSR_QCD");
@@ -1794,30 +1483,7 @@ void ABCD1(){
   TH1F* h_MET_single_ZJets = (TH1F*)f->Get("MET_tagSR_ZJets");
 
   TH1F* h_MET_single_TChiHH400 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH400");
-
-  // TH1F* h_MET_single_TChiHH425 = (TH1F*)f->Get("MET_tagSR_TChiHH425");
-  // TH1F* h_MET_single_TChiHH450 = (TH1F*)f->Get("MET_tagSR_TChiHH450");
-  // TH1F* h_MET_single_TChiHH475 = (TH1F*)f->Get("MET_tagSR_TChiHH475");
-  // TH1F* h_MET_single_TChiHH500 = (TH1F*)f->Get("MET_tagSR_TChiHH500");
-  // TH1F* h_MET_single_TChiHH525 = (TH1F*)f->Get("MET_tagSR_TChiHH525");
-  // TH1F* h_MET_single_TChiHH550 = (TH1F*)f->Get("MET_tagSR_TChiHH550");
-  // TH1F* h_MET_single_TChiHH575 = (TH1F*)f->Get("MET_tagSR_TChiHH575");
-  // TH1F* h_MET_single_TChiHH600 = (TH1F*)f->Get("MET_tagSR_TChiHH600");
-  // TH1F* h_MET_single_TChiHH625 = (TH1F*)f->Get("MET_tagSR_TChiHH625");
-  // TH1F* h_MET_single_TChiHH650 = (TH1F*)f->Get("MET_tagSR_TChiHH650");
-  // TH1F* h_MET_single_TChiHH675 = (TH1F*)f->Get("MET_tagSR_TChiHH675");
   TH1F* h_MET_single_TChiHH700 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH700");
-  // TH1F* h_MET_single_TChiHH725 = (TH1F*)f->Get("MET_tagSR_TChiHH725");
-  // TH1F* h_MET_single_TChiHH750 = (TH1F*)f->Get("MET_tagSR_TChiHH750");
-  // TH1F* h_MET_single_TChiHH775 = (TH1F*)f->Get("MET_tagSR_TChiHH775");
-  // TH1F* h_MET_single_TChiHH800 = (TH1F*)f->Get("MET_tagSR_TChiHH800");
-  // TH1F* h_MET_single_TChiHH825 = (TH1F*)f->Get("MET_tagSR_TChiHH825");
-  // TH1F* h_MET_single_TChiHH850 = (TH1F*)f->Get("MET_tagSR_TChiHH850");
-  // TH1F* h_MET_single_TChiHH875 = (TH1F*)f->Get("MET_tagSR_TChiHH875");
-  // TH1F* h_MET_single_TChiHH900 = (TH1F*)f->Get("MET_tagSR_TChiHH900");
-  // TH1F* h_MET_single_TChiHH925 = (TH1F*)f->Get("MET_tagSR_TChiHH925");
-  // TH1F* h_MET_single_TChiHH950 = (TH1F*)f->Get("MET_tagSR_TChiHH950");
-  // TH1F* h_MET_single_TChiHH975 = (TH1F*)f->Get("MET_tagSR_TChiHH975");
   TH1F* h_MET_single_TChiHH1000 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH1000");
 
   vector<float> double_MET1_yields; vector<float> double_MET2_yields; vector<float> double_MET3_yields; vector<float> double_MET4_yields; vector<float> double_MET5_yields;
@@ -1832,28 +1498,7 @@ void ABCD1(){
     double_MET4_yields.push_back(double_hists[i]->GetBinContent(4)); single_MET4_yields.push_back(single_hists[i]->GetBinContent(4));
     double_MET5_yields.push_back(double_hists[i]->GetBinContent(5)); single_MET5_yields.push_back(single_hists[i]->GetBinContent(5));
   }
-  /*
-  \\hline
-  Double \\
-  \\hline
-  MET bin [GeV] & QCD & TT & WJets & ZJets & TChiHH400 & TChiHH700 & TChiHH1000 \\
-  \\hline
-  150-200 & NA & NA &NA & NA & NA & NA & NA \\
-  200-300 & NA & NA &NA & NA & NA & NA & NA \\
-  300-500 & NA & NA &NA & NA & NA & NA & NA \\
-  500-700 & NA & NA &NA & NA & NA & NA & NA \\
-  $>$700 & NA & NA &NA & NA & NA & NA & NA \\
-  \\hline
-  \\hline
-  Single \\
-  \\hline
-  150-200 & NA & NA &NA & NA & NA & NA & NA \\
-  200-300 & NA & NA &NA & NA & NA & NA & NA \\
-  300-500 & NA & NA &NA & NA & NA & NA & NA \\
-  500-700 & NA & NA &NA & NA & NA & NA & NA \\
-  $>$700 & NA & NA &NA & NA & NA & NA & NA \\
-  \\hline
-  */
+
   myfile.open("MCyields_V17.txt");
   myfile << "\\hline Double \\\\ \\hline \n MET bin [GeV] & QCD & TT & WJets & ZJets & TChiHH400 & TChiHH700 & TChiHH1000 \\\\ \n \\hline";
   myfile << "150-200 ";
@@ -1868,7 +1513,6 @@ void ABCD1(){
   for (int i=0;i<7;i++) myfile <<" & "<< double_MET5_yields[i];
   myfile << " \\\\ \\hline \\hline \n Single \\\\ \\hline \n 150-200 ";
 
-
   for (int i=0;i<7;i++) myfile <<" & "<< single_MET1_yields[i];
   myfile << " \\\\ \n 200-300 ";
   for (int i=0;i<7;i++) myfile <<" & "<< single_MET2_yields[i];
@@ -1879,7 +1523,188 @@ void ABCD1(){
   myfile << " \\\\ \n $>$ 700 ";
   for (int i=0;i<7;i++) myfile <<" & "<< single_MET5_yields[i];
   myfile << " \\\\ \\hline";
-
   myfile.close();
-
 }
+
+//This is using the sublead RPF, doing an ABCD background method, but using the RPF as a kappa
+void makeTestClosurePlot(TH1F* h_antitagSR, TH1F* h_notagSB,TH1F* h_doubletagSR) {
+  //First clone all histos, so we aren't messing anything up
+  TH1F *antitagSR = (TH1F*)h_antitagSR->Clone("antitagSR");
+  TH1F *notagSB = (TH1F*)h_notagSB->Clone("notagSB");
+  TH1F *doubletagSR = (TH1F*)h_doubletagSR->Clone("doubletagSR");
+
+  TLegend* legend = new TLegend(0.60,0.7,0.93,0.91);
+  legend->SetBorderSize(0);
+
+  //First fancy up the doubletag SR
+  doubletagSR->SetMarkerStyle(20);
+  doubletagSR->SetMarkerSize(0.7);
+  doubletagSR->SetMarkerColor(kBlack);
+  doubletagSR->SetTitle(";; Events scaled to 137 fb^{-1}");
+  doubletagSR->SetTitleOffset(0.7);
+  doubletagSR->GetXaxis()->SetLabelSize(0);
+  legend->AddEntry(doubletagSR,"Double-tag SR: region A","lp");
+
+  //Then calculate the "green" band, which is the antitagSR scaled
+  //to the pass/fail ratio from the lead jet in the double-tag region (0.010883)
+  // antitagSR->Scale(0.010883); //this is for events with MET>300
+  antitagSR->Scale(0.013731); //this is for events with MET>250 (higher stats!)
+  antitagSR->SetFillColor(kGreen);
+  // antitagSR->SetFillStyle(3445);
+  legend->AddEntry(antitagSR,"AntiTag SR, scaled to RPF","f");
+
+
+  //Then calculate the integral of the green, and scale the normalized MET SB shape (without tagging)
+  //to this integral
+  float thisScaleIntegral = antitagSR->Integral();
+  notagSB->Scale(thisScaleIntegral/notagSB->Integral());
+  notagSB->SetFillColor(kRed);
+  notagSB->SetFillStyle(3445);
+  legend->AddEntry(notagSB,"MET SB, scaled to BkgNorm","f");
+
+  TGraphAsymmErrors * graph1 = new TGraphAsymmErrors(doubletagSR, antitagSR, "pois");
+  TGraphAsymmErrors * graph2 = new TGraphAsymmErrors(doubletagSR, notagSB, "pois");
+  double W = 800; double H = 600;
+  double T = 0.08*H; double B = 0.12*H;
+  double L = 0.12*W; double R = 0.04*W;
+  TCanvas * can_h = new TCanvas("TestingWay2","TestingWay2", 50, 50, W, H);
+  can_h->SetFillColor(0); can_h->SetBorderMode(0);
+  can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+  can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
+  can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
+  can_h->SetTickx(0); can_h->SetTicky(0);
+
+  double up_height = 0.8; // double dw_correction = 1.30;
+  double dw_correction = 1.18; double font_size_dw  = 0.1;
+  double dw_height = (1. - up_height) * dw_correction;
+  double dw_height_offset = 0.02;
+
+  TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
+  TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
+  pad1->SetTickx(0); pad1->SetTicky(0);
+  pad1->SetPad(0., 1 - up_height, 1., 1.00);
+  pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
+  pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.12); pad1->SetRightMargin(0.06);
+  pad1->Draw();
+
+  pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
+  pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
+  pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.01);
+  pad2->SetLeftMargin(0.08); pad2->SetRightMargin(0.06);
+  pad2->Draw(); pad1->cd();
+
+  doubletagSR->Draw();
+  antitagSR->Draw("E2same");
+  notagSB->Draw("E2same");
+  doubletagSR->Draw("same");
+  legend->Draw("same");
+
+  pad2->cd();
+  graph1->SetTitle(";MET [GeV]; #kappa (Sim/Pred)");
+  graph1->SetMarkerStyle(20); graph1->SetLineColor(kGreen); graph1->SetMarkerColor(kGreen);
+  graph2->SetMarkerStyle(20); graph2->SetLineColor(kRed); graph2->SetMarkerColor(kRed);
+  graph1->GetYaxis()->SetTitleOffset(0.25);
+  graph1->GetYaxis()->SetTitleSize(0.13);
+  graph1->GetXaxis()->SetTitleOffset(0.9);
+  graph1->GetXaxis()->SetTitleSize(0.14);
+  graph1->GetXaxis()->SetLabelSize(0.14);
+  graph1->GetYaxis()->SetLabelSize(0.14);
+  graph1->GetXaxis()->SetNdivisions(507);
+  graph1->GetYaxis()->SetNdivisions(505);
+  // graph->GetYaxis()->SetRangeUser(0.3,1.5);
+
+  graph1->Draw("APE");
+  graph2->Draw("E SAME");
+  graph1->GetXaxis()->SetRangeUser(250,1400);
+  // graph1->GetYaxis()->SetRangeUser(-1.0,5.0);
+  // if (tagType=="Single") graph->GetYaxis()->SetRangeUser(0.0,2.0);
+  // graph->Draw("APE");
+  can_h->Modified(); can_h->Update();
+  cdOther->cd();
+  can_h->Write("ClosureTest_SubleadRPF");
+}
+
+// void makeTestClosurePlot2(TH1F* notagSB,TH1F* doubletagSR) {
+//   //This script is almost entirely stylistic STUFF
+//   TLegend* legend = new TLegend(0.60,0.7,0.93,0.91);
+//   legend->SetBorderSize(0);
+//
+//   //First fancy up the doubletag SR
+//   doubletagSR->SetMarkerStyle(20);
+//   doubletagSR->SetMarkerSize(0.7);
+//   doubletagSR->SetMarkerColor(kBlack);
+//   doubletagSR->SetTitle(";MET [GeV]; Events scaled to 137 fb^{-1}");
+//   legend->AddEntry(doubletagSR,"Double-tag SR: region A","lp");
+//
+//   //Integral of sublead jet mass shape from the SB2 = 3.16445
+//   //Eventually will need to get this from Rishi
+//   // float thisScaleIntegral = 3.16445;
+//
+//   //Integral of antitagSR when weighted by the RPF from the lead jet
+//   float thisScaleIntegral = 1.4673840;
+//
+//   notagSB->Scale(thisScaleIntegral/notagSB->Integral());
+//   notagSB->SetFillColor(kRed);
+//   notagSB->SetFillStyle(3445);
+//   legend->AddEntry(notagSB,"MET SB, scaled to BkgNorm","f");
+//
+//   TGraphAsymmErrors * graph2 = new TGraphAsymmErrors(doubletagSR, notagSB, "pois");
+//   double W = 800; double H = 600;
+//   double T = 0.08*H; double B = 0.12*H;
+//   double L = 0.12*W; double R = 0.04*W;
+//   TCanvas * can_h = new TCanvas("TestingWay2","TestingWay2", 50, 50, W, H);
+//   can_h->SetFillColor(0); can_h->SetBorderMode(0);
+//   can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+//   can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
+//   can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
+//   can_h->SetTickx(0); can_h->SetTicky(0);
+//
+//   double up_height = 0.8; // double dw_correction = 1.30;
+//   double dw_correction = 1.18; double font_size_dw  = 0.1;
+//   double dw_height = (1. - up_height) * dw_correction;
+//   double dw_height_offset = 0.02;
+//
+//   TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
+//   TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
+//   pad1->SetTickx(0); pad1->SetTicky(0);
+//   pad1->SetPad(0., 1 - up_height, 1., 1.00);
+//   pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
+//   pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.08); pad1->SetRightMargin(0.06);
+//   pad1->Draw();
+//
+//   pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
+//   pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
+//   pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.01);
+//   pad2->SetLeftMargin(0.08); pad2->SetRightMargin(0.06);
+//   pad2->Draw(); pad1->cd();
+//
+//   doubletagSR->Draw();
+//   notagSB->Draw("E2same");
+//   doubletagSR->Draw("same");
+//   legend->Draw("same");
+//
+//    pad2->cd();
+//    pad2->cd();
+//    graph2->SetTitle(";MET [GeV]; #kappa (Sim/Pred)");
+//    graph2->SetMarkerStyle(20); graph2->SetLineColor(kRed); graph2->SetMarkerColor(kRed);
+//    graph2->GetYaxis()->SetTitleOffset(0.25);
+//    graph2->GetYaxis()->SetTitleSize(0.13);
+//    graph2->GetXaxis()->SetTitleOffset(0.9);
+//    graph2->GetXaxis()->SetTitleSize(0.14);
+//    graph2->GetXaxis()->SetLabelSize(0.14);
+//    graph2->GetYaxis()->SetLabelSize(0.14);
+//    graph2->GetXaxis()->SetNdivisions(507);
+//    graph2->GetYaxis()->SetNdivisions(505);
+//    // graph->GetYaxis()->SetRangeUser(0.3,1.5);
+//
+//    graph2->Draw("APE");
+//    graph2->GetXaxis()->SetRangeUser(300,1400);
+//    // graph1->GetYaxis()->SetRangeUser(-1.0,5.0);
+//    // if (tagType=="Single") graph->GetYaxis()->SetRangeUser(0.0,2.0);
+//    // graph->Draw("APE");
+//    can_h->Modified();
+//    can_h->Update();
+//
+//    can_h->SaveAs("ClosureTest2.pdf");
+//    can_h->SaveAs("ClosureTest2.root");
+// }
