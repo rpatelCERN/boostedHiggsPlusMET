@@ -44,86 +44,69 @@ if __name__ == '__main__':
 	idir = "./";
 	results = []; results2 = []; results3 = []; results4 = [];
 
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH750.AsymptoticLimits.mH750.root','750') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH1000.AsymptoticLimits.mH1000.root','1000') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH1100.AsymptoticLimits.mH1100.root','1100') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH1200.AsymptoticLimits.mH1200.root','1200') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH1300.AsymptoticLimits.mH1300.root','1300') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH1400.AsymptoticLimits.mH1400.root','1400') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH1500.AsymptoticLimits.mH1500.root','1500') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH1600.AsymptoticLimits.mH1600.root','1600') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH1700.AsymptoticLimits.mH1700.root','1700') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH1800.AsymptoticLimits.mH1800.root','1800') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH1900.AsymptoticLimits.mH1900.root','1900') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH2000.AsymptoticLimits.mH2000.root','2000') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH2100.AsymptoticLimits.mH2100.root','2100') );
-	results.append( ExtractFile(idir+'/higgsCombineGluinoResolvedOnlyT5HH2200.AsymptoticLimits.mH2200.root','2200') );
+	#BoostedOnly
+	# results.append( ExtractFile(idir+'/higgsCombineT5HH750_2BoostedH.AsymptoticLimits.mH120.root','750') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH1000_2BoostedH.AsymptoticLimits.mH120.root','1000') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH1100_2BoostedH.AsymptoticLimits.mH120.root','1100') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH1200_2BoostedH.AsymptoticLimits.mH120.root','1200') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH1300_2BoostedH.AsymptoticLimits.mH120.root','1300') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH1400_2BoostedH.AsymptoticLimits.mH120.root','1400') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH1500_2BoostedH.AsymptoticLimits.mH120.root','1500') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH1600_2BoostedH.AsymptoticLimits.mH120.root','1600') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH1700_2BoostedH.AsymptoticLimits.mH120.root','1700') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH1800_2BoostedH.AsymptoticLimits.mH120.root','1800') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH1900_2BoostedH.AsymptoticLimits.mH120.root','1900') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH2000_2BoostedH.AsymptoticLimits.mH120.root','2000') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH2100_2BoostedH.AsymptoticLimits.mH120.root','2100') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH2200_2BoostedH.AsymptoticLimits.mH120.root','2200') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH2300_2BoostedH.AsymptoticLimits.mH120.root','2300') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH2400_2BoostedH.AsymptoticLimits.mH120.root','2400') );
+	results.append( ExtractFile(idir+'/higgsCombineT5HH2500_2BoostedH.AsymptoticLimits.mH120.root','2500') );
 
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH750.AsymptoticLimits.mH750.root','750') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1000.AsymptoticLimits.mH1000.root','1000') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1100.AsymptoticLimits.mH1100.root','1100') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1200.AsymptoticLimits.mH1200.root','1200') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1300.AsymptoticLimits.mH1300.root','1300') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1400.AsymptoticLimits.mH1400.root','1400') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1500.AsymptoticLimits.mH1500.root','1500') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1600.AsymptoticLimits.mH1600.root','1600') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1700.AsymptoticLimits.mH1700.root','1700') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1800.AsymptoticLimits.mH1800.root','1800') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1900.AsymptoticLimits.mH1900.root','1900') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH2000.AsymptoticLimits.mH2000.root','2000') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH2100.AsymptoticLimits.mH2100.root','2100') );
-	# results.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH2200.AsymptoticLimits.mH2200.root','2200') );
+	#ResolvedOnly
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH1000Res.AsymptoticLimits.mH120.root','1000') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH1100Res.AsymptoticLimits.mH120.root','1100') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH1200Res.AsymptoticLimits.mH120.root','1200') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH1300Res.AsymptoticLimits.mH120.root','1300') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH1400Res.AsymptoticLimits.mH120.root','1400') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH1500Res.AsymptoticLimits.mH120.root','1500') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH1600Res.AsymptoticLimits.mH120.root','1600') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH1700Res.AsymptoticLimits.mH120.root','1700') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH1800Res.AsymptoticLimits.mH120.root','1800') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH1900Res.AsymptoticLimits.mH120.root','1900') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH2000Res.AsymptoticLimits.mH120.root','2000') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH2100Res.AsymptoticLimits.mH120.root','2100') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH2200Res.AsymptoticLimits.mH120.root','2200') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH2300Res.AsymptoticLimits.mH120.root','2300') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH2400Res.AsymptoticLimits.mH120.root','2400') );
+	results2.append( ExtractFile(idir+'/higgsCombineT5HH2500Res.AsymptoticLimits.mH120.root','2500') );
 
-	#higgsCombineGluinoBoostedOnlyT5HH2200
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH750.AsymptoticLimits.mH750.root','750') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1000.AsymptoticLimits.mH1000.root','1000') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1100.AsymptoticLimits.mH1100.root','1100') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1200.AsymptoticLimits.mH1200.root','1200') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1300.AsymptoticLimits.mH1300.root','1300') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1400.AsymptoticLimits.mH1400.root','1400') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1500.AsymptoticLimits.mH1500.root','1500') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1600.AsymptoticLimits.mH1600.root','1600') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1700.AsymptoticLimits.mH1700.root','1700') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1800.AsymptoticLimits.mH1800.root','1800') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH1900.AsymptoticLimits.mH1900.root','1900') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH2000.AsymptoticLimits.mH2000.root','2000') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH2100.AsymptoticLimits.mH2100.root','2100') );
-	results2.append( ExtractFile(idir+'/higgsCombineGluinoBoostedOnlyT5HH2200.AsymptoticLimits.mH2200.root','2200') );
+	#Combo, ResolvedOnly+BoostedVeto (Maybe switch priority?)
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH1000Combo.AsymptoticLimits.mH120.root','1000') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH1100Combo.AsymptoticLimits.mH120.root','1100') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH1200Combo.AsymptoticLimits.mH120.root','1200') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH1300Combo.AsymptoticLimits.mH120.root','1300') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH1400Combo.AsymptoticLimits.mH120.root','1400') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH1500Combo.AsymptoticLimits.mH120.root','1500') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH1600Combo.AsymptoticLimits.mH120.root','1600') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH1700Combo.AsymptoticLimits.mH120.root','1700') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH1800Combo.AsymptoticLimits.mH120.root','1800') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH1900Combo.AsymptoticLimits.mH120.root','1900') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH2000Combo.AsymptoticLimits.mH120.root','2000') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH2100Combo.AsymptoticLimits.mH120.root','2100') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH2200Combo.AsymptoticLimits.mH120.root','2200') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH2300Combo.AsymptoticLimits.mH120.root','2300') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH2400Combo.AsymptoticLimits.mH120.root','2400') );
+	results3.append( ExtractFile(idir+'/higgsCombineT5HH2500Combo.AsymptoticLimits.mH120.root','2500') );
 
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH750.AsymptoticLimits.mH750.root','750') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH1000.AsymptoticLimits.mH1000.root','1000') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH1100.AsymptoticLimits.mH1100.root','1100') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH1200.AsymptoticLimits.mH1200.root','1200') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH1300.AsymptoticLimits.mH1300.root','1300') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH1400.AsymptoticLimits.mH1400.root','1400') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH1500.AsymptoticLimits.mH1500.root','1500') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH1600.AsymptoticLimits.mH1600.root','1600') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH1700.AsymptoticLimits.mH1700.root','1700') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH1800.AsymptoticLimits.mH1800.root','1800') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH1900.AsymptoticLimits.mH1900.root','1900') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH2000.AsymptoticLimits.mH2000.root','2000') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH2100.AsymptoticLimits.mH2100.root','2100') );
-	results3.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostOnlyT5HH2200.AsymptoticLimits.mH2200.root','2200') );
-
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH750.AsymptoticLimits.mH750.root','750') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH1000.AsymptoticLimits.mH1000.root','1000') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH1100.AsymptoticLimits.mH1100.root','1100') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH1200.AsymptoticLimits.mH1200.root','1200') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH1300.AsymptoticLimits.mH1300.root','1300') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH1400.AsymptoticLimits.mH1400.root','1400') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH1500.AsymptoticLimits.mH1500.root','1500') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH1600.AsymptoticLimits.mH1600.root','1600') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH1700.AsymptoticLimits.mH1700.root','1700') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH1800.AsymptoticLimits.mH1800.root','1800') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH1900.AsymptoticLimits.mH1900.root','1900') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH2000.AsymptoticLimits.mH2000.root','2000') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH2100.AsymptoticLimits.mH2100.root','2100') );
-	results4.append( ExtractFile(idir+'/higgsCombineGluinoResToBoostFullComboT5HH2200.AsymptoticLimits.mH2200.root','2200') );
-
-
-	#Change this
+	#xsecs from:
 	# xsecs=[	0.277E+01, 0.385E+00,0.191E+00, 0.985E-01, 0.522E-01, 0.284E-01, 0.157E-01, 0.887E-02, 0.507E-02, 0.293E-02, 0.171E-02, 0.101E-02, 0.598E-03, 0.356E-03]
-	xsecs=[2.26585,0.325388, 0.163491, 0.0856418, 0.0460525, 0.0252977, 0.0141903, 0.00810078, 0.00470323, 0.00276133, 0.00163547, 0.000981077, 0.000591918,0.000359318]
+
+	#Starting at 1 TeV
+	xsecs=[0.325388, 0.163491, 0.0856418, 0.0460525, 0.0252977, 0.0141903, 0.00810078, 0.00470323, 0.00276133, 0.00163547, 0.000981077, 0.000591918,0.000359318,0.000219049,0.000133965,8.20068E-05]
+
+	#Starting at 750 GeV
+	# xsecs=[2.26585,0.325388, 0.163491, 0.0856418, 0.0460525, 0.0252977, 0.0141903, 0.00810078, 0.00470323, 0.00276133, 0.00163547, 0.000981077, 0.000591918,0.000359318,0.000219049,0.000133965,8.20068E-05]
 
 	names   = []; names2   = []; names3   = []; names4   = [];
 	l_obs   = []; l_obs2   = []; l_obs3   = []; l_obs4   = [];
@@ -134,6 +117,8 @@ if __name__ == '__main__':
 	l_p2sig = []; l_p2sig2 = []; l_p2sig3 = []; l_p2sig4 = [];
 	count=0; count2=0; count3=0; count4=0;
 	BR=1.0 #not needed for gluino since it is fully simulated
+
+
 	for r in results:
 		names.append(r[0]);
 		l_m2sig.append(r[1]*xsecs[count]*BR);
@@ -143,6 +128,7 @@ if __name__ == '__main__':
 		l_p2sig.append(r[5]*xsecs[count]*BR);
 		l_obs.append(r[6]*xsecs[count]*BR);
 		count=count+1
+
 	# print "l_exp = ", l_exp
 	# print "l_obs = ", l_obs
 
@@ -165,16 +151,16 @@ if __name__ == '__main__':
 		l_p2sig3.append(r[5]*xsecs[count3]*BR);
 		l_obs3.append(r[6]*xsecs[count3]*BR);
 		count3=count3+1
-
-	for r in results4:
-		names4.append(r[0]);
-		l_m2sig4.append(r[1]*xsecs[count4]*BR);
-		l_m1sig4.append(r[2]*xsecs[count4]*BR);
-		l_exp4.append(r[3]*xsecs[count4]*BR);
-		l_p1sig4.append(r[4]*xsecs[count4]*BR);
-		l_p2sig4.append(r[5]*xsecs[count4]*BR);
-		l_obs4.append(r[6]*xsecs[count4]*BR);
-		count4=count4+1
+	#
+	# for r in results4:
+	# 	names4.append(r[0]);
+	# 	l_m2sig4.append(r[1]*xsecs[count4]*BR);
+	# 	l_m1sig4.append(r[2]*xsecs[count4]*BR);
+	# 	l_exp4.append(r[3]*xsecs[count4]*BR);
+	# 	l_p1sig4.append(r[4]*xsecs[count4]*BR);
+	# 	l_p2sig4.append(r[5]*xsecs[count4]*BR);
+	# 	l_obs4.append(r[6]*xsecs[count4]*BR);
+	# 	count4=count4+1
 
 
 	a_xax = array('d', []); a_xax2 = array('d', []); a_xax3 = array('d', []); a_xax4 = array('d', []);
@@ -200,9 +186,9 @@ if __name__ == '__main__':
 
 	for i in range(len(names3)): a_xax3.append( float(names3[i]) );
 	for i in range(len(l_exp3)): a_exp3.append( float(l_exp3[i]) );
-
-	for i in range(len(names4)): a_xax4.append( float(names4[i]) );
-	for i in range(len(l_exp4)): a_exp4.append( float(l_exp4[i]) );
+	#
+	# for i in range(len(names4)): a_xax4.append( float(names4[i]) );
+	# for i in range(len(l_exp4)): a_exp4.append( float(l_exp4[i]) );
 
 	a_2sig.append(results[0][6])
 	a2_xax.append(0.5)
@@ -215,19 +201,20 @@ if __name__ == '__main__':
 
 	g_exp2 = ROOT.TGraph(len(a_xax2), a_xax2, a_exp2)
 	g_exp3 = ROOT.TGraph(len(a_xax3), a_xax3, a_exp3)
-	g_exp4 = ROOT.TGraph(len(a_xax4), a_xax4, a_exp4)
+	# g_exp4 = ROOT.TGraph(len(a_xax4), a_xax4, a_exp4)
 
 	can = ROOT.TCanvas("can","can",1800,1200);
-	hrl = ROOT.TH1F("hrl","hrl",36,700,2500);
+	# hrl = ROOT.TH1F("hrl","hrl",36,700,2500);
+	hrl = ROOT.TH1F("hrl","hrl",36,1000,2500);
 
 	# hrl = can.DrawFrame(0,0,6,15);
 	hrl.GetXaxis().SetTitle("Gluino mass m_{#tilde{g}} [GeV]");
-	hrl.GetXaxis().SetRangeUser(750,2200);
+	hrl.GetXaxis().SetRangeUser(750,2400);
 	hrl.GetXaxis().SetLabelSize(0.035)
 	hrl.GetXaxis().SetTitleSize(0.04)
 	hrl.GetXaxis().SetTitleOffset(1.2)
 	hrl.GetYaxis().SetTitle("#sigma_{95% CL} [pb] ");
-	#hrl.GetYaxis().SetTitleOffset(0.2)
+	hrl.GetYaxis().SetTitleOffset(1.25)
 	hrl.GetYaxis().SetTitleSize(0.04)
 
 	#for i in range(0,15):
@@ -242,6 +229,9 @@ if __name__ == '__main__':
 	#hrl.SetMaximum(1000.);
 	hrl.Draw();
 	hrl.GetYaxis().SetRangeUser(0.00001,10.);
+
+	can.SetLeftMargin( 0.11 ); can.SetRightMargin( 0.04 );
+	can.SetTopMargin( 0.06 ); can.SetBottomMargin( 0.12 );
 
 	#hrl.GetYaxis().SetTitle("UL on #sigma_{95\% CL} ")#x BR(hh#rightarrow bbbb) [fb] ");
 	can.SetGrid();
@@ -273,16 +263,17 @@ if __name__ == '__main__':
 	leg.SetBorderSize(1);
 	# leg.SetNColumns(2);
 
+
 	#For Full combo limits
 	# leg.AddEntry(g_exp,"expected","l") #E commented out
-	# leg.AddEntry(g_obs,"observed","l")#E commented out
+	# # leg.AddEntry(g_obs,"observed","l")#E commented out
 	# leg.AddEntry(g_2sig,"expected 2#sigma","f") #E commented out
 	# leg.AddEntry(g_1sig,"expected 1#sigma","f") #E commented out
 	#
 
 	#For overlaid
-	leg.AddEntry(g_exp, "Resolved Only","l")
-	leg.AddEntry(g_exp2,"Boosted Only","l")
+	leg.AddEntry(g_exp, "Boosted Only","l")
+	leg.AddEntry(g_exp2,"Resolved Only","l")
 	leg.AddEntry(g_exp3,"Resolved+Boost","l")
 	# leg.AddEntry(g_exp4,"Full Combo","l")
 
@@ -293,29 +284,32 @@ if __name__ == '__main__':
 
 	g_1sig.SetFillColor(ROOT.kGreen);
 	g_1sig.SetFillStyle(3244);
+	# g_1sig.SetLineStyle(2);
 	g_2sig.SetFillColor(ROOT.kYellow);
 	g_2sig.SetFillStyle(3244);
-	g_exp.SetLineStyle(2);
-	g_exp.SetLineColor(ROOT.kBlack);
-	g_exp.SetLineWidth(2);
 	g_obs.SetLineWidth(2);
 
-	g_exp.SetLineColor(ROOT.kCyan+2); g_exp.SetLineWidth(2);
-	g_exp2.SetLineColor(ROOT.kRed); g_exp2.SetLineWidth(2);
-	g_exp3.SetLineColor(ROOT.kBlue); g_exp3.SetLineWidth(2);
+	g_exp.SetLineColor(ROOT.kRed); g_exp.SetLineWidth(2); #g_exp.SetLineStyle(2);
+	g_exp2.SetLineColor(ROOT.kBlue); g_exp2.SetLineWidth(2);
+	g_exp3.SetLineColor(ROOT.kBlack); g_exp3.SetLineWidth(2);
 	# g_exp4.SetLineColor(ROOT.kBlack); g_exp4.SetLineWidth(2);
 
+	# # g_obs.Draw('lsames');
+	# g_exp.Draw('l');
+	# g_2sig.Draw('fsames'); #E commented out
+	# g_1sig.Draw('fsames');
+	# g_exp.Draw('lsames');
 
-	# g_2sig.Draw('f'); #E commented out
+
 	# g_1sig.Draw('fsames'); #E commented out
-	#g_1sig.Draw('f');
-	# g_obs.Draw('lsames');
 	# g_exp.Draw('lsames'); #E commented out
 
 
 	g_exp.Draw('l');
 	g_exp2.Draw('lsames');
 	g_exp3.Draw('lsames');
+
+
 	# g_exp4.Draw('lsames');
 	# for i in range(0,100):
 	# 	if(g_xsec.Eval(900+i)-g_exp2.Eval(900+i)>0):
@@ -329,10 +323,12 @@ if __name__ == '__main__':
 	leg.Draw();
 	g_xsec.SetLineStyle(2);
 	g_xsec.SetLineWidth(2);
-	# g_xsec.SetLineColor(ROOT.kBlue);
+	# g_xsec.SetLineColor(ROOT.kRed);
 	g_xsec.SetLineColor(ROOT.kBlack);
 	g_xsec.Draw("lsame")
 	# can.SaveAs('T5HHResults_BoostToResFull.pdf');
 	# can.SaveAs('T5HHResults_FullCombo_overlaid.pdf');
 	# can.SaveAs('T5HHResults_BoostOnly.pdf');
-	can.SaveAs('T5HHResults_ResToBoost.pdf');
+
+
+	can.SaveAs('T5HHResults_ResolvedOnly_ABCDNorm.pdf');

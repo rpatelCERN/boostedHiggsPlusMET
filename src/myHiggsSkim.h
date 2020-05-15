@@ -79,7 +79,6 @@ public :
    virtual void     Init(TTree *tree);
    virtual vector<TH1F*> Loop(float EventWeight, TString file,bool save_files);
    virtual void eff(float EventWeight, TString process);
-
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };

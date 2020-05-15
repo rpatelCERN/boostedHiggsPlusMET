@@ -1,32 +1,20 @@
 imax 4 #number of channels
-jmax 4 #number of backgrounds
+jmax 1 #number of backgrounds
 kmax * nuissance
 shapes * * FAKE
 
 bin AntitagRegion0 AntitagRegion1 AntitagRegion2 AntitagRegion3
 observation obs1 obs2 obs3 obs4
 
-bin AntitagRegion0 AntitagRegion0 AntitagRegion0 AntitagRegion0 AntitagRegion0 AntitagRegion1 AntitagRegion1 AntitagRegion1 AntitagRegion1 AntitagRegion1 AntitagRegion2 AntitagRegion2 AntitagRegion2 AntitagRegion2 AntitagRegion2 AntitagRegion3 AntitagRegion3 AntitagRegion3 AntitagRegion3 AntitagRegion3
-process sig qcd zvv W Top sig qcd zvv W Top sig qcd zvv W Top sig qcd zvv W Top
-process 0 1 2 3 4 0 1 2 3 4 0 1 2 3 4 0 1 2 3 4
-rate higgsino qcd zvv W Top higgsino qcd zvv W Top higgsino qcd zvv W Top higgsino qcd zvv W Top
+bin AntitagRegion0 AntitagRegion0 AntitagRegion1 AntitagRegion1 AntitagRegion2 AntitagRegion2 AntitagRegion3 AntitagRegion3
+process sig bkg sig bkg sig bkg sig bkg
+process 0 1 0 1 0 1 0 1
+rate higgsino bkg higgsino bkg higgsino bkg higgsino bkg
 -----------------------
-BetaRes0 rateParam AntitagRegion0 qcd 1 [0.00,4.00]
-BetaRes0 rateParam AntitagRegion0 zvv 1 [0.00,4.00]
-BetaRes0 rateParam AntitagRegion0 W 1 [0.00,4.00]
-BetaRes0 rateParam AntitagRegion0 Top 1 [0.00,4.00]
+BetaRes0 rateParam AntitagRegion0 bkg 1 [0.00,4.00]
 
-BetaRes1 rateParam AntitagRegion1 qcd 1 [0.00,4.00]
-BetaRes1 rateParam AntitagRegion1 zvv 1 [0.00,4.00]
-BetaRes1 rateParam AntitagRegion1 W 1 [0.00,4.00]
-BetaRes1 rateParam AntitagRegion1 Top 1 [0.00,4.00]
+BetaRes1 rateParam AntitagRegion1 bkg 1 [0.00,4.00]
 
-BetaRes2 rateParam AntitagRegion2 qcd 1 [0.00,4.00]
-BetaRes2 rateParam AntitagRegion2 zvv 1 [0.00,4.00]
-BetaRes2 rateParam AntitagRegion2 W 1 [0.00,4.00]
-BetaRes2 rateParam AntitagRegion2 Top 1 [0.00,4.00]
+BetaRes2 rateParam AntitagRegion2 bkg 1 [0.00,4.00]
 
-BetaRes3 rateParam AntitagRegion3 qcd 3 [0.00,4.00]
-BetaRes3 rateParam AntitagRegion3 zvv 3 [0.00,4.00]
-BetaRes3 rateParam AntitagRegion3 W 3 [0.00,4.00]
-BetaRes3 rateParam AntitagRegion3 Top 3 [0.00,4.00]
+BetaRes3 rateParam AntitagRegion3 bkg 1 [0.00,4.00]

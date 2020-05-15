@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#DIRECTORY=ResToBoost/
-DIRECTORY=BoostToRes/
+DIRECTORY=ResToBoost/
+# DIRECTORY=BoostToRes/
 
 cd $DIRECTORY
 

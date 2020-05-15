@@ -33,7 +33,7 @@ void MakeTable(TString path="./") {
 
 void runProcesses(TString path="./") {
   if(!TString(path).EndsWith("/")) path+="/";
-  TFile* inf = TFile::Open(path+"output_V18TT.root","READ");
+  TFile* inf = TFile::Open(path+"output_V18.root","READ");
 
   bool save_files = false;
   bool save_stacks = false;
@@ -46,7 +46,7 @@ void runProcesses(TString path="./") {
   vector<TString> processes = {"",""};
   vector<double> nEvents_signal = {0,0};
   vector<double> nEvents_T5HH = {0,0};
-  float table_array[31][6];
+  float table_array[27][6];
 
 
   if (which_process=="all") {
@@ -156,68 +156,68 @@ void runProcesses(TString path="./") {
 
       //2 Boost
       table_array[0][p] = dem_hists[0]->Integral(1,dem_hists[0]->GetNbinsX()+1);
-      for (int i=1; i<6; i++){
+      for (int i=1; i<4; i++){
         float this_bin = dem_hists[0]->GetBinContent(i);
         float next_bin = dem_hists[0]->GetBinContent(i+1);
         if (this_bin<1e-20) this_bin=0;
         if (next_bin<1e-20) next_bin=0;
         table_array[i][p] = this_bin;
-        if (i==5)table_array[i][p] = this_bin+next_bin;
+        if (i==3)table_array[i][p] = this_bin+next_bin;
       }
 
       //1 Boost, 1 AK8
-      table_array[6][p] = dem_hists[1]->Integral(1,dem_hists[1]->GetNbinsX()+1);
-      for (int i=1; i<6; i++){
+      table_array[4][p] = dem_hists[1]->Integral(1,dem_hists[1]->GetNbinsX()+1);
+      for (int i=1; i<4; i++){
         float this_bin = dem_hists[1]->GetBinContent(i);
         float next_bin = dem_hists[1]->GetBinContent(i+1);
         if (this_bin<1e-20) this_bin=0;
         if (next_bin<1e-20) next_bin=0;
-        table_array[i+6][p] = this_bin;
-        if (i==5)table_array[i+6][p] = this_bin+next_bin;
+        table_array[i+4][p] = this_bin;
+        if (i==3)table_array[i+4][p] = this_bin+next_bin;
       }
 
       //Res 4b, low deltaR max
-      table_array[12][p] = dem_hists[2]->Integral(1,dem_hists[2]->GetNbinsX()+1);
+      table_array[8][p] = dem_hists[2]->Integral(1,dem_hists[2]->GetNbinsX()+1);
       for (int i=1; i<5; i++){
         float this_bin = dem_hists[2]->GetBinContent(i);
         float next_bin = dem_hists[2]->GetBinContent(i+1);
         if (this_bin<1e-20) this_bin=0;
         if (next_bin<1e-20) next_bin=0;
-        table_array[i+12][p] = this_bin;
-        if (i==4)table_array[i+12][p] = this_bin+next_bin;
+        table_array[i+8][p] = this_bin;
+        if (i==4)table_array[i+8][p] = this_bin+next_bin;
       }
 
       //Res 4b, high deltaR max
-      table_array[17][p] = dem_hists[3]->Integral(1,dem_hists[3]->GetNbinsX()+1);
+      table_array[13][p] = dem_hists[3]->Integral(1,dem_hists[3]->GetNbinsX()+1);
       for (int i=1; i<5; i++){
         float this_bin = dem_hists[3]->GetBinContent(i);
         float next_bin = dem_hists[3]->GetBinContent(i+1);
         if (this_bin<1e-20) this_bin=0;
         if (next_bin<1e-20) next_bin=0;
-        table_array[i+17][p] = this_bin;
-        if (i==4)table_array[i+17][p] = this_bin+next_bin;
+        table_array[i+13][p] = this_bin;
+        if (i==4)table_array[i+13][p] = this_bin+next_bin;
       }
 
       //Res 3b, low deltaR max
-      table_array[22][p] = dem_hists[4]->Integral(1,dem_hists[4]->GetNbinsX()+1);
+      table_array[18][p] = dem_hists[4]->Integral(1,dem_hists[4]->GetNbinsX()+1);
       for (int i=1; i<5; i++){
         float this_bin = dem_hists[4]->GetBinContent(i);
         float next_bin = dem_hists[4]->GetBinContent(i+1);
         if (this_bin<1e-20) this_bin=0;
         if (next_bin<1e-20) next_bin=0;
-        table_array[i+22][p] = this_bin;
-        if (i==4)table_array[i+22][p] = this_bin+next_bin;
+        table_array[i+18][p] = this_bin;
+        if (i==4)table_array[i+18][p] = this_bin+next_bin;
       }
 
       //Res 3b, high deltaR max
-      table_array[27][p] = dem_hists[5]->Integral(1,dem_hists[5]->GetNbinsX()+1);
+      table_array[23][p] = dem_hists[5]->Integral(1,dem_hists[5]->GetNbinsX()+1);
       for (int i=1; i<5; i++){
         float this_bin = dem_hists[5]->GetBinContent(i);
         float next_bin = dem_hists[5]->GetBinContent(i+1);
         if (this_bin<1e-20) this_bin=0;
         if (next_bin<1e-20) next_bin=0;
-        table_array[i+27][p] = this_bin;
-        if (i==4)table_array[i+27][p] = this_bin+next_bin;
+        table_array[i+23][p] = this_bin;
+        if (i==4)table_array[i+23][p] = this_bin+next_bin;
       }
     }
     delete tree;
@@ -282,70 +282,70 @@ void runProcesses(TString path="./") {
 
 
     myfile<<"Res, 4b, lowDR";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[12][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[8][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 150-200";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[13][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[9][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 200-300";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[14][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[10][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 300-500";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[15][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[11][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: $>$500";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[16][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[12][i];
     myfile<<"\\\\"<<endl;
     myfile<<"\\hline"<<endl;
 
     myfile<<"Res, 4b, highDR";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[17][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[13][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 150-200";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[18][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[14][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 200-300";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[19][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[15][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 300-500";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[20][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[16][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: $>$500";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[21][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[17][i];
     myfile<<"\\\\"<<endl;
     myfile<<"\\hline"<<endl;
 
     myfile<<"Res, 3b, lowDR";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[22][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[18][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 150-200";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[23][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[19][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 200-300";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[24][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[20][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 300-500";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[25][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[21][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: $>$500";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[26][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[22][i];
     myfile<<"\\\\"<<endl;
     myfile<<"\\hline"<<endl;
 
     myfile<<"Res, 3b, highDR";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[27][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[23][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 150-200";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[28][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[24][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 200-300";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[29][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[25][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 300-500";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[30][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[26][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: $>$500";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[31][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[27][i];
     myfile<<"\\\\"<<endl;
     myfile<<"\\hline"<<endl;
 
@@ -353,40 +353,28 @@ void runProcesses(TString path="./") {
     myfile<<"2 Boosted H";
     for(int i =0; i<6; i++) myfile<<" & "<<table_array[0][i];
     myfile<<"\\\\"<<endl;
-    myfile<<"MET: 150-200";
+    myfile<<"MET: 300-500";
     for(int i =0; i<6; i++) myfile<<" & "<<table_array[1][i];
     myfile<<"\\\\"<<endl;
-    myfile<<"MET: 200-300";
+    myfile<<"MET: 500-700";
     for(int i =0; i<6; i++) myfile<<" & "<<table_array[2][i];
     myfile<<"\\\\"<<endl;
-    myfile<<"MET: 300-500";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[3][i];
-    myfile<<"\\\\"<<endl;
-    myfile<<"MET: 500-700";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[4][i];
-    myfile<<"\\\\"<<endl;
     myfile<<"MET: $>$700";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[5][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[3][i];
     myfile<<"\\\\"<<endl;
     myfile<<"\\hline"<<endl;
 
     myfile<<"1 Boosted, 1 AK8";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[6][i];
-    myfile<<"\\\\"<<endl;
-    myfile<<"MET: 150-200";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[7][i];
-    myfile<<"\\\\"<<endl;
-    myfile<<"MET: 200-300";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[8][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[4][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 300-500";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[9][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[5][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: 500-700";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[10][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[6][i];
     myfile<<"\\\\"<<endl;
     myfile<<"MET: $>$700";
-    for(int i =0; i<6; i++) myfile<<" & "<<table_array[11][i];
+    for(int i =0; i<6; i++) myfile<<" & "<<table_array[7][i];
     myfile<<"\\\\"<<endl;
     myfile<<"\\hline"<<endl;
     myfile<<endl<<endl;

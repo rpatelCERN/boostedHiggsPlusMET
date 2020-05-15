@@ -17,8 +17,8 @@ TString directory = "ResToBoost/";
 float bins_together[]={150,200,300,500,700,1000};
 int binnum = 5;
 
-float bins_boost[]={0,500,700,999999};
-// float bins_boost[]={300,500,700,999999};
+// float bins_boost[]={0,500,700,999999};
+float bins_boost[]={300,500,700,999999};
 int binnum_boost = 3;
 
 // float bins_res[]={150,200,300,450,600};
@@ -30,10 +30,9 @@ vector<TH1F*> myHiggsSkim::Loop(float EventWeight, TString process = "", bool sa
   vector<TH1F*> dem_hists;
    if (fChain == 0) return dem_hists;
 
-
    TString histname = process + "_MET";
-   TH1F *hist_Boost = new TH1F(histname,histname,binnum, bins_together);
-   TH1F *hist_DiAK8 = new TH1F(histname,histname,binnum, bins_together);
+   TH1F *hist_Boost = new TH1F(histname,histname,binnum, bins_boost);
+   TH1F *hist_DiAK8 = new TH1F(histname,histname,binnum, bins_boost);
    TH1F *hist_Res4b_lowR = new TH1F(histname,histname,binnum_res, bins_res);
    TH1F *hist_Res4b_highR = new TH1F(histname,histname,binnum_res, bins_res);
    TH1F *hist_Res3b_lowR = new TH1F(histname,histname,binnum_res, bins_res);
@@ -63,8 +62,8 @@ vector<TH1F*> myHiggsSkim::Loop(float EventWeight, TString process = "", bool sa
        else if (is_resolved && is_4b) hist_Res4b_highR->Fill(MET,EventWeightHere);
        else if (is_resolved && is_3b && res_deltaRmax<1.1) hist_Res3b_lowR->Fill(MET,EventWeightHere);
        else if (is_resolved && is_3b) hist_Res3b_highR->Fill(MET,EventWeightHere);
-       else if (nBoostedH>=2) hist_Boost->Fill(MET,EventWeightHere);
-       else if (nBoostedH==1 && nDiAK8==1) hist_DiAK8->Fill(MET,EventWeightHere);
+       else if (nBoostedH>=2 && MET>300) hist_Boost->Fill(MET,EventWeightHere);
+       else if (nBoostedH==1 && nDiAK8==1 && MET>300) hist_DiAK8->Fill(MET,EventWeightHere);
      }
 
      else {
@@ -72,8 +71,8 @@ vector<TH1F*> myHiggsSkim::Loop(float EventWeight, TString process = "", bool sa
        else if (is_resolved && is_4b) hist_Res4b_highR->Fill(MET,EventWeightHere);
        else if (is_resolved && is_3b && res_deltaRmax<1.1) hist_Res3b_lowR->Fill(MET,EventWeightHere);
        else if (is_resolved && is_3b) hist_Res3b_highR->Fill(MET,EventWeightHere);
-       else if (nBoostedH>=2) hist_Boost->Fill(MET,EventWeightHere);
-       else if (nBoostedH==1 && nDiAK8==1) hist_DiAK8->Fill(MET,EventWeightHere);
+       else if (nBoostedH>=2 && MET>300) hist_Boost->Fill(MET,EventWeightHere);
+       else if (nBoostedH==1 && nDiAK8==1 && MET>300) hist_DiAK8->Fill(MET,EventWeightHere);
      }
    } //end loop over entries
 
@@ -86,7 +85,6 @@ vector<TH1F*> myHiggsSkim::Loop(float EventWeight, TString process = "", bool sa
      hist_Res3b_lowR->SaveAs(directory+"Res3b_lowR/"+savename);
      hist_Res3b_highR->SaveAs(directory+"Res3b_highR/"+savename);
    }
-
  return dem_hists;
  } //end Loop()
 
@@ -112,11 +110,10 @@ void myHiggsSkim::eff(float EventWeight, TString process = "") {
        bool is_4b = (BTagsT>=2 && BTagsM>=3 && BTagsL>=4);
        bool is_3b = (BTagsT>=2 && BTagsM==3);
        bool is_resolved = (res_deltaRmax<2.2 && nResolvedH==2 && nAK4>=4 && nAK4<6 && res_deltaM<40 && res_avgM>100 && res_avgM<=140) && (is_4b||is_3b);
-       bool is_boost = nBoostedH>=2 || (nBoostedH==1 && nDiAK8==1);
+       bool is_boost = nBoostedH>=2 || (nBoostedH==1 && nDiAK8==1) && MET>300;
        float lead_res_pT = H1_pt_res; if (H2_pt_res>H1_pt_res) lead_res_pT=H2_pt_res;
        if (lead_res_pT>=1100) lead_res_pT=1099.0;
        if (H1_pt_boost>=1100) H1_pt_boost=1099.0;
-
 
        if(process.Contains("T5HH")) {
          if (nGenHs==2) hist_BoostDenom->Fill(H1_pt_boost,EventWeightHere);

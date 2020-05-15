@@ -173,7 +173,10 @@ public:
     };
 
     void buildSum(TString tag=""){
+
         sum = NULL;
+        // if( !dataHist ) { //E added
+
         for( typename map<ntupleType*,TH1F*>::iterator it = histoMap.begin() ;
              it != histoMap.end() ;
              ++it){
@@ -186,6 +189,8 @@ public:
             }else
                 sum->Add(it->second);
         }
+
+      // }//E added
     };
 
     void Write(){
@@ -193,8 +198,7 @@ public:
         for( typename map<ntupleType*,TH1F*>::iterator it = histoMap.begin() ;
              it != histoMap.end() ;
              ++it ){
-            if( it->second )
-                it->second->Write();
+            if( it->second ) it->second->Write();
 
         }
 
@@ -204,12 +208,10 @@ public:
             if( it->second )
                 it->second->Write();
         }
-        // if( dataHist ){
-        // cout<<"trying this 3"<<endl;
-        //     dataHist->Write();
-        //     cout<<"succeeded at 3"<<endl;
-        //
-        //   }
+
+        if( dataHist ){
+            dataHist->Write();
+          }
 
     };
 

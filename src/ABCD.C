@@ -11,42 +11,53 @@
 #include <TF1.h>
 
 
-void makeABCDPlot(vector<TH1F*> dem_histos, TString type, TString tagType);
-void makeAsummptionPlot(vector<TH1F*> dem_histos, TString BkgType);
-void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType, TString jetType, TString tagType);
+void makeABCDPlot(vector<TH1F*> dem_histos, TString type, TString tagType, TString year);
+void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType, TString jetType, TString tagType, TString year);
 void makeStackPlot(vector<TH1F*> h_QCD,vector<TH1F*> h_TT,vector<TH1F*> h_WJets,vector<TH1F*> h_ZJets, vector<TH1F*> h_T5HH1300,vector<TH1F*> h_T5HH1700,vector<TH1F*> h_T5HH2100,TString which);
 void makeSingleLeptStackPlot(vector<TH1F*> h_TT,vector<TH1F*> h_WJets,TString which);
 void QuickROC(TH1F* signalHist, TH1F* bkgHist, TString which);
 void makeMETStack(TH1F* h_QCD,TH1F* h_TT,TH1F* h_WJets,TH1F* h_ZJets, TH1F* h_T5HH1300,TH1F* h_T5HH1700,TH1F* h_T5HH2100,TString which);
-void tableMCyields();
 void makeClosureStackPlot(vector<TH1F*> QCD_histos, vector<TH1F*> TT_histos, vector<TH1F*> WJets_histos,vector<TH1F*> ZJets_histos, vector<TH1F*> sum_histos);
-void makeTestClosurePlot(TH1F* antitagSR, TH1F* notagSB,TH1F* doubletagSR);
-void makeTestClosurePlot2(TH1F* notagSB,TH1F* doubletagSR);
+void makeFullBkgClosure(vector<TH1F*> dem_histos, TString bkgType, TString tagType, TString year);
+void makeMETNorm(vector<TH1F*> dem_histos, TString tagType);
 
 
 ofstream myfile;
 bool getDeviation = false;
-bool runABCDPlots = true;
+bool runABCDPlots = false;
 bool runRPFPlots = true;
-bool runCompareDoubleB = false;
-bool runDoubleBStack = false;
 bool runStacks = false;
-bool runMETStacks = false;
 bool runROC = false;
-bool runAssumpt = true;
-bool runClosurePlots = true;
+bool runMETNorm = false;
+
 
 string whichRegion = "signal";
 // string whichRegion = "singleLept";
 // string whichRegion = "photon";
 
-TFile * f = TFile::Open("ALPHABETBoost_V17.root");
-TFile * fSignal = TFile::Open("ALPHABETBoost_V17_signalOnly.root");
+// TString year = "2016";
+TString year = "Run2";
 
-TFile * fPhoton;
-TFile * fSingleLept;
+
+TFile * f = TFile::Open("ALPHABET_V17_MET300_2BoostedH.root");
+// TFile * f = TFile::Open("ALPHABETBoost_V17_MET250.root");
+
+
+TFile * fSignal = TFile::Open("ALPHABETBoost_V17_signalOnly.root");
+TFile * fPhoton;// = TFile::Open("ALPHABETBoostMC2016_V12like_photon.root");
+
+
+// TFile * fSingleLept;// = TFile::Open("ALPHABETBoost_2017_1l.root");
+TFile * fSingleLept = TFile::Open("ALPHABET_V17_1l_MET300_2BoostedH.root");
+// TFile * fSingleLept = TFile::Open("ALPHABETdata_V17_1l_2BoostedH.root");
+
 
 TFile* fout = new TFile("ABCDPlots_V17.root","recreate");
+// TFile* fout = new TFile("ABCDPlots_V17_MET250.root","recreate");
+// TFile* fout = new TFile("ABCDPlots_V17data_1l.root","recreate");
+// TFile* fout = new TFile("ABCDPlots_V17_1l.root","recreate");
+// TFile* fout = new TFile("ABCDPlots_V17_photon.root","recreate");
+
 TDirectory *cdABCD  = fout->mkdir("ABCD");
 TDirectory *cdClose = fout->mkdir("Closure");
 TDirectory *cdAssum = fout->mkdir("Assumption");
@@ -55,12 +66,20 @@ TDirectory *cdRPF  = fout->mkdir("RPF_Support");
 TDirectory *cdOther  = fout->mkdir("OtherPlots");
 
 void runABCD() {
+  TH1F * h_2HLeadSR_sum; TH1F * h_0HLeadSR_sum;
+  TH1F * h_2HLeadSB_sum; TH1F * h_0HLeadSB_sum;
+
+  TH1F * h_A_data; TH1F * h_B_data; TH1F * h_A1_data; TH1F * h_B1_data; TH1F *h_C_data; TH1F *h_D_data;
+
   TH1F * h_A_sum; TH1F * h_B_sum; TH1F * h_A1_sum; TH1F * h_B1_sum; TH1F *h_C_sum; TH1F *h_D_sum;
   TH1F * h_A_QCD; TH1F * h_B_QCD; TH1F * h_A1_QCD; TH1F * h_B1_QCD; TH1F * h_C_QCD; TH1F * h_D_QCD;
   TH1F * h_A_GJets; TH1F * h_B_GJets; TH1F * h_A1_GJets; TH1F * h_B1_GJets; TH1F * h_C_GJets; TH1F * h_D_GJets;
   TH1F * h_A_TT; TH1F * h_B_TT; TH1F * h_A1_TT; TH1F * h_B1_TT; TH1F * h_C_TT; TH1F * h_D_TT;
+  TH1F * h_A_TT_Di; TH1F * h_B_TT_Di; TH1F * h_A1_TT_Di; TH1F * h_B1_TT_Di; TH1F * h_C_TT_Di; TH1F * h_D_TT_Di;
+  TH1F * h_A_TT_SL; TH1F * h_B_TT_SL; TH1F * h_A1_TT_SL; TH1F * h_B1_TT_SL; TH1F * h_C_TT_SL; TH1F * h_D_TT_SL;
   TH1F * h_A_WJets; TH1F * h_B_WJets; TH1F * h_A1_WJets; TH1F * h_B1_WJets; TH1F * h_C_WJets; TH1F * h_D_WJets;
   TH1F * h_A_ZJets; TH1F * h_B_ZJets; TH1F * h_A1_ZJets; TH1F * h_B1_ZJets; TH1F * h_C_ZJets; TH1F * h_D_ZJets;
+
 
   TH1F * h_A_TChiHH200; TH1F * h_B_TChiHH200; TH1F * h_A1_TChiHH200; TH1F * h_B1_TChiHH200; TH1F * h_C_TChiHH200; TH1F * h_D_TChiHH200;
   TH1F * h_A_TChiHH400; TH1F * h_B_TChiHH400; TH1F * h_A1_TChiHH400; TH1F * h_B1_TChiHH400; TH1F * h_C_TChiHH400; TH1F * h_D_TChiHH400;
@@ -72,10 +91,16 @@ void runABCD() {
   TH1F * h_J1M_doubletagSR_sum; TH1F * h_J2M_doubletagSR_sum; TH1F * h_J1M_doubletagSB_sum; TH1F * h_J2M_doubletagSB_sum;
   TH1F * h_J1M_antitagSR_sum; TH1F * h_J2M_antitagSR_sum; TH1F * h_J1M_antitagSB_sum; TH1F * h_J2M_antitagSB_sum;
   TH1F * h_J1M_tagSR_sum; TH1F * h_J2M_tagSR_sum; TH1F * h_J1M_tagSB_sum; TH1F * h_J2M_tagSB_sum;
-
+  TH1F * h_J2M_mjBins_doubletagSR_sum; TH1F * h_J2M_mjBins_doubletagSB_sum;
+  TH1F * h_J2M_mjBins_antitagSR_sum; TH1F * h_J2M_mjBins_antitagSB_sum;
   TH1F * h_J1M_doubletagSR_QCD; TH1F * h_J2M_doubletagSR_QCD; TH1F * h_J1M_doubletagSB_QCD; TH1F * h_J2M_doubletagSB_QCD;
   TH1F * h_J1M_antitagSR_QCD; TH1F * h_J2M_antitagSR_QCD; TH1F * h_J1M_antitagSB_QCD; TH1F * h_J2M_antitagSB_QCD;
   TH1F * h_J1M_tagSR_QCD; TH1F * h_J2M_tagSR_QCD; TH1F * h_J1M_tagSB_QCD; TH1F * h_J2M_tagSB_QCD;
+
+  TH1F * h_J2M_mjBins_doubletagSR_QCD; TH1F * h_J2M_mjBins_doubletagSB_QCD;
+  TH1F * h_J2M_mjBins_antitagSR_QCD; TH1F * h_J2M_mjBins_antitagSB_QCD;
+  TH1F * h_J2M_mjBins_doubletagSR_GJets; TH1F * h_J2M_mjBins_doubletagSB_GJets;
+  TH1F * h_J2M_mjBins_antitagSR_GJets; TH1F * h_J2M_mjBins_antitagSB_GJets;
 
   TH1F * h_J1M_doubletagSR_GJets; TH1F * h_J2M_doubletagSR_GJets; TH1F * h_J1M_doubletagSB_GJets; TH1F * h_J2M_doubletagSB_GJets;
   TH1F * h_J1M_antitagSR_GJets; TH1F * h_J2M_antitagSR_GJets; TH1F * h_J1M_antitagSB_GJets; TH1F * h_J2M_antitagSB_GJets;
@@ -84,23 +109,39 @@ void runABCD() {
   TH1F * h_J1M_doubletagSR_TT; TH1F * h_J2M_doubletagSR_TT; TH1F * h_J1M_doubletagSB_TT; TH1F * h_J2M_doubletagSB_TT;
   TH1F * h_J1M_antitagSR_TT; TH1F * h_J2M_antitagSR_TT; TH1F * h_J1M_antitagSB_TT; TH1F * h_J2M_antitagSB_TT;
   TH1F * h_J1M_tagSR_TT; TH1F * h_J2M_tagSR_TT; TH1F * h_J1M_tagSB_TT; TH1F * h_J2M_tagSB_TT;
+  TH1F * h_J2M_mjBins_doubletagSR_TT; TH1F * h_J2M_mjBins_doubletagSB_TT;
+  TH1F * h_J2M_mjBins_antitagSR_TT; TH1F * h_J2M_mjBins_antitagSB_TT;
+
+  TH1F * h_J1M_doubletagSR_TT_SL; TH1F * h_J2M_doubletagSR_TT_SL; TH1F * h_J1M_doubletagSB_TT_SL; TH1F * h_J2M_doubletagSB_TT_SL;
+  TH1F * h_J1M_antitagSR_TT_SL; TH1F * h_J2M_antitagSR_TT_SL; TH1F * h_J1M_antitagSB_TT_SL; TH1F * h_J2M_antitagSB_TT_SL;
+  TH1F * h_J1M_tagSR_TT_SL; TH1F * h_J2M_tagSR_TT_SL; TH1F * h_J1M_tagSB_TT_SL; TH1F * h_J2M_tagSB_TT_SL;
+  TH1F * h_J2M_mjBins_doubletagSR_TT_SL; TH1F * h_J2M_mjBins_doubletagSB_TT_SL;
+  TH1F * h_J2M_mjBins_antitagSR_TT_SL; TH1F * h_J2M_mjBins_antitagSB_TT_SL;
+
+  TH1F * h_J1M_doubletagSR_TT_Di; TH1F * h_J2M_doubletagSR_TT_Di; TH1F * h_J1M_doubletagSB_TT_Di; TH1F * h_J2M_doubletagSB_TT_Di;
+  TH1F * h_J1M_antitagSR_TT_Di; TH1F * h_J2M_antitagSR_TT_Di; TH1F * h_J1M_antitagSB_TT_Di; TH1F * h_J2M_antitagSB_TT_Di;
+  TH1F * h_J1M_tagSR_TT_Di; TH1F * h_J2M_tagSR_TT_Di; TH1F * h_J1M_tagSB_TT_Di; TH1F * h_J2M_tagSB_TT_Di;
+  TH1F * h_J2M_mjBins_doubletagSR_TT_Di; TH1F * h_J2M_mjBins_doubletagSB_TT_Di;
+  TH1F * h_J2M_mjBins_antitagSR_TT_Di; TH1F * h_J2M_mjBins_antitagSB_TT_Di;
 
   TH1F * h_J1M_doubletagSR_WJets; TH1F * h_J2M_doubletagSR_WJets; TH1F * h_J1M_doubletagSB_WJets; TH1F * h_J2M_doubletagSB_WJets;
   TH1F * h_J1M_antitagSR_WJets; TH1F * h_J2M_antitagSR_WJets; TH1F * h_J1M_antitagSB_WJets; TH1F * h_J2M_antitagSB_WJets;
   TH1F * h_J1M_tagSR_WJets; TH1F * h_J2M_tagSR_WJets; TH1F * h_J1M_tagSB_WJets; TH1F * h_J2M_tagSB_WJets;
+  TH1F * h_J2M_mjBins_doubletagSR_WJets; TH1F * h_J2M_mjBins_doubletagSB_WJets;
+  TH1F * h_J2M_mjBins_antitagSR_WJets; TH1F * h_J2M_mjBins_antitagSB_WJets;
 
   TH1F * h_J1M_doubletagSR_ZJets; TH1F * h_J2M_doubletagSR_ZJets; TH1F * h_J1M_doubletagSB_ZJets; TH1F * h_J2M_doubletagSB_ZJets;
   TH1F * h_J1M_antitagSR_ZJets; TH1F * h_J2M_antitagSR_ZJets; TH1F * h_J1M_antitagSB_ZJets; TH1F * h_J2M_antitagSB_ZJets;
   TH1F * h_J1M_tagSR_ZJets; TH1F * h_J2M_tagSR_ZJets; TH1F * h_J1M_tagSB_ZJets; TH1F * h_J2M_tagSB_ZJets;
+  TH1F * h_J2M_mjBins_doubletagSR_ZJets; TH1F * h_J2M_mjBins_doubletagSB_ZJets;
+  TH1F * h_J2M_mjBins_antitagSR_ZJets; TH1F * h_J2M_mjBins_antitagSB_ZJets;
 
   TH1F * h_J1M_doubletagSR_T5HH1300; TH1F * h_J2M_doubletagSR_T5HH1300; TH1F * h_J1M_doubletagSB_T5HH1300; TH1F * h_J2M_doubletagSB_T5HH1300;
   TH1F * h_J1M_antitagSR_T5HH1300; TH1F * h_J2M_antitagSR_T5HH1300; TH1F * h_J1M_antitagSB_T5HH1300; TH1F * h_J2M_antitagSB_T5HH1300;
   TH1F * h_J1M_tagSR_T5HH1300; TH1F * h_J2M_tagSR_T5HH1300; TH1F * h_J1M_tagSB_T5HH1300; TH1F * h_J2M_tagSB_T5HH1300;
-
   TH1F * h_J1M_doubletagSR_T5HH1700; TH1F * h_J2M_doubletagSR_T5HH1700; TH1F * h_J1M_doubletagSB_T5HH1700; TH1F * h_J2M_doubletagSB_T5HH1700;
   TH1F * h_J1M_antitagSR_T5HH1700; TH1F * h_J2M_antitagSR_T5HH1700; TH1F * h_J1M_antitagSB_T5HH1700; TH1F * h_J2M_antitagSB_T5HH1700;
   TH1F * h_J1M_tagSR_T5HH1700; TH1F * h_J2M_tagSR_T5HH1700; TH1F * h_J1M_tagSB_T5HH1700; TH1F * h_J2M_tagSB_T5HH1700;
-
   TH1F * h_J1M_doubletagSR_T5HH2100; TH1F * h_J2M_doubletagSR_T5HH2100; TH1F * h_J1M_doubletagSB_T5HH2100; TH1F * h_J2M_doubletagSB_T5HH2100;
   TH1F * h_J1M_antitagSR_T5HH2100; TH1F * h_J2M_antitagSR_T5HH2100; TH1F * h_J1M_antitagSB_T5HH2100; TH1F * h_J2M_antitagSB_T5HH2100;
   TH1F * h_J1M_tagSR_T5HH2100; TH1F * h_J2M_tagSR_T5HH2100; TH1F * h_J1M_tagSB_T5HH2100; TH1F * h_J2M_tagSB_T5HH2100;
@@ -122,6 +163,14 @@ void runABCD() {
   TH1F * h_J1Pt_antitagSR_TT; TH1F * h_J2Pt_antitagSR_TT; TH1F * h_J1Pt_antitagSB_TT; TH1F * h_J2Pt_antitagSB_TT;
   TH1F * h_J1Pt_tagSR_TT; TH1F * h_J2Pt_tagSR_TT; TH1F * h_J1Pt_tagSB_TT; TH1F * h_J2Pt_tagSB_TT;
 
+  TH1F * h_J1Pt_doubletagSR_TT_Di; TH1F * h_J2Pt_doubletagSR_TT_Di; TH1F * h_J1Pt_doubletagSB_TT_Di; TH1F * h_J2Pt_doubletagSB_TT_Di;
+  TH1F * h_J1Pt_antitagSR_TT_Di; TH1F * h_J2Pt_antitagSR_TT_Di; TH1F * h_J1Pt_antitagSB_TT_Di; TH1F * h_J2Pt_antitagSB_TT_Di;
+  TH1F * h_J1Pt_tagSR_TT_Di; TH1F * h_J2Pt_tagSR_TT_Di; TH1F * h_J1Pt_tagSB_TT_Di; TH1F * h_J2Pt_tagSB_TT_Di;
+
+  TH1F * h_J1Pt_doubletagSR_TT_SL; TH1F * h_J2Pt_doubletagSR_TT_SL; TH1F * h_J1Pt_doubletagSB_TT_SL; TH1F * h_J2Pt_doubletagSB_TT_SL;
+  TH1F * h_J1Pt_antitagSR_TT_SL; TH1F * h_J2Pt_antitagSR_TT_SL; TH1F * h_J1Pt_antitagSB_TT_SL; TH1F * h_J2Pt_antitagSB_TT_SL;
+  TH1F * h_J1Pt_tagSR_TT_SL; TH1F * h_J2Pt_tagSR_TT_SL; TH1F * h_J1Pt_tagSB_TT_SL; TH1F * h_J2Pt_tagSB_TT_SL;
+
   TH1F * h_J1Pt_doubletagSR_WJets; TH1F * h_J2Pt_doubletagSR_WJets; TH1F * h_J1Pt_doubletagSB_WJets; TH1F * h_J2Pt_doubletagSB_WJets;
   TH1F * h_J1Pt_antitagSR_WJets; TH1F * h_J2Pt_antitagSR_WJets; TH1F * h_J1Pt_antitagSB_WJets; TH1F * h_J2Pt_antitagSB_WJets;
   TH1F * h_J1Pt_tagSR_WJets; TH1F * h_J2Pt_tagSR_WJets; TH1F * h_J1Pt_tagSB_WJets; TH1F * h_J2Pt_tagSB_WJets;
@@ -142,66 +191,72 @@ void runABCD() {
   TH1F * h_J1Pt_antitagSR_T5HH2100; TH1F * h_J2Pt_antitagSR_T5HH2100; TH1F * h_J1Pt_antitagSB_T5HH2100; TH1F * h_J2Pt_antitagSB_T5HH2100;
   TH1F * h_J1Pt_tagSR_T5HH2100; TH1F * h_J2Pt_tagSR_T5HH2100; TH1F * h_J1Pt_tagSB_T5HH2100; TH1F * h_J2Pt_tagSB_T5HH2100;
 
-  TH1F * h_MET_all_ZJets; TH1F * h_MET_Single_ZJets; TH1F * h_MET_Double_ZJets;
-  TH1F * h_MET_all_WJets; TH1F * h_MET_Single_WJets; TH1F * h_MET_Double_WJets;
-  TH1F * h_MET_all_TT; TH1F * h_MET_Single_TT; TH1F * h_MET_Double_TT;
-  TH1F * h_MET_all_QCD; TH1F * h_MET_Single_QCD; TH1F * h_MET_Double_QCD;
-  TH1F * h_MET_all_T5HH1300; TH1F * h_MET_Single_T5HH1300; TH1F * h_MET_Double_T5HH1300;
-  TH1F * h_MET_all_T5HH1700; TH1F * h_MET_Single_T5HH1700; TH1F * h_MET_Double_T5HH1700;
-  TH1F * h_MET_all_T5HH2100; TH1F * h_MET_Single_T5HH2100; TH1F * h_MET_Double_T5HH2100;
-
-  TH1F * h_notagSR_sum; TH1F * h_notagSB_sum;
+  TH1F * h_notagSR_sum; TH1F * h_notagSB_sum; TH1F * h_notagSB2_sum;
   TH1F * h_notagSR_ZJets; TH1F * h_notagSB_ZJets;
   TH1F * h_notagSR_WJets; TH1F * h_notagSB_WJets;
   TH1F * h_notagSR_TT; TH1F * h_notagSB_TT;
+  TH1F * h_notagSR_TT_Di; TH1F * h_notagSB_TT_Di;
+  TH1F * h_notagSR_TT_SL; TH1F * h_notagSB_TT_SL;
   TH1F * h_notagSR_QCD; TH1F * h_notagSB_QCD;
 
+  TH1F * h_0HSBOpt1; TH1F * h_0HSROpt1;
+  TH1F * h_0HSBOpt2; TH1F * h_0HSROpt2;
+  TH1F * h_0HSBOpt1_TT; TH1F * h_0HSBOpt1_WJets;
+  TH1F * h_0HSROpt1_TT; TH1F * h_0HSROpt1_WJets;
+
   if (whichRegion=="signal") {
+    h_2HLeadSR_sum = (TH1F*)f->Get("J2pt_M_doubletagSRLead_sum"); h_0HLeadSR_sum = (TH1F*)f->Get("J2pt_M_antitagSRLead_sum");
+    h_2HLeadSB_sum = (TH1F*)f->Get("J1pt_M_doubletagSBLead_sum"); h_0HLeadSB_sum = (TH1F*)f->Get("J1pt_M_antitagSBLead_sum");
+
     h_A_sum = (TH1F*)f->Get("MET_doubletagSR_sum"); h_B_sum = (TH1F*)f->Get("MET_doubletagSB_sum");
     h_A1_sum = (TH1F*)f->Get("MET_tagSR_sum"); h_B1_sum = (TH1F*)f->Get("MET_tagSB_sum");
     h_C_sum = (TH1F*)f->Get("MET_antitagSR_sum"); h_D_sum = (TH1F*)f->Get("MET_antitagSB_sum");
+
     h_A_TT = (TH1F*)f->Get("MET_doubletagSR_TT"); h_B_TT = (TH1F*)f->Get("MET_doubletagSB_TT");
     h_A1_TT = (TH1F*)f->Get("MET_tagSR_TT"); h_B1_TT = (TH1F*)f->Get("MET_tagSB_TT");
     h_C_TT = (TH1F*)f->Get("MET_antitagSR_TT"); h_D_TT = (TH1F*)f->Get("MET_antitagSB_TT");
 
+    // h_A_TT_Di = (TH1F*)f->Get("MET_doubletagSR_TT_Di"); h_B_TT_Di = (TH1F*)f->Get("MET_doubletagSB_TT_Di");
+    // h_A1_TT_Di = (TH1F*)f->Get("MET_tagSR_TT_Di"); h_B1_TT_Di = (TH1F*)f->Get("MET_tagSB_TT_Di");
+    // h_C_TT_Di = (TH1F*)f->Get("MET_antitagSR_TT_Di"); h_D_TT_Di = (TH1F*)f->Get("MET_antitagSB_TT_Di");
+    // h_A_TT_SL = (TH1F*)f->Get("MET_doubletagSR_TT_SL"); h_B_TT_SL = (TH1F*)f->Get("MET_doubletagSB_TT_SL");
+    // h_A1_TT_SL = (TH1F*)f->Get("MET_tagSR_TT_SL"); h_B1_TT_SL = (TH1F*)f->Get("MET_tagSB_TT_SL");
+    // h_C_TT_SL = (TH1F*)f->Get("MET_antitagSR_TT_SL"); h_D_TT_SL = (TH1F*)f->Get("MET_antitagSB_TT_SL");
+
     h_A_WJets = (TH1F*)f->Get("MET_doubletagSR_WJets"); h_B_WJets = (TH1F*)f->Get("MET_doubletagSB_WJets");
     h_A1_WJets = (TH1F*)f->Get("MET_tagSR_WJets"); h_B1_WJets = (TH1F*)f->Get("MET_tagSB_WJets");
     h_C_WJets = (TH1F*)f->Get("MET_antitagSR_WJets");   h_D_WJets = (TH1F*)f->Get("MET_antitagSB_WJets");
-
     h_A_ZJets = (TH1F*)f->Get("MET_doubletagSR_ZJets"); h_B_ZJets = (TH1F*)f->Get("MET_doubletagSB_ZJets");
     h_A1_ZJets = (TH1F*)f->Get("MET_tagSR_ZJets"); h_B1_ZJets = (TH1F*)f->Get("MET_tagSB_ZJets");
     h_C_ZJets = (TH1F*)f->Get("MET_antitagSR_ZJets");   h_D_ZJets = (TH1F*)f->Get("MET_antitagSB_ZJets");
-
     h_A_QCD = (TH1F*)f->Get("MET_doubletagSR_QCD"); h_B_QCD = (TH1F*)f->Get("MET_doubletagSB_QCD");
     h_A1_QCD = (TH1F*)f->Get("MET_tagSR_QCD"); h_B1_QCD = (TH1F*)f->Get("MET_tagSB_QCD");
     h_C_QCD = (TH1F*)f->Get("MET_antitagSR_QCD"); h_D_QCD = (TH1F*)f->Get("MET_antitagSB_QCD");
 
+    //new regions here
     h_notagSR_sum = (TH1F*)f->Get("MET_notagSR_sum"); h_notagSB_sum = (TH1F*)f->Get("MET_notagSB_sum");
     h_notagSR_ZJets = (TH1F*)f->Get("MET_notagSR_ZJets"); h_notagSB_ZJets = (TH1F*)f->Get("MET_notagSB_ZJets");
     h_notagSR_WJets = (TH1F*)f->Get("MET_notagSR_WJets"); h_notagSB_WJets = (TH1F*)f->Get("MET_notagSB_WJets");
     h_notagSR_TT = (TH1F*)f->Get("MET_notagSR_TT"); h_notagSB_TT = (TH1F*)f->Get("MET_notagSB_TT");
+    // h_notagSR_TT_Di = (TH1F*)f->Get("MET_notagSR_TT_Di"); h_notagSB_TT_Di = (TH1F*)f->Get("MET_notagSB_TT_Di");
+    // h_notagSR_TT_SL = (TH1F*)f->Get("MET_notagSR_TT_SL"); h_notagSB_TT_SL = (TH1F*)f->Get("MET_notagSB_TT_SL");
     h_notagSR_QCD = (TH1F*)f->Get("MET_notagSR_QCD"); h_notagSB_QCD = (TH1F*)f->Get("MET_notagSB_QCD");
 
     h_A_TChiHH200 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH200"); h_B_TChiHH200 = (TH1F*)fSignal->Get("MET_doubletagSB_TChiHH200");
     h_A1_TChiHH200 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH200"); h_B1_TChiHH200 = (TH1F*)fSignal->Get("MET_tagSB_TChiHH200");
     h_C_TChiHH200 = (TH1F*)fSignal->Get("MET_antitagSR_TChiHH200"); h_D_TChiHH200 = (TH1F*)fSignal->Get("MET_antitagSB_TChiHH200");
-
     h_A_TChiHH400 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH400"); h_B_TChiHH400 = (TH1F*)fSignal->Get("MET_doubletagSB_TChiHH400");
     h_A1_TChiHH400 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH400"); h_B1_TChiHH400 = (TH1F*)fSignal->Get("MET_tagSB_TChiHH400");
     h_C_TChiHH400 = (TH1F*)fSignal->Get("MET_antitagSR_TChiHH400"); h_D_TChiHH400 = (TH1F*)fSignal->Get("MET_antitagSB_TChiHH400");
-
     h_A_TChiHH700 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH700"); h_B_TChiHH700 = (TH1F*)fSignal->Get("MET_doubletagSB_TChiHH700");
     h_A1_TChiHH700 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH700"); h_B1_TChiHH700 = (TH1F*)fSignal->Get("MET_tagSB_TChiHH700");
     h_C_TChiHH700 = (TH1F*)fSignal->Get("MET_antitagSR_TChiHH700"); h_D_TChiHH700 = (TH1F*)fSignal->Get("MET_antitagSB_TChiHH700");
-
     h_A_TChiHH1000 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH1000"); h_B_TChiHH1000 = (TH1F*)fSignal->Get("MET_doubletagSB_TChiHH1000");
     h_A1_TChiHH1000 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH1000"); h_B1_TChiHH1000 = (TH1F*)fSignal->Get("MET_tagSB_TChiHH1000");
     h_C_TChiHH1000 = (TH1F*)fSignal->Get("MET_antitagSR_TChiHH1000"); h_D_TChiHH1000 = (TH1F*)fSignal->Get("MET_antitagSB_TChiHH1000");
-
     h_A_TChiHH1300 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH1300"); h_B_TChiHH1300 = (TH1F*)fSignal->Get("MET_doubletagSB_TChiHH1300");
     h_A1_TChiHH1300 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH1300"); h_B1_TChiHH1300 = (TH1F*)fSignal->Get("MET_tagSB_TChiHH1300");
     h_C_TChiHH1300 = (TH1F*)fSignal->Get("MET_antitagSR_TChiHH1300"); h_D_TChiHH1300 = (TH1F*)fSignal->Get("MET_antitagSB_TChiHH1300");
-
     h_A_TChiHH1500 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH1500"); h_B_TChiHH1500 = (TH1F*)fSignal->Get("MET_doubletagSB_TChiHH1500");
     h_A1_TChiHH1500 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH1500"); h_B1_TChiHH1500 = (TH1F*)fSignal->Get("MET_tagSB_TChiHH1500");
     h_C_TChiHH1500 = (TH1F*)fSignal->Get("MET_antitagSR_TChiHH1500"); h_D_TChiHH1500 = (TH1F*)fSignal->Get("MET_antitagSB_TChiHH1500");
@@ -234,12 +289,43 @@ void runABCD() {
     h_J1M_tagSR_TT = (TH1F*)f->Get("J1pt_M_tagSR_TT"); h_J2M_tagSR_TT = (TH1F*)f->Get("J2pt_M_tagSR_TT");
     h_J1M_tagSB_TT = (TH1F*)f->Get("J1pt_M_tagSB_TT"); h_J2M_tagSB_TT = (TH1F*)f->Get("J2pt_M_tagSB_TT");
 
+    // h_J1M_doubletagSR_TT_SL = (TH1F*)f->Get("J1pt_M_doubletagSR_TT_SL"); h_J2M_doubletagSR_TT_SL = (TH1F*)f->Get("J2pt_M_doubletagSR_TT_SL");
+    // h_J1M_doubletagSB_TT_SL = (TH1F*)f->Get("J1pt_M_doubletagSB_TT_SL"); h_J2M_doubletagSB_TT_SL = (TH1F*)f->Get("J2pt_M_doubletagSB_TT_SL");
+    // h_J1M_antitagSR_TT_SL = (TH1F*)f->Get("J1pt_M_antitagSR_TT_SL"); h_J2M_antitagSR_TT_SL = (TH1F*)f->Get("J2pt_M_antitagSR_TT_SL");
+    // h_J1M_antitagSB_TT_SL = (TH1F*)f->Get("J1pt_M_antitagSB_TT_SL"); h_J2M_antitagSB_TT_SL = (TH1F*)f->Get("J2pt_M_antitagSB_TT_SL");
+    // h_J1M_tagSR_TT_SL = (TH1F*)f->Get("J1pt_M_tagSR_TT_SL"); h_J2M_tagSR_TT_SL = (TH1F*)f->Get("J2pt_M_tagSR_TT_SL");
+    // h_J1M_tagSB_TT_SL = (TH1F*)f->Get("J1pt_M_tagSB_TT_SL"); h_J2M_tagSB_TT_SL = (TH1F*)f->Get("J2pt_M_tagSB_TT_SL");
+    // h_J1M_doubletagSR_TT_Di = (TH1F*)f->Get("J1pt_M_doubletagSR_TT_Di"); h_J2M_doubletagSR_TT_Di = (TH1F*)f->Get("J2pt_M_doubletagSR_TT_Di");
+    // h_J1M_doubletagSB_TT_Di = (TH1F*)f->Get("J1pt_M_doubletagSB_TT_Di"); h_J2M_doubletagSB_TT_Di = (TH1F*)f->Get("J2pt_M_doubletagSB_TT_Di");
+    // h_J1M_antitagSR_TT_Di = (TH1F*)f->Get("J1pt_M_antitagSR_TT_Di"); h_J2M_antitagSR_TT_Di = (TH1F*)f->Get("J2pt_M_antitagSR_TT_Di");
+    // h_J1M_antitagSB_TT_Di = (TH1F*)f->Get("J1pt_M_antitagSB_TT_Di"); h_J2M_antitagSB_TT_Di = (TH1F*)f->Get("J2pt_M_antitagSB_TT_Di");
+    // h_J1M_tagSR_TT_Di = (TH1F*)f->Get("J1pt_M_tagSR_TT_Di"); h_J2M_tagSR_TT_Di = (TH1F*)f->Get("J2pt_M_tagSR_TT_Di");
+    // h_J1M_tagSB_TT_Di = (TH1F*)f->Get("J1pt_M_tagSB_TT_Di"); h_J2M_tagSB_TT_Di = (TH1F*)f->Get("J2pt_M_tagSB_TT_Di");
+
+
     h_J1M_doubletagSR_WJets = (TH1F*)f->Get("J1pt_M_doubletagSR_WJets"); h_J2M_doubletagSR_WJets = (TH1F*)f->Get("J2pt_M_doubletagSR_WJets");
     h_J1M_doubletagSB_WJets = (TH1F*)f->Get("J1pt_M_doubletagSB_WJets"); h_J2M_doubletagSB_WJets = (TH1F*)f->Get("J2pt_M_doubletagSB_WJets");
     h_J1M_antitagSR_WJets = (TH1F*)f->Get("J1pt_M_antitagSR_WJets"); h_J2M_antitagSR_WJets = (TH1F*)f->Get("J2pt_M_antitagSR_WJets");
     h_J1M_antitagSB_WJets = (TH1F*)f->Get("J1pt_M_antitagSB_WJets"); h_J2M_antitagSB_WJets = (TH1F*)f->Get("J2pt_M_antitagSB_WJets");
     h_J1M_tagSR_WJets = (TH1F*)f->Get("J1pt_M_tagSR_WJets"); h_J2M_tagSR_WJets = (TH1F*)f->Get("J2pt_M_tagSR_WJets");
     h_J1M_tagSB_WJets = (TH1F*)f->Get("J1pt_M_tagSB_WJets"); h_J2M_tagSB_WJets = (TH1F*)f->Get("J2pt_M_tagSB_WJets");
+
+    h_J2M_mjBins_doubletagSR_sum = (TH1F*)f->Get("J2_M_jetBins_doubletagSR_sum"); h_J2M_mjBins_doubletagSB_sum = (TH1F*)f->Get("J2_M_jetBins_doubletagSB_sum");
+    h_J2M_mjBins_antitagSR_sum = (TH1F*)f->Get("J2_M_jetBins_antitagSR_sum"); h_J2M_mjBins_antitagSB_sum = (TH1F*)f->Get("J2_M_jetBins_antitagSB_sum");
+    h_J2M_mjBins_doubletagSR_QCD = (TH1F*)f->Get("J2_M_jetBins_doubletagSR_QCD"); h_J2M_mjBins_doubletagSB_QCD = (TH1F*)f->Get("J2_M_jetBins_doubletagSB_QCD");
+    h_J2M_mjBins_antitagSR_QCD = (TH1F*)f->Get("J2_M_jetBins_antitagSR_QCD"); h_J2M_mjBins_antitagSB_QCD = (TH1F*)f->Get("J2_M_jetBins_antitagSB_QCD");
+
+    h_J2M_mjBins_doubletagSR_TT = (TH1F*)f->Get("J2_M_jetBins_doubletagSR_TT"); h_J2M_mjBins_doubletagSB_TT = (TH1F*)f->Get("J2_M_jetBins_doubletagSB_TT");
+    h_J2M_mjBins_antitagSR_TT = (TH1F*)f->Get("J2_M_jetBins_antitagSR_TT"); h_J2M_mjBins_antitagSB_TT = (TH1F*)f->Get("J2_M_jetBins_antitagSB_TT");
+    // h_J2M_mjBins_doubletagSR_TT_Di = (TH1F*)f->Get("J2_M_jetBins_doubletagSR_TT_Di"); h_J2M_mjBins_doubletagSB_TT_Di = (TH1F*)f->Get("J2_M_jetBins_doubletagSB_TT_Di");
+    // h_J2M_mjBins_antitagSR_TT_Di = (TH1F*)f->Get("J2_M_jetBins_antitagSR_TT_Di"); h_J2M_mjBins_antitagSB_TT_Di = (TH1F*)f->Get("J2_M_jetBins_antitagSB_TT_Di");
+    // h_J2M_mjBins_doubletagSR_TT_SL = (TH1F*)f->Get("J2_M_jetBins_doubletagSR_TT_SL"); h_J2M_mjBins_doubletagSB_TT_SL = (TH1F*)f->Get("J2_M_jetBins_doubletagSB_TT_SL");
+    // h_J2M_mjBins_antitagSR_TT_SL = (TH1F*)f->Get("J2_M_jetBins_antitagSR_TT_SL"); h_J2M_mjBins_antitagSB_TT_SL = (TH1F*)f->Get("J2_M_jetBins_antitagSB_TT_SL");
+    h_J2M_mjBins_doubletagSR_WJets = (TH1F*)f->Get("J2_M_jetBins_doubletagSR_WJets"); h_J2M_mjBins_doubletagSB_WJets = (TH1F*)f->Get("J2_M_jetBins_doubletagSB_WJets");
+    h_J2M_mjBins_antitagSR_WJets = (TH1F*)f->Get("J2_M_jetBins_antitagSR_WJets"); h_J2M_mjBins_antitagSB_WJets = (TH1F*)f->Get("J2_M_jetBins_antitagSB_WJets");
+
+    h_J2M_mjBins_doubletagSR_ZJets = (TH1F*)f->Get("J2_M_jetBins_doubletagSR_ZJets"); h_J2M_mjBins_doubletagSB_ZJets = (TH1F*)f->Get("J2_M_jetBins_doubletagSB_ZJets");
+    h_J2M_mjBins_antitagSR_ZJets = (TH1F*)f->Get("J2_M_jetBins_antitagSR_ZJets"); h_J2M_mjBins_antitagSB_ZJets = (TH1F*)f->Get("J2_M_jetBins_antitagSB_ZJets");
 
     //for signal
     h_J1M_doubletagSR_T5HH1300 = (TH1F*)fSignal->Get("J1pt_M_doubletagSR_T5qqqqZH1300"); h_J2M_doubletagSR_T5HH1300 = (TH1F*)fSignal->Get("J2pt_M_doubletagSR_T5qqqqZH1300");
@@ -248,14 +334,12 @@ void runABCD() {
     h_J1M_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J1pt_M_antitagSB_T5qqqqZH1300"); h_J2M_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J2pt_M_antitagSB_T5qqqqZH1300");
     h_J1M_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J1pt_M_tagSR_T5qqqqZH1300"); h_J2M_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J2pt_M_tagSR_T5qqqqZH1300");
     h_J1M_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J1pt_M_tagSB_T5qqqqZH1300"); h_J2M_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J2pt_M_tagSB_T5qqqqZH1300");
-
     h_J1M_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_doubletagSR_T5qqqqZH1700"); h_J2M_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_doubletagSR_T5qqqqZH1700");
     h_J1M_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_doubletagSB_T5qqqqZH1700"); h_J2M_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_doubletagSB_T5qqqqZH1700");
     h_J1M_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_antitagSR_T5qqqqZH1700"); h_J2M_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_antitagSR_T5qqqqZH1700");
     h_J1M_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_antitagSB_T5qqqqZH1700"); h_J2M_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_antitagSB_T5qqqqZH1700");
     h_J1M_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_tagSR_T5qqqqZH1700"); h_J2M_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_tagSR_T5qqqqZH1700");
     h_J1M_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_M_tagSB_T5qqqqZH1700"); h_J2M_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_M_tagSB_T5qqqqZH1700");
-
     h_J1M_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_M_doubletagSR_T5qqqqZH2100"); h_J2M_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_M_doubletagSR_T5qqqqZH2100");
     h_J1M_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J1pt_M_doubletagSB_T5qqqqZH2100"); h_J2M_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J2pt_M_doubletagSB_T5qqqqZH2100");
     h_J1M_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_M_antitagSR_T5qqqqZH2100"); h_J2M_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_M_antitagSR_T5qqqqZH2100");
@@ -292,6 +376,19 @@ void runABCD() {
     h_J1Pt_tagSR_TT = (TH1F*)f->Get("J1pt_Pt_tagSR_TT"); h_J2Pt_tagSR_TT = (TH1F*)f->Get("J2pt_Pt_tagSR_TT");
     h_J1Pt_tagSB_TT = (TH1F*)f->Get("J1pt_Pt_tagSB_TT"); h_J2Pt_tagSB_TT = (TH1F*)f->Get("J2pt_Pt_tagSB_TT");
 
+    // h_J1Pt_doubletagSR_TT_SL = (TH1F*)f->Get("J1pt_Pt_doubletagSR_TT_SL"); h_J2Pt_doubletagSR_TT_SL = (TH1F*)f->Get("J2pt_Pt_doubletagSR_TT_SL");
+    // h_J1Pt_doubletagSB_TT_SL = (TH1F*)f->Get("J1pt_Pt_doubletagSB_TT_SL"); h_J2Pt_doubletagSB_TT_SL = (TH1F*)f->Get("J2pt_Pt_doubletagSB_TT_SL");
+    // h_J1Pt_antitagSR_TT_SL = (TH1F*)f->Get("J1pt_Pt_antitagSR_TT_SL"); h_J2Pt_antitagSR_TT_SL = (TH1F*)f->Get("J2pt_Pt_antitagSR_TT_SL");
+    // h_J1Pt_antitagSB_TT_SL = (TH1F*)f->Get("J1pt_Pt_antitagSB_TT_SL"); h_J2Pt_antitagSB_TT_SL = (TH1F*)f->Get("J2pt_Pt_antitagSB_TT_SL");
+    // h_J1Pt_tagSR_TT_SL = (TH1F*)f->Get("J1pt_Pt_tagSR_TT_SL"); h_J2Pt_tagSR_TT_SL = (TH1F*)f->Get("J2pt_Pt_tagSR_TT_SL");
+    // h_J1Pt_tagSB_TT_SL = (TH1F*)f->Get("J1pt_Pt_tagSB_TT_SL"); h_J2Pt_tagSB_TT_SL = (TH1F*)f->Get("J2pt_Pt_tagSB_TT_SL");
+    // h_J1Pt_doubletagSR_TT_Di = (TH1F*)f->Get("J1pt_Pt_doubletagSR_TT_Di"); h_J2Pt_doubletagSR_TT_Di = (TH1F*)f->Get("J2pt_Pt_doubletagSR_TT_Di");
+    // h_J1Pt_doubletagSB_TT_Di = (TH1F*)f->Get("J1pt_Pt_doubletagSB_TT_Di"); h_J2Pt_doubletagSB_TT_Di = (TH1F*)f->Get("J2pt_Pt_doubletagSB_TT_Di");
+    // h_J1Pt_antitagSR_TT_Di = (TH1F*)f->Get("J1pt_Pt_antitagSR_TT_Di"); h_J2Pt_antitagSR_TT_Di = (TH1F*)f->Get("J2pt_Pt_antitagSR_TT_Di");
+    // h_J1Pt_antitagSB_TT_Di = (TH1F*)f->Get("J1pt_Pt_antitagSB_TT_Di"); h_J2Pt_antitagSB_TT_Di = (TH1F*)f->Get("J2pt_Pt_antitagSB_TT_Di");
+    // h_J1Pt_tagSR_TT_Di = (TH1F*)f->Get("J1pt_Pt_tagSR_TT_Di"); h_J2Pt_tagSR_TT_Di = (TH1F*)f->Get("J2pt_Pt_tagSR_TT_Di");
+    // h_J1Pt_tagSB_TT_Di = (TH1F*)f->Get("J1pt_Pt_tagSB_TT_Di"); h_J2Pt_tagSB_TT_Di = (TH1F*)f->Get("J2pt_Pt_tagSB_TT_Di");
+
     h_J1Pt_doubletagSR_WJets = (TH1F*)f->Get("J1pt_Pt_doubletagSR_WJets"); h_J2Pt_doubletagSR_WJets = (TH1F*)f->Get("J2pt_Pt_doubletagSR_WJets");
     h_J1Pt_doubletagSB_WJets = (TH1F*)f->Get("J1pt_Pt_doubletagSB_WJets"); h_J2Pt_doubletagSB_WJets = (TH1F*)f->Get("J2pt_Pt_doubletagSB_WJets");
     h_J1Pt_antitagSR_WJets = (TH1F*)f->Get("J1pt_Pt_antitagSR_WJets"); h_J2Pt_antitagSR_WJets = (TH1F*)f->Get("J2pt_Pt_antitagSR_WJets");
@@ -306,14 +403,12 @@ void runABCD() {
     h_J1Pt_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J1pt_Pt_antitagSB_T5qqqqZH1300"); h_J2Pt_antitagSB_T5HH1300 = (TH1F*)fSignal->Get("J2pt_Pt_antitagSB_T5qqqqZH1300");
     h_J1Pt_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J1pt_Pt_tagSR_T5qqqqZH1300"); h_J2Pt_tagSR_T5HH1300 = (TH1F*)fSignal->Get("J2pt_Pt_tagSR_T5qqqqZH1300");
     h_J1Pt_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J1pt_Pt_tagSB_T5qqqqZH1300"); h_J2Pt_tagSB_T5HH1300 = (TH1F*)fSignal->Get("J2pt_Pt_tagSB_T5qqqqZH1300");
-
     h_J1Pt_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_doubletagSR_T5qqqqZH1700"); h_J2Pt_doubletagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_doubletagSR_T5qqqqZH1700");
     h_J1Pt_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_doubletagSB_T5qqqqZH1700"); h_J2Pt_doubletagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_doubletagSB_T5qqqqZH1700");
     h_J1Pt_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_antitagSR_T5qqqqZH1700"); h_J2Pt_antitagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_antitagSR_T5qqqqZH1700");
     h_J1Pt_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_antitagSB_T5qqqqZH1700"); h_J2Pt_antitagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_antitagSB_T5qqqqZH1700");
     h_J1Pt_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_tagSR_T5qqqqZH1700"); h_J2Pt_tagSR_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_tagSR_T5qqqqZH1700");
     h_J1Pt_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J1pt_Pt_tagSB_T5qqqqZH1700"); h_J2Pt_tagSB_T5HH1700 = (TH1F*)fSignal->Get("J2pt_Pt_tagSB_T5qqqqZH1700");
-
     h_J1Pt_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_doubletagSR_T5qqqqZH2100"); h_J2Pt_doubletagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_doubletagSR_T5qqqqZH2100");
     h_J1Pt_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_doubletagSB_T5qqqqZH2100"); h_J2Pt_doubletagSB_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_doubletagSB_T5qqqqZH2100");
     h_J1Pt_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_antitagSR_T5qqqqZH2100"); h_J2Pt_antitagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_antitagSR_T5qqqqZH2100");
@@ -321,17 +416,15 @@ void runABCD() {
     h_J1Pt_tagSR_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_tagSR_T5qqqqZH2100"); h_J2Pt_tagSR_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_tagSR_T5qqqqZH2100");
     h_J1Pt_tagSB_T5HH2100 = (TH1F*)fSignal->Get("J1pt_Pt_tagSB_T5qqqqZH2100"); h_J2Pt_tagSB_T5HH2100 = (TH1F*)fSignal->Get("J2pt_Pt_tagSB_T5qqqqZH2100");
 
-    //MET plots
-    h_MET_all_ZJets = (TH1F*)f->Get("MET_All_ZJets"); h_MET_Single_ZJets = (TH1F*)f->Get("MET_Single_ZJets"); h_MET_Double_ZJets = (TH1F*)f->Get("MET_Double_ZJets");
-    h_MET_all_WJets = (TH1F*)f->Get("MET_All_WJets"); h_MET_Single_WJets = (TH1F*)f->Get("MET_Single_WJets"); h_MET_Double_WJets = (TH1F*)f->Get("MET_Double_WJets");
-    h_MET_all_TT = (TH1F*)f->Get("MET_All_TT"); h_MET_Single_TT = (TH1F*)f->Get("MET_Single_TT"); h_MET_Double_TT = (TH1F*)f->Get("MET_Double_TT");
-    h_MET_all_QCD = (TH1F*)f->Get("MET_All_QCD"); h_MET_Single_QCD = (TH1F*)f->Get("MET_Single_QCD"); h_MET_Double_QCD = (TH1F*)f->Get("MET_Double_QCD");
-    h_MET_all_T5HH1300 = (TH1F*)fSignal->Get("MET_All_T5qqqqZH1300"); h_MET_Single_T5HH1300 = (TH1F*)fSignal->Get("MET_Single_T5qqqqZH1300"); h_MET_Double_T5HH1300 = (TH1F*)fSignal->Get("MET_Double_T5qqqqZH1300");
-    h_MET_all_T5HH1700 = (TH1F*)fSignal->Get("MET_All_T5qqqqZH1700"); h_MET_Single_T5HH1700 = (TH1F*)fSignal->Get("MET_Single_T5qqqqZH1700"); h_MET_Double_T5HH1700 = (TH1F*)fSignal->Get("MET_Double_T5qqqqZH1700");
-    h_MET_all_T5HH2100 = (TH1F*)fSignal->Get("MET_All_T5qqqqZH2100"); h_MET_Single_T5HH2100 = (TH1F*)fSignal->Get("MET_Single_T5qqqqZH2100"); h_MET_Double_T5HH2100 = (TH1F*)fSignal->Get("MET_Double_T5qqqqZH2100");
+    h_0HSBOpt1 = (TH1F*)f->Get("MET_antitagSBOpt1_sum"); h_0HSBOpt2 = (TH1F*)f->Get("MET_antitagSBOpt2_sum");
+    h_0HSROpt1 = (TH1F*)f->Get("MET_antitagSROpt1_sum"); h_0HSROpt2 = (TH1F*)f->Get("MET_antitagSROpt2_sum");
   }
 
   if (whichRegion=="photon") {
+    h_A_sum = (TH1F*)fPhoton->Get("MET_doubletagSR_sum"); h_B_sum = (TH1F*)fPhoton->Get("MET_doubletagSB_sum");
+    h_A1_sum = (TH1F*)fPhoton->Get("MET_tagSR_sum"); h_B1_sum = (TH1F*)fPhoton->Get("MET_tagSB_sum");
+    h_C_sum = (TH1F*)fPhoton->Get("MET_antitagSR_sum"); h_D_sum = (TH1F*)fPhoton->Get("MET_antitagSB_sum");
+
     h_A_QCD = (TH1F*)fPhoton->Get("MET_doubletagSR_QCD"); h_B_QCD = (TH1F*)fPhoton->Get("MET_doubletagSB_QCD");
     h_A1_QCD = (TH1F*)fPhoton->Get("MET_tagSR_QCD"); h_B1_QCD = (TH1F*)fPhoton->Get("MET_tagSB_QCD");
     h_C_QCD = (TH1F*)fPhoton->Get("MET_antitagSR_QCD"); h_D_QCD = (TH1F*)fPhoton->Get("MET_antitagSB_QCD");
@@ -354,6 +447,20 @@ void runABCD() {
     h_J1M_tagSR_QCD = (TH1F*)fPhoton->Get("J1pt_M_tagSR_QCD"); h_J2M_tagSR_QCD = (TH1F*)fPhoton->Get("J2pt_M_tagSR_QCD");
     h_J1M_tagSB_QCD = (TH1F*)fPhoton->Get("J1pt_M_tagSB_QCD"); h_J2M_tagSB_QCD = (TH1F*)fPhoton->Get("J2pt_M_tagSB_QCD");
 
+    h_J1M_doubletagSR_sum = (TH1F*)fPhoton->Get("J1pt_M_doubletagSR_sum"); h_J2M_doubletagSR_sum = (TH1F*)fPhoton->Get("J2pt_M_doubletagSR_sum");
+    h_J1M_doubletagSB_sum = (TH1F*)fPhoton->Get("J1pt_M_doubletagSB_sum"); h_J2M_doubletagSB_sum = (TH1F*)fPhoton->Get("J2pt_M_doubletagSB_sum");
+    h_J1M_antitagSR_sum = (TH1F*)fPhoton->Get("J1pt_M_antitagSR_sum"); h_J2M_antitagSR_sum = (TH1F*)fPhoton->Get("J2pt_M_antitagSR_sum");
+    h_J1M_antitagSB_sum = (TH1F*)fPhoton->Get("J1pt_M_antitagSB_sum"); h_J2M_antitagSB_sum = (TH1F*)fPhoton->Get("J2pt_M_antitagSB_sum");
+    h_J1M_tagSR_sum = (TH1F*)fPhoton->Get("J1pt_M_tagSR_sum"); h_J2M_tagSR_sum = (TH1F*)fPhoton->Get("J2pt_M_tagSR_sum");
+    h_J1M_tagSB_sum = (TH1F*)fPhoton->Get("J1pt_M_tagSB_sum"); h_J2M_tagSB_sum = (TH1F*)fPhoton->Get("J2pt_M_tagSB_sum");
+
+    h_J1Pt_doubletagSR_sum = (TH1F*)fPhoton->Get("J1pt_Pt_doubletagSR_sum"); h_J2Pt_doubletagSR_sum = (TH1F*)fPhoton->Get("J2pt_Pt_doubletagSR_sum");
+    h_J1Pt_doubletagSB_sum = (TH1F*)fPhoton->Get("J1pt_Pt_doubletagSB_sum"); h_J2Pt_doubletagSB_sum = (TH1F*)fPhoton->Get("J2pt_Pt_doubletagSB_sum");
+    h_J1Pt_antitagSR_sum = (TH1F*)fPhoton->Get("J1pt_Pt_antitagSR_sum"); h_J2Pt_antitagSR_sum = (TH1F*)fPhoton->Get("J2pt_Pt_antitagSR_sum");
+    h_J1Pt_antitagSB_sum = (TH1F*)fPhoton->Get("J1pt_Pt_antitagSB_sum"); h_J2Pt_antitagSB_sum = (TH1F*)fPhoton->Get("J2pt_Pt_antitagSB_sum");
+    h_J1Pt_tagSR_sum = (TH1F*)fPhoton->Get("J1pt_Pt_tagSR_sum"); h_J2Pt_tagSR_sum = (TH1F*)fPhoton->Get("J2pt_Pt_tagSR_sum");
+    h_J1Pt_tagSB_sum = (TH1F*)fPhoton->Get("J1pt_Pt_tagSB_sum"); h_J2Pt_tagSB_sum = (TH1F*)fPhoton->Get("J2pt_Pt_tagSB_sum");
+
     h_J1Pt_doubletagSR_QCD = (TH1F*)fPhoton->Get("J1pt_Pt_doubletagSR_QCD"); h_J2Pt_doubletagSR_QCD = (TH1F*)fPhoton->Get("J2pt_Pt_doubletagSR_QCD");
     h_J1Pt_doubletagSB_QCD = (TH1F*)fPhoton->Get("J1pt_Pt_doubletagSB_QCD"); h_J2Pt_doubletagSB_QCD = (TH1F*)fPhoton->Get("J2pt_Pt_doubletagSB_QCD");
     h_J1Pt_antitagSR_QCD = (TH1F*)fPhoton->Get("J1pt_Pt_antitagSR_QCD"); h_J2Pt_antitagSR_QCD = (TH1F*)fPhoton->Get("J2pt_Pt_antitagSR_QCD");
@@ -367,27 +474,57 @@ void runABCD() {
     h_J1Pt_antitagSB_GJets = (TH1F*)fPhoton->Get("J1pt_Pt_antitagSB_GJets"); h_J2Pt_antitagSB_GJets = (TH1F*)fPhoton->Get("J2pt_Pt_antitagSB_GJets");
     h_J1Pt_tagSR_GJets = (TH1F*)fPhoton->Get("J1pt_Pt_tagSR_GJets"); h_J2Pt_tagSR_GJets = (TH1F*)fPhoton->Get("J2pt_Pt_tagSR_GJets");
     h_J1Pt_tagSB_GJets = (TH1F*)fPhoton->Get("J1pt_Pt_tagSB_GJets"); h_J2Pt_tagSB_GJets = (TH1F*)fPhoton->Get("J2pt_Pt_tagSB_GJets");
+
+    h_J2M_mjBins_doubletagSR_sum = (TH1F*)fPhoton->Get("J2_M_jetBins_doubletagSR_sum"); h_J2M_mjBins_doubletagSB_sum = (TH1F*)fPhoton->Get("J2_M_jetBins_doubletagSB_sum");
+    h_J2M_mjBins_antitagSR_sum = (TH1F*)fPhoton->Get("J2_M_jetBins_antitagSR_sum"); h_J2M_mjBins_antitagSB_sum = (TH1F*)fPhoton->Get("J2_M_jetBins_antitagSB_sum");
+    h_J2M_mjBins_doubletagSR_QCD = (TH1F*)fPhoton->Get("J2_M_jetBins_doubletagSR_QCD"); h_J2M_mjBins_doubletagSB_QCD = (TH1F*)fPhoton->Get("J2_M_jetBins_doubletagSB_QCD");
+    h_J2M_mjBins_antitagSR_QCD = (TH1F*)fPhoton->Get("J2_M_jetBins_antitagSR_QCD"); h_J2M_mjBins_antitagSB_QCD = (TH1F*)fPhoton->Get("J2_M_jetBins_antitagSB_QCD");
+    h_J2M_mjBins_doubletagSR_GJets = (TH1F*)fPhoton->Get("J2_M_jetBins_doubletagSR_GJets"); h_J2M_mjBins_doubletagSB_GJets = (TH1F*)fPhoton->Get("J2_M_jetBins_doubletagSB_GJets");
+    h_J2M_mjBins_antitagSR_GJets = (TH1F*)fPhoton->Get("J2_M_jetBins_antitagSR_GJets"); h_J2M_mjBins_antitagSB_GJets = (TH1F*)fPhoton->Get("J2_M_jetBins_antitagSB_GJets");
+
+    h_0HSBOpt1 = (TH1F*)fPhoton->Get("MET_antitagSBOpt1_sum"); h_0HSBOpt2 = (TH1F*)fPhoton->Get("MET_antitagSBOpt2_sum");
+    h_0HSROpt1 = (TH1F*)fPhoton->Get("MET_antitagSROpt1_sum"); h_0HSROpt2 = (TH1F*)fPhoton->Get("MET_antitagSROpt2_sum");
+    h_2HLeadSR_sum = (TH1F*)fPhoton->Get("J2pt_M_doubletagSRLead_sum"); h_0HLeadSR_sum = (TH1F*)fPhoton->Get("J2pt_M_antitagSRLead_sum");
   }
 
-  if (whichRegion=="singleLept") {
-    h_A_sum = (TH1F*)fSingleLept->Get("MET_doubletagSR_sum"); h_B_sum = (TH1F*)fSingleLept->Get("MET_doubletagSB_sum");
-    h_A1_sum = (TH1F*)fSingleLept->Get("MET_tagSR_sum"); h_B1_sum = (TH1F*)fSingleLept->Get("MET_tagSB_sum");
-    h_C_sum = (TH1F*)fSingleLept->Get("MET_antitagSR_sum"); h_D_sum = (TH1F*)fSingleLept->Get("MET_antitagSB_sum");
 
+  if (whichRegion=="singleLept") {
+    // h_A_data = (TH1F*)fSingleLept->Get("MET_doubletagSR_data"); h_B_data = (TH1F*)fSingleLept->Get("MET_doubletagSB_data");
+    // h_A1_data = (TH1F*)fSingleLept->Get("MET_tagSR_data"); h_B1_data = (TH1F*)fSingleLept->Get("MET_tagSB_data");
+    // h_C_data = (TH1F*)fSingleLept->Get("MET_antitagSR_data"); h_D_data = (TH1F*)fSingleLept->Get("MET_antitagSB_data");
+
+    // h_A_sum = (TH1F*)fSingleLept->Get("MET_doubletagSR_sum"); h_B_sum = (TH1F*)fSingleLept->Get("MET_doubletagSB_sum");
+    // h_A1_sum = (TH1F*)fSingleLept->Get("MET_tagSR_sum"); h_B1_sum = (TH1F*)fSingleLept->Get("MET_tagSB_sum");
+    // h_C_sum = (TH1F*)fSingleLept->Get("MET_antitagSR_sum"); h_D_sum = (TH1F*)fSingleLept->Get("MET_antitagSB_sum");
     h_A_TT = (TH1F*)fSingleLept->Get("MET_doubletagSR_TT"); h_B_TT = (TH1F*)fSingleLept->Get("MET_doubletagSB_TT");
     h_A1_TT = (TH1F*)fSingleLept->Get("MET_tagSR_TT"); h_B1_TT = (TH1F*)fSingleLept->Get("MET_tagSB_TT");
     h_C_TT = (TH1F*)fSingleLept->Get("MET_antitagSR_TT"); h_D_TT = (TH1F*)fSingleLept->Get("MET_antitagSB_TT");
+
+    // h_A_TT_Di = (TH1F*)fSingleLept->Get("MET_doubletagSR_TT_Di"); h_B_TT_Di = (TH1F*)fSingleLept->Get("MET_doubletagSB_TT_Di");
+    // h_A1_TT_Di = (TH1F*)fSingleLept->Get("MET_tagSR_TT_Di"); h_B1_TT_Di = (TH1F*)fSingleLept->Get("MET_tagSB_TT_Di");
+    // h_C_TT_Di = (TH1F*)fSingleLept->Get("MET_antitagSR_TT_Di"); h_D_TT_Di = (TH1F*)fSingleLept->Get("MET_antitagSB_TT_Di");
+    // h_A_TT_SL = (TH1F*)fSingleLept->Get("MET_doubletagSR_TT_SL"); h_B_TT_SL = (TH1F*)fSingleLept->Get("MET_doubletagSB_TT_SL");
+    // h_A1_TT_SL = (TH1F*)fSingleLept->Get("MET_tagSR_TT_SL"); h_B1_TT_SL = (TH1F*)fSingleLept->Get("MET_tagSB_TT_SL");
+    // h_C_TT_SL = (TH1F*)fSingleLept->Get("MET_antitagSR_TT_SL"); h_D_TT_SL = (TH1F*)fSingleLept->Get("MET_antitagSB_TT_SL");
 
     h_A_WJets = (TH1F*)fSingleLept->Get("MET_doubletagSR_WJets"); h_B_WJets = (TH1F*)fSingleLept->Get("MET_doubletagSB_WJets");
     h_A1_WJets = (TH1F*)fSingleLept->Get("MET_tagSR_WJets"); h_B1_WJets = (TH1F*)fSingleLept->Get("MET_tagSB_WJets");
     h_C_WJets = (TH1F*)fSingleLept->Get("MET_antitagSR_WJets");   h_D_WJets = (TH1F*)fSingleLept->Get("MET_antitagSB_WJets");
 
-    h_J1M_doubletagSR_sum = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSR_sum"); h_J2M_doubletagSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSR_sum");
-    h_J1M_doubletagSB_sum = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSB_sum"); h_J2M_doubletagSB_sum = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSB_sum");
-    h_J1M_antitagSR_sum = (TH1F*)fSingleLept->Get("J1pt_M_antitagSR_sum"); h_J2M_antitagSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_antitagSR_sum");
-    h_J1M_antitagSB_sum = (TH1F*)fSingleLept->Get("J1pt_M_antitagSB_sum"); h_J2M_antitagSB_sum = (TH1F*)fSingleLept->Get("J2pt_M_antitagSB_sum");
-    h_J1M_tagSR_sum = (TH1F*)fSingleLept->Get("J1pt_M_tagSR_sum"); h_J2M_tagSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_tagSR_sum");
-    h_J1M_tagSB_sum = (TH1F*)fSingleLept->Get("J1pt_M_tagSB_sum"); h_J2M_tagSB_sum = (TH1F*)fSingleLept->Get("J2pt_M_tagSB_sum");
+    h_A_sum = (TH1F*)h_A_TT->Clone("h_A_sum");  h_B_sum = (TH1F*)h_B_TT->Clone("h_B_sum");
+    h_A1_sum = (TH1F*)h_A1_TT->Clone("h_A1_sum");  h_B1_sum = (TH1F*)h_B1_TT->Clone("h_B1_sum");
+    h_C_sum = (TH1F*)h_C_TT->Clone("h_C_sum");  h_D_sum = (TH1F*)h_D_TT->Clone("h_D_sum");
+    h_A_sum->Add(h_A_WJets); h_B_sum->Add(h_B_WJets);
+    h_A1_sum->Add(h_A1_WJets); h_B1_sum->Add(h_B1_WJets);
+    h_C_sum->Add(h_C_WJets); h_D_sum->Add(h_D_WJets);
+
+
+    // h_J1M_doubletagSR_sum = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSR_sum"); h_J2M_doubletagSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSR_sum");
+    // h_J1M_doubletagSB_sum = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSB_sum"); h_J2M_doubletagSB_sum = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSB_sum");
+    // h_J1M_antitagSR_sum = (TH1F*)fSingleLept->Get("J1pt_M_antitagSR_sum"); h_J2M_antitagSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_antitagSR_sum");
+    // h_J1M_antitagSB_sum = (TH1F*)fSingleLept->Get("J1pt_M_antitagSB_sum"); h_J2M_antitagSB_sum = (TH1F*)fSingleLept->Get("J2pt_M_antitagSB_sum");
+    // h_J1M_tagSR_sum = (TH1F*)fSingleLept->Get("J1pt_M_tagSR_sum"); h_J2M_tagSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_tagSR_sum");
+    // h_J1M_tagSB_sum = (TH1F*)fSingleLept->Get("J1pt_M_tagSB_sum"); h_J2M_tagSB_sum = (TH1F*)fSingleLept->Get("J2pt_M_tagSB_sum");
 
     h_J1M_doubletagSR_TT = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSR_TT"); h_J2M_doubletagSR_TT = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSR_TT");
     h_J1M_doubletagSB_TT = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSB_TT"); h_J2M_doubletagSB_TT = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSB_TT");
@@ -395,6 +532,19 @@ void runABCD() {
     h_J1M_antitagSB_TT = (TH1F*)fSingleLept->Get("J1pt_M_antitagSB_TT"); h_J2M_antitagSB_TT = (TH1F*)fSingleLept->Get("J2pt_M_antitagSB_TT");
     h_J1M_tagSR_TT = (TH1F*)fSingleLept->Get("J1pt_M_tagSR_TT"); h_J2M_tagSR_TT = (TH1F*)fSingleLept->Get("J2pt_M_tagSR_TT");
     h_J1M_tagSB_TT = (TH1F*)fSingleLept->Get("J1pt_M_tagSB_TT"); h_J2M_tagSB_TT = (TH1F*)fSingleLept->Get("J2pt_M_tagSB_TT");
+
+    // h_J1M_doubletagSR_TT_SL = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSR_TT_SL"); h_J2M_doubletagSR_TT_SL = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSR_TT_SL");
+    // h_J1M_doubletagSB_TT_SL = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSB_TT_SL"); h_J2M_doubletagSB_TT_SL = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSB_TT_SL");
+    // h_J1M_antitagSR_TT_SL = (TH1F*)fSingleLept->Get("J1pt_M_antitagSR_TT_SL"); h_J2M_antitagSR_TT_SL = (TH1F*)fSingleLept->Get("J2pt_M_antitagSR_TT_SL");
+    // h_J1M_antitagSB_TT_SL = (TH1F*)fSingleLept->Get("J1pt_M_antitagSB_TT_SL"); h_J2M_antitagSB_TT_SL = (TH1F*)fSingleLept->Get("J2pt_M_antitagSB_TT_SL");
+    // h_J1M_tagSR_TT_SL = (TH1F*)fSingleLept->Get("J1pt_M_tagSR_TT_SL"); h_J2M_tagSR_TT_SL = (TH1F*)fSingleLept->Get("J2pt_M_tagSR_TT_SL");
+    // h_J1M_tagSB_TT_SL = (TH1F*)fSingleLept->Get("J1pt_M_tagSB_TT_SL"); h_J2M_tagSB_TT_SL = (TH1F*)fSingleLept->Get("J2pt_M_tagSB_TT_SL");
+    // h_J1M_doubletagSR_TT_Di = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSR_TT_Di"); h_J2M_doubletagSR_TT_Di = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSR_TT_Di");
+    // h_J1M_doubletagSB_TT_Di = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSB_TT_Di"); h_J2M_doubletagSB_TT_Di = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSB_TT_Di");
+    // h_J1M_antitagSR_TT_Di = (TH1F*)fSingleLept->Get("J1pt_M_antitagSR_TT_Di"); h_J2M_antitagSR_TT_Di = (TH1F*)fSingleLept->Get("J2pt_M_antitagSR_TT_Di");
+    // h_J1M_antitagSB_TT_Di = (TH1F*)fSingleLept->Get("J1pt_M_antitagSB_TT_Di"); h_J2M_antitagSB_TT_Di = (TH1F*)fSingleLept->Get("J2pt_M_antitagSB_TT_Di");
+    // h_J1M_tagSR_TT_Di = (TH1F*)fSingleLept->Get("J1pt_M_tagSR_TT_Di"); h_J2M_tagSR_TT_Di = (TH1F*)fSingleLept->Get("J2pt_M_tagSR_TT_Di");
+    // h_J1M_tagSB_TT_Di = (TH1F*)fSingleLept->Get("J1pt_M_tagSB_TT_Di"); h_J2M_tagSB_TT_Di = (TH1F*)fSingleLept->Get("J2pt_M_tagSB_TT_Di");
 
     h_J1M_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSR_WJets"); h_J2M_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSR_WJets");
     h_J1M_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSB_WJets"); h_J2M_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSB_WJets");
@@ -410,18 +560,57 @@ void runABCD() {
     h_J1Pt_tagSR_TT = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSR_TT"); h_J2Pt_tagSR_TT = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSR_TT");
     h_J1Pt_tagSB_TT = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSB_TT"); h_J2Pt_tagSB_TT = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSB_TT");
 
+    // h_J1Pt_doubletagSR_TT_SL = (TH1F*)fSingleLept->Get("J1pt_Pt_doubletagSR_TT_SL"); h_J2Pt_doubletagSR_TT_SL = (TH1F*)fSingleLept->Get("J2pt_Pt_doubletagSR_TT_SL");
+    // h_J1Pt_doubletagSB_TT_SL = (TH1F*)fSingleLept->Get("J1pt_Pt_doubletagSB_TT_SL"); h_J2Pt_doubletagSB_TT_SL = (TH1F*)fSingleLept->Get("J2pt_Pt_doubletagSB_TT_SL");
+    // h_J1Pt_antitagSR_TT_SL = (TH1F*)fSingleLept->Get("J1pt_Pt_antitagSR_TT_SL"); h_J2Pt_antitagSR_TT_SL = (TH1F*)fSingleLept->Get("J2pt_Pt_antitagSR_TT_SL");
+    // h_J1Pt_antitagSB_TT_SL = (TH1F*)fSingleLept->Get("J1pt_Pt_antitagSB_TT_SL"); h_J2Pt_antitagSB_TT_SL = (TH1F*)fSingleLept->Get("J2pt_Pt_antitagSB_TT_SL");
+    // h_J1Pt_tagSR_TT_SL = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSR_TT_SL"); h_J2Pt_tagSR_TT_SL = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSR_TT_SL");
+    // h_J1Pt_tagSB_TT_SL = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSB_TT_SL"); h_J2Pt_tagSB_TT_SL = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSB_TT_SL");
+    // h_J1Pt_doubletagSR_TT_Di = (TH1F*)fSingleLept->Get("J1pt_Pt_doubletagSR_TT_Di"); h_J2Pt_doubletagSR_TT_Di = (TH1F*)fSingleLept->Get("J2pt_Pt_doubletagSR_TT_Di");
+    // h_J1Pt_doubletagSB_TT_Di = (TH1F*)fSingleLept->Get("J1pt_Pt_doubletagSB_TT_Di"); h_J2Pt_doubletagSB_TT_Di = (TH1F*)fSingleLept->Get("J2pt_Pt_doubletagSB_TT_Di");
+    // h_J1Pt_antitagSR_TT_Di = (TH1F*)fSingleLept->Get("J1pt_Pt_antitagSR_TT_Di"); h_J2Pt_antitagSR_TT_Di = (TH1F*)fSingleLept->Get("J2pt_Pt_antitagSR_TT_Di");
+    // h_J1Pt_antitagSB_TT_Di = (TH1F*)fSingleLept->Get("J1pt_Pt_antitagSB_TT_Di"); h_J2Pt_antitagSB_TT_Di = (TH1F*)fSingleLept->Get("J2pt_Pt_antitagSB_TT_Di");
+    // h_J1Pt_tagSR_TT_Di = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSR_TT_Di"); h_J2Pt_tagSR_TT_Di = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSR_TT_Di");
+    // h_J1Pt_tagSB_TT_Di = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSB_TT_Di"); h_J2Pt_tagSB_TT_Di = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSB_TT_Di");
+
     h_J1Pt_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_doubletagSR_WJets"); h_J2Pt_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_doubletagSR_WJets");
     h_J1Pt_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_doubletagSB_WJets"); h_J2Pt_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_doubletagSB_WJets");
     h_J1Pt_antitagSR_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_antitagSR_WJets"); h_J2Pt_antitagSR_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_antitagSR_WJets");
     h_J1Pt_antitagSB_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_antitagSB_WJets"); h_J2Pt_antitagSB_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_antitagSB_WJets");
     h_J1Pt_tagSR_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSR_WJets"); h_J2Pt_tagSR_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSR_WJets");
     h_J1Pt_tagSB_WJets = (TH1F*)fSingleLept->Get("J1pt_Pt_tagSB_WJets"); h_J2Pt_tagSB_WJets = (TH1F*)fSingleLept->Get("J2pt_Pt_tagSB_WJets");
+
+    // h_J2M_mjBins_doubletagSR_sum = (TH1F*)fSingleLept->Get("J2_M_jetBins_doubletagSR_sum"); h_J2M_mjBins_doubletagSB_sum = (TH1F*)fSingleLept->Get("J2_M_jetBins_doubletagSB_sum");
+    // h_J2M_mjBins_antitagSR_sum = (TH1F*)fSingleLept->Get("J2_M_jetBins_antitagSR_sum"); h_J2M_mjBins_antitagSB_sum = (TH1F*)fSingleLept->Get("J2_M_jetBins_antitagSB_sum");
+    h_J2M_mjBins_doubletagSR_TT = (TH1F*)fSingleLept->Get("J2_M_jetBins_doubletagSR_TT"); h_J2M_mjBins_doubletagSB_TT = (TH1F*)fSingleLept->Get("J2_M_jetBins_doubletagSB_TT");
+    h_J2M_mjBins_antitagSR_TT = (TH1F*)fSingleLept->Get("J2_M_jetBins_antitagSR_TT"); h_J2M_mjBins_antitagSB_TT = (TH1F*)fSingleLept->Get("J2_M_jetBins_antitagSB_TT");
+
+    // h_J2M_mjBins_doubletagSR_TT_Di = (TH1F*)f->Get("J2_M_jetBins_doubletagSR_TT_Di"); h_J2M_mjBins_doubletagSB_TT_Di = (TH1F*)f->Get("J2_M_jetBins_doubletagSB_TT_Di");
+    // h_J2M_mjBins_antitagSR_TT_Di = (TH1F*)f->Get("J2_M_jetBins_antitagSR_TT_Di"); h_J2M_mjBins_antitagSB_TT_Di = (TH1F*)f->Get("J2_M_jetBins_antitagSB_TT_Di");
+    // h_J2M_mjBins_doubletagSR_TT_SL = (TH1F*)f->Get("J2_M_jetBins_doubletagSR_TT_SL"); h_J2M_mjBins_doubletagSB_TT_SL = (TH1F*)f->Get("J2_M_jetBins_doubletagSB_TT_SL");
+    // h_J2M_mjBins_antitagSR_TT_SL = (TH1F*)f->Get("J2_M_jetBins_antitagSR_TT_SL"); h_J2M_mjBins_antitagSB_TT_SL = (TH1F*)f->Get("J2_M_jetBins_antitagSB_TT_SL");
+
+    h_J2M_mjBins_doubletagSR_WJets = (TH1F*)f->Get("J2_M_jetBins_doubletagSR_WJets"); h_J2M_mjBins_doubletagSB_WJets = (TH1F*)f->Get("J2_M_jetBins_doubletagSB_WJets");
+    h_J2M_mjBins_antitagSR_WJets = (TH1F*)f->Get("J2_M_jetBins_antitagSR_WJets"); h_J2M_mjBins_antitagSB_WJets = (TH1F*)f->Get("J2_M_jetBins_antitagSB_WJets");
+    //
+    // h_0HSBOpt1 = (TH1F*)fSingleLept->Get("MET_antitagSBOpt1_sum"); //h_0HSBOpt2 = (TH1F*)fSingleLept->Get("MET_antitagSBOpt2_sum");
+    // h_0HSROpt1 = (TH1F*)fSingleLept->Get("MET_antitagSROpt1_sum"); //h_0HSROpt2 = (TH1F*)fSingleLept->Get("MET_antitagSROpt2_sum");
+
+    h_0HSBOpt1_TT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt1_TT"); h_0HSBOpt1_WJets = (TH1F*)fSingleLept->Get("MET_antitagSBOpt1_WJets");
+    h_0HSROpt1_TT = (TH1F*)fSingleLept->Get("MET_antitagSROpt1_TT"); h_0HSROpt1_WJets = (TH1F*)fSingleLept->Get("MET_antitagSROpt1_WJets");
+
+    // h_2HLeadSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSRLead_sum"); h_0HLeadSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_antitagSRLead_sum");
+
   }
+
+  vector<TH1F*> histos_ABCD_data = {h_A_data, h_B_data, h_C_data, h_D_data};
 
   vector<TH1F*> histos_ABCD_sum = {h_A_sum, h_B_sum, h_C_sum, h_D_sum};
   vector<TH1F*> histos_ABCD_QCD = {h_A_QCD, h_B_QCD, h_C_QCD, h_D_QCD};
   vector<TH1F*> histos_ABCD_GJets = {h_A_GJets, h_B_GJets, h_C_GJets, h_D_GJets};
   vector<TH1F*> histos_ABCD_TT = {h_A_TT, h_B_TT, h_C_TT, h_D_TT};
+  vector<TH1F*> histos_ABCD_TT_Di = {h_A_TT_Di, h_B_TT_Di, h_C_TT_Di, h_D_TT_Di};
+  vector<TH1F*> histos_ABCD_TT_SL = {h_A_TT_SL, h_B_TT_SL, h_C_TT_SL, h_D_TT_SL};
   vector<TH1F*> histos_ABCD_WJets = {h_A_WJets, h_B_WJets, h_C_WJets, h_D_WJets};
   vector<TH1F*> histos_ABCD_ZJets = {h_A_ZJets, h_B_ZJets, h_C_ZJets, h_D_ZJets};
 
@@ -436,6 +625,8 @@ void runABCD() {
   vector<TH1F*> histos_A1B1CD_QCD = {h_A1_QCD, h_B1_QCD, h_C_QCD, h_D_QCD};
   vector<TH1F*> histos_A1B1CD_GJets = {h_A1_GJets, h_B1_GJets, h_C_GJets, h_D_GJets};
   vector<TH1F*> histos_A1B1CD_TT = {h_A1_TT, h_B1_TT, h_C_TT, h_D_TT};
+  vector<TH1F*> histos_A1B1CD_TT_Di = {h_A1_TT_Di, h_B1_TT_Di, h_C_TT_Di, h_D_TT_Di};
+  vector<TH1F*> histos_A1B1CD_TT_SL = {h_A1_TT_SL, h_B1_TT_SL, h_C_TT_SL, h_D_TT_SL};
   vector<TH1F*> histos_A1B1CD_WJets = {h_A1_WJets, h_B1_WJets, h_C_WJets, h_D_WJets};
   vector<TH1F*> histos_A1B1CD_ZJets = {h_A1_ZJets, h_B1_ZJets, h_C_ZJets, h_D_ZJets};
 
@@ -446,13 +637,21 @@ void runABCD() {
   vector<TH1F*> histos_A1B1CD_TChiHH1300 = {h_A1_TChiHH1300, h_B1_TChiHH1300, h_C_TChiHH1300, h_D_TChiHH1300};
   vector<TH1F*> histos_A1B1CD_TChiHH1500 = {h_A1_TChiHH1500, h_B1_TChiHH1500, h_C_TChiHH1500, h_D_TChiHH1500};
 
+  vector<TH1F*> histos_RPF_LeadSR_sum = {h_2HLeadSR_sum,h_0HLeadSR_sum};
+  vector<TH1F*> histos_RPF_LeadSB_sum = {h_2HLeadSB_sum,h_0HLeadSB_sum};
+
+  // vector<TH1F*> histos_RPF_LeadSR_sum = {h_J2M_doubletagSR_sum,h_2HLeadSR_sum,h_J2M_antitagSR_sum,h_0HLeadSR_sum};
+  // vector<TH1F*> histos_RPF_LeadSB_sum = {h_J2M_doubletagSR_sum,h_2HLeadSB_sum,h_J2M_antitagSR_sum,h_0HLeadSB_sum};
+
   vector<TH1F*> histos_Rpf_J1_sum = {h_J1M_doubletagSR_sum, h_J1M_doubletagSB_sum, h_J1M_antitagSR_sum, h_J1M_antitagSB_sum};
   vector<TH1F*> histos_Rpf_J2_sum = {h_J2M_doubletagSR_sum, h_J2M_doubletagSB_sum, h_J2M_antitagSR_sum, h_J2M_antitagSB_sum};
+  vector<TH1F*> histos_Rpf_J2_mJBins_sum = {h_J2M_mjBins_doubletagSR_sum, h_J2M_mjBins_doubletagSB_sum, h_J2M_mjBins_antitagSR_sum, h_J2M_mjBins_antitagSB_sum};
   vector<TH1F*> histos_Rpfsingle_J1_sum = {h_J1M_tagSR_sum, h_J1M_tagSB_sum, h_J1M_antitagSR_sum, h_J1M_antitagSB_sum};
   vector<TH1F*> histos_Rpfsingle_J2_sum = {h_J2M_tagSR_sum, h_J2M_tagSB_sum, h_J2M_antitagSR_sum, h_J2M_antitagSB_sum};
 
   vector<TH1F*> histos_Rpf_J1_QCD = {h_J1M_doubletagSR_QCD, h_J1M_doubletagSB_QCD, h_J1M_antitagSR_QCD, h_J1M_antitagSB_QCD};
   vector<TH1F*> histos_Rpf_J2_QCD = {h_J2M_doubletagSR_QCD, h_J2M_doubletagSB_QCD, h_J2M_antitagSR_QCD, h_J2M_antitagSB_QCD};
+  vector<TH1F*> histos_Rpf_J2_mJBins_QCD = {h_J2M_mjBins_doubletagSR_QCD, h_J2M_mjBins_doubletagSB_QCD, h_J2M_mjBins_antitagSR_QCD, h_J2M_mjBins_antitagSB_QCD};
   vector<TH1F*> histos_Rpfsingle_J1_QCD = {h_J1M_tagSR_QCD, h_J1M_tagSB_QCD, h_J1M_antitagSR_QCD, h_J1M_antitagSB_QCD};
   vector<TH1F*> histos_Rpfsingle_J2_QCD = {h_J2M_tagSR_QCD, h_J2M_tagSB_QCD, h_J2M_antitagSR_QCD, h_J2M_antitagSB_QCD};
 
@@ -463,22 +662,39 @@ void runABCD() {
 
   vector<TH1F*> histos_Rpf_J1_TT = {h_J1M_doubletagSR_TT, h_J1M_doubletagSB_TT, h_J1M_antitagSR_TT, h_J1M_antitagSB_TT};
   vector<TH1F*> histos_Rpf_J2_TT = {h_J2M_doubletagSR_TT, h_J2M_doubletagSB_TT, h_J2M_antitagSR_TT, h_J2M_antitagSB_TT};
+  vector<TH1F*> histos_Rpf_J2_mJBins_TT = {h_J2M_mjBins_doubletagSR_TT, h_J2M_mjBins_doubletagSB_TT, h_J2M_mjBins_antitagSR_TT, h_J2M_mjBins_antitagSB_TT};
   vector<TH1F*> histos_Rpfsingle_J1_TT = {h_J1M_tagSR_TT, h_J1M_tagSB_TT, h_J1M_antitagSR_TT, h_J1M_antitagSB_TT};
   vector<TH1F*> histos_Rpfsingle_J2_TT = {h_J2M_tagSR_TT, h_J2M_tagSB_TT, h_J2M_antitagSR_TT, h_J2M_antitagSB_TT};
 
+  vector<TH1F*> histos_Rpf_J1_TT_Di = {h_J1M_doubletagSR_TT_Di, h_J1M_doubletagSB_TT_Di, h_J1M_antitagSR_TT_Di, h_J1M_antitagSB_TT_Di};
+  vector<TH1F*> histos_Rpf_J2_TT_Di = {h_J2M_doubletagSR_TT_Di, h_J2M_doubletagSB_TT_Di, h_J2M_antitagSR_TT_Di, h_J2M_antitagSB_TT_Di};
+  vector<TH1F*> histos_Rpf_J2_mJBins_TT_Di = {h_J2M_mjBins_doubletagSR_TT_Di, h_J2M_mjBins_doubletagSB_TT_Di, h_J2M_mjBins_antitagSR_TT_Di, h_J2M_mjBins_antitagSB_TT_Di};
+  vector<TH1F*> histos_Rpfsingle_J1_TT_Di = {h_J1M_tagSR_TT_Di, h_J1M_tagSB_TT_Di, h_J1M_antitagSR_TT_Di, h_J1M_antitagSB_TT_Di};
+  vector<TH1F*> histos_Rpfsingle_J2_TT_Di = {h_J2M_tagSR_TT_Di, h_J2M_tagSB_TT_Di, h_J2M_antitagSR_TT_Di, h_J2M_antitagSB_TT_Di};
+
+  vector<TH1F*> histos_Rpf_J1_TT_SL = {h_J1M_doubletagSR_TT_SL, h_J1M_doubletagSB_TT_SL, h_J1M_antitagSR_TT_SL, h_J1M_antitagSB_TT_SL};
+  vector<TH1F*> histos_Rpf_J2_TT_SL = {h_J2M_doubletagSR_TT_SL, h_J2M_doubletagSB_TT_SL, h_J2M_antitagSR_TT_SL, h_J2M_antitagSB_TT_SL};
+  vector<TH1F*> histos_Rpf_J2_mJBins_TT_SL = {h_J2M_mjBins_doubletagSR_TT_SL, h_J2M_mjBins_doubletagSB_TT_SL, h_J2M_mjBins_antitagSR_TT_SL, h_J2M_mjBins_antitagSB_TT_SL};
+  vector<TH1F*> histos_Rpfsingle_J1_TT_SL = {h_J1M_tagSR_TT_SL, h_J1M_tagSB_TT_SL, h_J1M_antitagSR_TT_SL, h_J1M_antitagSB_TT_SL};
+  vector<TH1F*> histos_Rpfsingle_J2_TT_SL = {h_J2M_tagSR_TT_SL, h_J2M_tagSB_TT_SL, h_J2M_antitagSR_TT_SL, h_J2M_antitagSB_TT_SL};
+
   vector<TH1F*> histos_Rpf_J1_WJets = {h_J1M_doubletagSR_WJets, h_J1M_doubletagSB_WJets, h_J1M_antitagSR_WJets, h_J1M_antitagSB_WJets};
   vector<TH1F*> histos_Rpf_J2_WJets = {h_J2M_doubletagSR_WJets, h_J2M_doubletagSB_WJets, h_J2M_antitagSR_WJets, h_J2M_antitagSB_WJets};
+  vector<TH1F*> histos_Rpf_J2_mJBins_WJets = {h_J2M_mjBins_doubletagSR_WJets, h_J2M_mjBins_doubletagSB_WJets, h_J2M_mjBins_antitagSR_WJets, h_J2M_mjBins_antitagSB_WJets};
   vector<TH1F*> histos_Rpfsingle_J1_WJets = {h_J1M_tagSR_WJets, h_J1M_tagSB_WJets, h_J1M_antitagSR_WJets, h_J1M_antitagSB_WJets};
   vector<TH1F*> histos_Rpfsingle_J2_WJets = {h_J2M_tagSR_WJets, h_J2M_tagSB_WJets, h_J2M_antitagSR_WJets, h_J2M_antitagSB_WJets};
 
   vector<TH1F*> histos_Rpf_J1_ZJets = {h_J1M_doubletagSR_ZJets, h_J1M_doubletagSB_ZJets, h_J1M_antitagSR_ZJets, h_J1M_antitagSB_ZJets};
   vector<TH1F*> histos_Rpf_J2_ZJets = {h_J2M_doubletagSR_ZJets, h_J2M_doubletagSB_ZJets, h_J2M_antitagSR_ZJets, h_J2M_antitagSB_ZJets};
+  vector<TH1F*> histos_Rpf_J2_mJBins_ZJets = {h_J2M_mjBins_doubletagSR_ZJets, h_J2M_mjBins_doubletagSB_ZJets, h_J2M_mjBins_antitagSR_ZJets, h_J2M_mjBins_antitagSB_ZJets};
   vector<TH1F*> histos_Rpfsingle_J1_ZJets = {h_J1M_tagSR_ZJets, h_J1M_tagSB_ZJets, h_J1M_antitagSR_ZJets, h_J1M_antitagSB_ZJets};
   vector<TH1F*> histos_Rpfsingle_J2_ZJets = {h_J2M_tagSR_ZJets, h_J2M_tagSB_ZJets, h_J2M_antitagSR_ZJets, h_J2M_antitagSB_ZJets};
 
   vector<TH1F*> histos_j1mass_ZJets = {h_J1M_doubletagSR_ZJets,h_J1M_doubletagSB_ZJets,h_J1M_tagSR_ZJets,h_J1M_tagSB_ZJets, h_J1M_antitagSR_ZJets, h_J1M_antitagSB_ZJets};
   vector<TH1F*> histos_j1mass_WJets = {h_J1M_doubletagSR_WJets,h_J1M_doubletagSB_WJets,h_J1M_tagSR_WJets,h_J1M_tagSB_WJets, h_J1M_antitagSR_WJets, h_J1M_antitagSB_WJets};
   vector<TH1F*> histos_j1mass_TT    = {h_J1M_doubletagSR_TT,h_J1M_doubletagSB_TT,h_J1M_tagSR_TT,h_J1M_tagSB_TT, h_J1M_antitagSR_TT, h_J1M_antitagSB_TT};
+  vector<TH1F*> histos_j1mass_TT_Di    = {h_J1M_doubletagSR_TT_Di,h_J1M_doubletagSB_TT_Di,h_J1M_tagSR_TT_Di,h_J1M_tagSB_TT_Di, h_J1M_antitagSR_TT_Di, h_J1M_antitagSB_TT_Di};
+  vector<TH1F*> histos_j1mass_TT_SL    = {h_J1M_doubletagSR_TT_SL,h_J1M_doubletagSB_TT_SL,h_J1M_tagSR_TT_SL,h_J1M_tagSB_TT_SL, h_J1M_antitagSR_TT_SL, h_J1M_antitagSB_TT_SL};
   vector<TH1F*> histos_j1mass_QCD   = {h_J1M_doubletagSR_QCD,h_J1M_doubletagSB_QCD,h_J1M_tagSR_QCD,h_J1M_tagSB_QCD, h_J1M_antitagSR_QCD, h_J1M_antitagSB_QCD};
   vector<TH1F*> histos_j1mass_T5HH1300 = {h_J1M_doubletagSR_T5HH1300,h_J1M_doubletagSB_T5HH1300,h_J1M_tagSR_T5HH1300,h_J1M_tagSB_T5HH1300, h_J1M_antitagSR_T5HH1300, h_J1M_antitagSB_T5HH1300};
   vector<TH1F*> histos_j1mass_T5HH1700 = {h_J1M_doubletagSR_T5HH1700,h_J1M_doubletagSB_T5HH1700,h_J1M_tagSR_T5HH1700,h_J1M_tagSB_T5HH1700, h_J1M_antitagSR_T5HH1700, h_J1M_antitagSB_T5HH1700};
@@ -487,6 +703,8 @@ void runABCD() {
   vector<TH1F*> histos_j2mass_ZJets = {h_J2M_doubletagSR_ZJets,h_J2M_doubletagSB_ZJets,h_J2M_tagSR_ZJets,h_J2M_tagSB_ZJets, h_J2M_antitagSR_ZJets, h_J2M_antitagSB_ZJets};
   vector<TH1F*> histos_j2mass_WJets = {h_J2M_doubletagSR_WJets,h_J2M_doubletagSB_WJets,h_J2M_tagSR_WJets,h_J2M_tagSB_WJets, h_J2M_antitagSR_WJets, h_J2M_antitagSB_WJets};
   vector<TH1F*> histos_j2mass_TT    = {h_J2M_doubletagSR_TT,h_J2M_doubletagSB_TT,h_J2M_tagSR_TT,h_J2M_tagSB_TT, h_J2M_antitagSR_TT, h_J2M_antitagSB_TT};
+  vector<TH1F*> histos_j2mass_TT_Di    = {h_J2M_doubletagSR_TT_Di,h_J2M_doubletagSB_TT_Di,h_J2M_tagSR_TT_Di,h_J2M_tagSB_TT_Di, h_J2M_antitagSR_TT_Di, h_J2M_antitagSB_TT_Di};
+  vector<TH1F*> histos_j2mass_TT_SL    = {h_J2M_doubletagSR_TT_SL,h_J2M_doubletagSB_TT_SL,h_J2M_tagSR_TT_SL,h_J2M_tagSB_TT_SL, h_J2M_antitagSR_TT_SL, h_J2M_antitagSB_TT_SL};
   vector<TH1F*> histos_j2mass_QCD   = {h_J2M_doubletagSR_QCD,h_J2M_doubletagSB_QCD,h_J2M_tagSR_QCD,h_J2M_tagSB_QCD, h_J2M_antitagSR_QCD, h_J2M_antitagSB_QCD};
   vector<TH1F*> histos_j2mass_T5HH1300 = {h_J2M_doubletagSR_T5HH1300,h_J2M_doubletagSB_T5HH1300,h_J2M_tagSR_T5HH1300,h_J2M_tagSB_T5HH1300, h_J2M_antitagSR_T5HH1300, h_J2M_antitagSB_T5HH1300};
   vector<TH1F*> histos_j2mass_T5HH1700 = {h_J2M_doubletagSR_T5HH1700,h_J2M_doubletagSB_T5HH1700,h_J2M_tagSR_T5HH1700,h_J2M_tagSB_T5HH1700, h_J2M_antitagSR_T5HH1700, h_J2M_antitagSB_T5HH1700};
@@ -495,6 +713,8 @@ void runABCD() {
   vector<TH1F*> histos_j1pt_ZJets = {h_J1Pt_doubletagSR_ZJets,h_J1Pt_doubletagSB_ZJets,h_J1Pt_tagSR_ZJets,h_J1Pt_tagSB_ZJets, h_J1Pt_antitagSR_ZJets, h_J1Pt_antitagSB_ZJets};
   vector<TH1F*> histos_j1pt_WJets = {h_J1Pt_doubletagSR_WJets,h_J1Pt_doubletagSB_WJets,h_J1Pt_tagSR_WJets,h_J1Pt_tagSB_WJets, h_J1Pt_antitagSR_WJets, h_J1Pt_antitagSB_WJets};
   vector<TH1F*> histos_j1pt_TT    = {h_J1Pt_doubletagSR_TT,h_J1Pt_doubletagSB_TT,h_J1Pt_tagSR_TT,h_J1Pt_tagSB_TT, h_J1Pt_antitagSR_TT, h_J1Pt_antitagSB_TT};
+  vector<TH1F*> histos_j1pt_TT_Di    = {h_J1Pt_doubletagSR_TT_Di,h_J1Pt_doubletagSB_TT_Di,h_J1Pt_tagSR_TT_Di,h_J1Pt_tagSB_TT_Di, h_J1Pt_antitagSR_TT_Di, h_J1Pt_antitagSB_TT_Di};
+  vector<TH1F*> histos_j1pt_TT_SL    = {h_J1Pt_doubletagSR_TT_SL,h_J1Pt_doubletagSB_TT_SL,h_J1Pt_tagSR_TT_SL,h_J1Pt_tagSB_TT_SL, h_J1Pt_antitagSR_TT_SL, h_J1Pt_antitagSB_TT_SL};
   vector<TH1F*> histos_j1pt_QCD   = {h_J1Pt_doubletagSR_QCD,h_J1Pt_doubletagSB_QCD,h_J1Pt_tagSR_QCD,h_J1Pt_tagSB_QCD, h_J1Pt_antitagSR_QCD, h_J1Pt_antitagSB_QCD};
   vector<TH1F*> histos_j1pt_T5HH1300 = {h_J1Pt_doubletagSR_T5HH1300,h_J1Pt_doubletagSB_T5HH1300,h_J1Pt_tagSR_T5HH1300,h_J1Pt_tagSB_T5HH1300, h_J1Pt_antitagSR_T5HH1300, h_J1Pt_antitagSB_T5HH1300};
   vector<TH1F*> histos_j1pt_T5HH1700 = {h_J1Pt_doubletagSR_T5HH1700,h_J1Pt_doubletagSB_T5HH1700,h_J1Pt_tagSR_T5HH1700,h_J1Pt_tagSB_T5HH1700, h_J1Pt_antitagSR_T5HH1700, h_J1Pt_antitagSB_T5HH1700};
@@ -503,153 +723,216 @@ void runABCD() {
   vector<TH1F*> histos_j2pt_ZJets = {h_J2Pt_doubletagSR_ZJets,h_J2Pt_doubletagSB_ZJets,h_J2Pt_tagSR_ZJets,h_J2Pt_tagSB_ZJets, h_J2Pt_antitagSR_ZJets, h_J2Pt_antitagSB_ZJets};
   vector<TH1F*> histos_j2pt_WJets = {h_J2Pt_doubletagSR_WJets,h_J2Pt_doubletagSB_WJets,h_J2Pt_tagSR_WJets,h_J2Pt_tagSB_WJets, h_J2Pt_antitagSR_WJets, h_J2Pt_antitagSB_WJets};
   vector<TH1F*> histos_j2pt_TT    = {h_J2Pt_doubletagSR_TT,h_J2Pt_doubletagSB_TT,h_J2Pt_tagSR_TT,h_J2Pt_tagSB_TT, h_J2Pt_antitagSR_TT, h_J2Pt_antitagSB_TT};
+  vector<TH1F*> histos_j2pt_TT_Di    = {h_J2Pt_doubletagSR_TT_Di,h_J2Pt_doubletagSB_TT_Di,h_J2Pt_tagSR_TT_Di,h_J2Pt_tagSB_TT_Di, h_J2Pt_antitagSR_TT_Di, h_J2Pt_antitagSB_TT_Di};
+  vector<TH1F*> histos_j2pt_TT_SL    = {h_J2Pt_doubletagSR_TT_SL,h_J2Pt_doubletagSB_TT_SL,h_J2Pt_tagSR_TT_SL,h_J2Pt_tagSB_TT_SL, h_J2Pt_antitagSR_TT_SL, h_J2Pt_antitagSB_TT_SL};
   vector<TH1F*> histos_j2pt_QCD   = {h_J2Pt_doubletagSR_QCD,h_J2Pt_doubletagSB_QCD,h_J2Pt_tagSR_QCD,h_J2Pt_tagSB_QCD, h_J2Pt_antitagSR_QCD, h_J2Pt_antitagSB_QCD};
   vector<TH1F*> histos_j2pt_T5HH1300 = {h_J2Pt_doubletagSR_T5HH1300,h_J2Pt_doubletagSB_T5HH1300,h_J2Pt_tagSR_T5HH1300,h_J2Pt_tagSB_T5HH1300, h_J2Pt_antitagSR_T5HH1300, h_J2Pt_antitagSB_T5HH1300};
   vector<TH1F*> histos_j2pt_T5HH1700 = {h_J2Pt_doubletagSR_T5HH1700,h_J2Pt_doubletagSB_T5HH1700,h_J2Pt_tagSR_T5HH1700,h_J2Pt_tagSB_T5HH1700, h_J2Pt_antitagSR_T5HH1700, h_J2Pt_antitagSB_T5HH1700};
   vector<TH1F*> histos_j2pt_T5HH2100 = {h_J2Pt_doubletagSR_T5HH2100,h_J2Pt_doubletagSB_T5HH2100,h_J2Pt_tagSR_T5HH2100,h_J2Pt_tagSB_T5HH2100, h_J2Pt_antitagSR_T5HH2100, h_J2Pt_antitagSB_T5HH2100};
 
   vector<TH1F*> histos_assump_sum = {h_notagSR_sum,h_notagSB_sum};
+  vector<TH1F*> histos_assump2_sum = {h_notagSR_sum,h_notagSB2_sum};
   vector<TH1F*> histos_assump_ZJets = {h_notagSR_ZJets,h_notagSB_ZJets};
   vector<TH1F*> histos_assump_WJets = {h_notagSR_WJets,h_notagSB_WJets};
   vector<TH1F*> histos_assump_TT = {h_notagSR_TT,h_notagSB_TT};
+  vector<TH1F*> histos_assump_TT_Di = {h_notagSR_TT_Di,h_notagSB_TT_Di};
+  vector<TH1F*> histos_assump_TT_SL = {h_notagSR_TT_SL,h_notagSB_TT_SL};
   vector<TH1F*> histos_assump_QCD = {h_notagSR_QCD,h_notagSB_QCD};
 
-  if (runClosurePlots){
-    makeClosureStackPlot(histos_ABCD_QCD,histos_ABCD_TT,histos_ABCD_WJets,histos_ABCD_ZJets,histos_ABCD_sum);
-    makeTestClosurePlot(h_C_sum, h_notagSB_sum, h_A_sum);
-  }
+  // vector<TH1F*> h_METShape_2H = {h_A_sum,h_B_sum,h_C_sum,h_D_sum};
+  // vector<TH1F*> h_METShape_2H = {h_A_TT,h_A_WJets,h_0HSROpt1_TT,h_0HSROpt1_WJets,h_0HSBOpt1_TT,h_0HSBOpt1_WJets};
+  vector<TH1F*> h_METShape_2H = {h_A_sum,h_D_sum,h_0HSBOpt1,h_C_sum,h_0HSROpt1};
+  vector<TH1F*> h_METShape_1H = {h_A1_sum,h_D_sum,h_0HSBOpt1,h_C_sum,h_0HSROpt1};
+
+  //Revisit optional cuts when V18 is out
+  // vector<TH1F*> h_METShape_2H = {h_A_sum,h_D_sum,h_0HSBOpt2,h_C_sum,h_0HSROpt2};
+  // vector<TH1F*> h_METShape_1H = {h_A1_sum,h_D_sum,h_0HSBOpt2,h_C_sum,h_0HSROpt2};
+
 
   if (runABCDPlots){
     if (whichRegion=="signal"){
-      makeABCDPlot(histos_ABCD_sum, "BkgSum", "Double");
-      makeABCDPlot(histos_ABCD_QCD, "QCD", "Double");
-      makeABCDPlot(histos_ABCD_TT, "TT", "Double");
-      makeABCDPlot(histos_ABCD_WJets, "WJets", "Double");
-      makeABCDPlot(histos_ABCD_ZJets, "ZJets", "Double");
-
-      makeABCDPlot(histos_A1B1CD_sum, "BkgSum", "Single");
-      makeABCDPlot(histos_A1B1CD_QCD, "QCD", "Single");
-      makeABCDPlot(histos_A1B1CD_TT, "TT", "Single");
-      makeABCDPlot(histos_A1B1CD_WJets, "WJets", "Single");
-      makeABCDPlot(histos_A1B1CD_ZJets, "ZJets", "Single");
+      // makeFullBkgClosure(histos_ABCD_sum, "BkgSum", "Double",year);
+      makeABCDPlot(histos_ABCD_sum, "BkgSum", "Double",year);
+      makeABCDPlot(histos_ABCD_QCD, "QCD", "Double",year);
+      makeABCDPlot(histos_ABCD_TT, "TT", "Double",year);
+      // makeABCDPlot(histos_ABCD_TT_Di, "TT_Di", "Double",year);
+      // makeABCDPlot(histos_ABCD_TT_SL, "TT_SL", "Double",year);
+      makeABCDPlot(histos_ABCD_WJets, "WJets", "Double",year);
+      makeABCDPlot(histos_ABCD_ZJets, "ZJets", "Double",year);
+      makeABCDPlot(histos_A1B1CD_sum, "BkgSum", "Single",year);
+      makeABCDPlot(histos_A1B1CD_QCD, "QCD", "Single",year);
+      makeABCDPlot(histos_A1B1CD_TT, "TT", "Single",year);
+      // makeABCDPlot(histos_A1B1CD_TT_Di, "TT_Di", "Single",year);
+      // makeABCDPlot(histos_A1B1CD_TT_SL, "TT_SL", "Single",year);
+      makeABCDPlot(histos_A1B1CD_WJets, "WJets", "Single",year);
+      makeABCDPlot(histos_A1B1CD_ZJets, "ZJets", "Single",year);
     }
 
-    // else if (whichRegion=="singleLept"){
-    //   makeABCDPlot(histos_ABCD_sum, "BkgSum", "Double");
-    //   makeABCDPlot(histos_ABCD_TT, "TT", "Double");
-    //   makeABCDPlot(histos_ABCD_WJets, "WJets", "Double");
-    //
-    //   makeABCDPlot(histos_ABCD_sum, "BkgSum", "Single");
-    //   makeABCDPlot(histos_A1B1CD_TT, "TT", "Single");
-    //   makeABCDPlot(histos_A1B1CD_WJets, "WJets", "Single");
-    // }
-    // else if (whichRegion=="photon"){
-    //   makeABCDPlot(histos_ABCD_QCD, "QCD", "Double");
-    //   makeABCDPlot(histos_ABCD_GJets, "GJets", "Double");
-    //   makeABCDPlot(histos_A1B1CD_QCD, "QCD", "Single");
-    //   makeABCDPlot(histos_A1B1CD_GJets, "GJets", "Single");
-    // }
+    else if (whichRegion=="singleLept"){
+      makeFullBkgClosure(histos_ABCD_sum, "BkgSum", "Double",year);
+
+      // makeABCDPlot(histos_ABCD_data, "Data", "Double",year);
+
+      // makeABCDPlot(histos_ABCD_sum, "BkgSum", "Double",year);
+      makeABCDPlot(histos_ABCD_TT, "TT", "Double",year);
+      // makeABCDPlot(histos_ABCD_TT_Di, "TT_Di", "Double",year);
+      // makeABCDPlot(histos_ABCD_TT_SL, "TT_SL", "Double",year);
+      makeABCDPlot(histos_ABCD_WJets, "WJets", "Double",year);
+
+      // makeABCDPlot(histos_ABCD_sum, "BkgSum", "Single",year);
+      makeABCDPlot(histos_A1B1CD_TT, "TT", "Single",year);
+      // makeABCDPlot(histos_A1B1CD_TT_Di, "TT_Di", "Single",year);
+      // makeABCDPlot(histos_A1B1CD_TT_SL, "TT_SL", "Single",year);
+      makeABCDPlot(histos_A1B1CD_WJets, "WJets", "Single",year);
+
+    }
+    else if (whichRegion=="photon"){
+      makeABCDPlot(histos_ABCD_QCD, "QCD", "Double",year);
+      makeABCDPlot(histos_ABCD_GJets, "GJets", "Double",year);
+      makeABCDPlot(histos_A1B1CD_QCD, "QCD", "Single",year);
+      makeABCDPlot(histos_A1B1CD_GJets, "GJets", "Single",year);
+    }
   }
 
-  if (runAssumpt) {
-    makeAsummptionPlot(histos_assump_sum, "BkgSum");
-    makeAsummptionPlot(histos_assump_ZJets, "ZJets");
-    makeAsummptionPlot(histos_assump_WJets, "WJets");
-    makeAsummptionPlot(histos_assump_TT, "TT");
-    makeAsummptionPlot(histos_assump_QCD, "QCD");
-   }
+   // makeRpfPlot(histos_RPF_LeadSR_sum, "BkgSum", "J2", "Double",year);
+   // makeRpfPlot(histos_RPF_LeadSB_sum, "BkgSum", "J2", "Double",year);
+
 
   if (runRPFPlots){
     // myfile.open("Rpf_deviations.txt");
     if (whichRegion=="signal"){
       //J1 Double tag region
-      makeRpfPlot(histos_Rpf_J1_sum, "BkgSum", "J1", "Double");
-      makeRpfPlot(histos_Rpf_J1_QCD, "QCD", "J1", "Double");
-      makeRpfPlot(histos_Rpf_J1_TT, "TT", "J1", "Double");
-      makeRpfPlot(histos_Rpf_J1_WJets, "WJets", "J1", "Double");
-      makeRpfPlot(histos_Rpf_J1_ZJets, "ZJets", "J1", "Double");
+      makeRpfPlot(histos_Rpf_J1_sum, "BkgSum", "J1", "Double",year);
+      makeRpfPlot(histos_Rpf_J1_QCD, "QCD", "J1", "Double",year);
+      makeRpfPlot(histos_Rpf_J1_TT, "TT", "J1", "Double",year);
+      // makeRpfPlot(histos_Rpf_J1_TT_Di, "TT_Di", "J1", "Double",year);
+      // makeRpfPlot(histos_Rpf_J1_TT_SL, "TT_SL", "J1", "Double",year);
+      makeRpfPlot(histos_Rpf_J1_WJets, "WJets", "J1", "Double",year);
+      makeRpfPlot(histos_Rpf_J1_ZJets, "ZJets", "J1", "Double",year);
 
       //J1 Single tag region
-      makeRpfPlot(histos_Rpfsingle_J1_sum, "BkgSum", "J1", "Single");
-      makeRpfPlot(histos_Rpfsingle_J1_QCD, "QCD", "J1", "Single");
-      makeRpfPlot(histos_Rpfsingle_J1_TT, "TT", "J1", "Single");
-      makeRpfPlot(histos_Rpfsingle_J1_WJets, "WJets", "J1", "Single");
-      makeRpfPlot(histos_Rpfsingle_J1_ZJets, "ZJets", "J1", "Single");
+      makeRpfPlot(histos_Rpfsingle_J1_sum, "BkgSum", "J1", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J1_QCD, "QCD", "J1", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J1_TT, "TT", "J1", "Single",year);
+      // makeRpfPlot(histos_Rpfsingle_J1_TT_Di, "TT_Di", "J1", "Single",year);
+      // makeRpfPlot(histos_Rpfsingle_J1_TT_SL, "TT_SL", "J1", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J1_WJets, "WJets", "J1", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J1_ZJets, "ZJets", "J1", "Single",year);
 
       //J2 double tag region
-      makeRpfPlot(histos_Rpf_J2_sum, "BkgSum", "J2", "Double");
-      makeRpfPlot(histos_Rpf_J2_QCD, "QCD", "J2", "Double");
-      makeRpfPlot(histos_Rpf_J2_TT, "TT", "J2", "Double");
-      makeRpfPlot(histos_Rpf_J2_WJets, "WJets", "J2", "Double");
-      makeRpfPlot(histos_Rpf_J2_ZJets, "ZJets", "J2", "Double");
+      makeRpfPlot(histos_Rpf_J2_sum, "BkgSum", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_QCD, "QCD", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_TT, "TT", "J2", "Double",year);
+      // makeRpfPlot(histos_Rpf_J2_TT_Di, "TT_Di", "J2", "Double",year);
+      // makeRpfPlot(histos_Rpf_J2_TT_SL, "TT_SL", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_WJets, "WJets", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_ZJets, "ZJets", "J2", "Double",year);
+
+      //J2 double tag region, with three mass bins
+      makeRpfPlot(histos_Rpf_J2_mJBins_sum, "BkgSum_mJ", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_mJBins_QCD, "QCD_mJ", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_mJBins_TT, "TT_mJ", "J2", "Double",year);
+      // makeRpfPlot(histos_Rpf_J2_mJBins_TT_Di, "TT_Di_mJ", "J2", "Double",year);
+      // makeRpfPlot(histos_Rpf_J2_mJBins_TT_SL, "TT_SL_mJ", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_mJBins_WJets, "WJets_mJ", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_mJBins_ZJets, "ZJets_mJ", "J2", "Double",year);
+
 
       //J2 single tag region
-      makeRpfPlot(histos_Rpfsingle_J2_sum, "BkgSum", "J2", "Single");
-      makeRpfPlot(histos_Rpfsingle_J2_QCD, "QCD", "J2", "Single");
-      makeRpfPlot(histos_Rpfsingle_J2_TT, "TT", "J2", "Single");
-      makeRpfPlot(histos_Rpfsingle_J2_WJets, "WJets", "J2", "Single");
-      makeRpfPlot(histos_Rpfsingle_J2_ZJets, "ZJets", "J2", "Single");
+      makeRpfPlot(histos_Rpfsingle_J2_sum, "BkgSum", "J2", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J2_QCD, "QCD", "J2", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J2_TT, "TT", "J2", "Single",year);
+      // makeRpfPlot(histos_Rpfsingle_J2_TT_Di, "TT_Di", "J2", "Single",year);
+      // makeRpfPlot(histos_Rpfsingle_J2_TT_SL, "TT_SL", "J2", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J2_WJets, "WJets", "J2", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J2_ZJets, "ZJets", "J2", "Single",year);
     }
-    // if (whichRegion=="singleLept"){
-    //   //J1 Double tag region
-    //   makeRpfPlot(histos_Rpf_J1_TT, "TT", "J1", "Double");
-    //   makeRpfPlot(histos_Rpf_J1_WJets, "WJets", "J1", "Double");
-    //
-    //   //J1 Single tag region
-    //   makeRpfPlot(histos_Rpfsingle_J1_TT, "TT", "J1", "Single");
-    //   makeRpfPlot(histos_Rpfsingle_J1_WJets, "WJets", "J1", "Single");
-    //
-    //   //J2 double tag region
-    //   makeRpfPlot(histos_Rpf_J2_TT, "TT", "J2", "Double");
-    //   makeRpfPlot(histos_Rpf_J2_WJets, "WJets", "J2", "Double");
-    //
-    //   //J2 single tag region
-    //   makeRpfPlot(histos_Rpfsingle_J2_TT, "TT", "J2", "Single");
-    //   makeRpfPlot(histos_Rpfsingle_J2_WJets, "WJets", "J2", "Single");
-    // }
-    // if (whichRegion=="photon"){
-    //   //J1 Double tag region
-    //   makeRpfPlot(histos_Rpf_J1_QCD, "QCD", "J1", "Double");
-    //   makeRpfPlot(histos_Rpf_J1_GJets, "GJets", "J1", "Double");
-    //
-    //   //J1 Single tag region
-    //   makeRpfPlot(histos_Rpfsingle_J1_QCD, "QCD", "J1", "Single");
-    //   makeRpfPlot(histos_Rpfsingle_J1_GJets, "GJets", "J1", "Single");
-    //
-    //   //J2 double tag region
-    //   makeRpfPlot(histos_Rpf_J2_QCD, "QCD", "J2", "Double");
-    //   makeRpfPlot(histos_Rpf_J2_GJets, "GJets", "J2", "Double");
-    //
-    //   //J2 single tag region
-    //   makeRpfPlot(histos_Rpfsingle_J2_QCD, "QCD", "J2", "Single");
-    //   makeRpfPlot(histos_Rpfsingle_J2_GJets, "GJets", "J2", "Single");
-    // }
+    if (whichRegion=="singleLept"){
+      //J1 Double tag region
+      // makeRpfPlot(histos_Rpf_J1_sum, "BkgSum", "J1", "Double",year);
+      makeRpfPlot(histos_Rpf_J1_TT, "TT", "J1", "Double",year);
+      // makeRpfPlot(histos_Rpf_J1_TT_Di, "TT_Di", "J1", "Double",year);
+      // makeRpfPlot(histos_Rpf_J1_TT_SL, "TT_SL", "J1", "Double",year);
+      makeRpfPlot(histos_Rpf_J1_WJets, "WJets", "J1", "Double",year);
+
+
+      //J1 Single tag region
+      // makeRpfPlot(histos_Rpfsingle_J1_sum, "BkgSum", "J1", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J1_TT, "TT", "J1", "Single",year);
+      // makeRpfPlot(histos_Rpfsingle_J1_TT_Di, "TT_Di", "J1", "Single",year);
+      // makeRpfPlot(histos_Rpfsingle_J1_TT_SL, "TT_SL", "J1", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J1_WJets, "WJets", "J1", "Single",year);
+
+
+      //J2 double tag region
+      // makeRpfPlot(histos_Rpf_J2_sum, "BkgSum", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_TT, "TT", "J2", "Double",year);
+      // makeRpfPlot(histos_Rpf_J2_TT_Di, "TT_Di", "J2", "Double",year);
+      // makeRpfPlot(histos_Rpf_J2_TT_SL, "TT_SL", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_WJets, "WJets", "J2", "Double",year);
+
+
+      //J2 single tag region
+      // makeRpfPlot(histos_Rpfsingle_J2_sum, "BkgSum", "J2", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J2_TT, "TT", "J2", "Single",year);
+      // makeRpfPlot(histos_Rpfsingle_J2_TT_Di, "TT_Di", "J2", "Single",year);
+      // makeRpfPlot(histos_Rpfsingle_J2_TT_SL, "TT_SL", "J2", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J2_WJets, "WJets", "J2", "Single",year);
+
+      //J2 double tag region, with three mass bins
+      // makeRpfPlot(histos_Rpf_J2_mJBins_sum, "BkgSum_mJ", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_mJBins_TT, "TT_mJ", "J2", "Double",year);
+      // makeRpfPlot(histos_Rpf_J2_mJBins_TT_Di, "TT_Di_mJ", "J2", "Double",year);
+      // makeRpfPlot(histos_Rpf_J2_mJBins_TT_SL, "TT_SL_mJ", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_mJBins_WJets, "WJets_mJ", "J2", "Double",year);
+    }
+    if (whichRegion=="photon"){
+      //J1 Double tag region
+      makeRpfPlot(histos_Rpf_J1_sum, "BkgSum", "J1", "Double",year);
+      makeRpfPlot(histos_Rpf_J1_QCD, "QCD", "J1", "Double",year);
+      makeRpfPlot(histos_Rpf_J1_GJets, "GJets", "J1", "Double",year);
+
+      //J1 Single tag region
+      makeRpfPlot(histos_Rpfsingle_J1_sum, "BkgSum", "J1", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J1_QCD, "QCD", "J1", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J1_GJets, "GJets", "J1", "Single",year);
+
+      //J2 double tag region
+      makeRpfPlot(histos_Rpf_J2_sum, "BkgSum", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_QCD, "QCD", "J2", "Double",year);
+      makeRpfPlot(histos_Rpf_J2_GJets, "GJets", "J2", "Double",year);
+
+      //J2 single tag region
+      makeRpfPlot(histos_Rpfsingle_J2_sum, "BkgSum", "J2", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J2_QCD, "QCD", "J2", "Single",year);
+      makeRpfPlot(histos_Rpfsingle_J2_GJets, "GJets", "J2", "Single",year);
+
+      // makeRpfPlot(histos_RPF_LeadSR_sum, "BkgSum", "J2", "Double",year);
+    }
 
     // myfile.close();
   }
 
 
-  if (runStacks && whichRegion=="signal") {
-    makeStackPlot(histos_j1mass_QCD,histos_j1mass_TT,histos_j1mass_WJets,histos_j1mass_ZJets,histos_j1mass_T5HH1300,histos_j1mass_T5HH1700,histos_j1mass_T5HH2100,"leadmass");
-    makeStackPlot(histos_j2mass_QCD,histos_j2mass_TT,histos_j2mass_WJets,histos_j2mass_ZJets,histos_j2mass_T5HH1300,histos_j2mass_T5HH1700,histos_j2mass_T5HH2100,"subleadmass");
+  // if (runStacks && whichRegion=="signal") {
+  //   makeStackPlot(histos_j1mass_QCD,histos_j1mass_TT,histos_j1mass_WJets,histos_j1mass_ZJets,histos_j1mass_T5HH1300,histos_j1mass_T5HH1700,histos_j1mass_T5HH2100,"leadmass");
+  //   makeStackPlot(histos_j2mass_QCD,histos_j2mass_TT,histos_j2mass_WJets,histos_j2mass_ZJets,histos_j2mass_T5HH1300,histos_j2mass_T5HH1700,histos_j2mass_T5HH2100,"subleadmass");
+  //   makeStackPlot(histos_j1pt_QCD,histos_j1pt_TT,histos_j1pt_WJets,histos_j1pt_ZJets,histos_j1pt_T5HH1300,histos_j1pt_T5HH1700,histos_j1pt_T5HH2100,"leadpt");
+  //   makeStackPlot(histos_j2pt_QCD,histos_j2pt_TT,histos_j2pt_WJets,histos_j2pt_ZJets,histos_j2pt_T5HH1300,histos_j2pt_T5HH1700,histos_j2pt_T5HH2100,"subleadpt");
+  // }
+  //
+  // if (runStacks && whichRegion=="singleLept") {
+  //   makeSingleLeptStackPlot(histos_j1mass_TT,histos_j1mass_WJets,"leadmass");
+  //   makeSingleLeptStackPlot(histos_j2mass_TT,histos_j2mass_WJets,"subleadmass");
+  //   makeSingleLeptStackPlot(histos_j1pt_TT,histos_j1pt_WJets,"leadpt");
+  //   makeSingleLeptStackPlot(histos_j2pt_TT,histos_j2pt_WJets,"subleadpt");
+  // }
+  //
 
-    makeStackPlot(histos_j1pt_QCD,histos_j1pt_TT,histos_j1pt_WJets,histos_j1pt_ZJets,histos_j1pt_T5HH1300,histos_j1pt_T5HH1700,histos_j1pt_T5HH2100,"leadpt");
-    makeStackPlot(histos_j2pt_QCD,histos_j2pt_TT,histos_j2pt_WJets,histos_j2pt_ZJets,histos_j2pt_T5HH1300,histos_j2pt_T5HH1700,histos_j2pt_T5HH2100,"subleadpt");
 
-  }
-
-  if (runStacks && whichRegion=="singleLept") {
-    makeSingleLeptStackPlot(histos_j1mass_TT,histos_j1mass_WJets,"leadmass");
-    makeSingleLeptStackPlot(histos_j2mass_TT,histos_j2mass_WJets,"subleadmass");
-
-    makeSingleLeptStackPlot(histos_j1pt_TT,histos_j1pt_WJets,"leadpt");
-    makeSingleLeptStackPlot(histos_j2pt_TT,histos_j2pt_WJets,"subleadpt");
-  }
-
-  if (runMETStacks && whichRegion=="signal") {
-    makeMETStack(h_MET_all_QCD,h_MET_all_TT,h_MET_all_WJets,h_MET_all_ZJets,h_MET_all_T5HH1300,h_MET_all_T5HH1700,h_MET_all_T5HH2100,"all");
-    makeMETStack(h_MET_Single_QCD,h_MET_Single_TT,h_MET_Single_WJets,h_MET_Single_ZJets,h_MET_Single_T5HH1300,h_MET_Single_T5HH1700,h_MET_Single_T5HH2100,"single");
-    makeMETStack(h_MET_Double_QCD,h_MET_Double_TT,h_MET_Double_WJets,h_MET_Double_ZJets,h_MET_Double_T5HH1300,h_MET_Double_T5HH1700,h_MET_Double_T5HH2100,"double");
+  if (runMETNorm){
+    makeMETNorm(h_METShape_2H, "2H");
+    // makeMETNorm(h_METShape_1H, "1H");
   }
 
   // if (runROC){
@@ -686,29 +969,64 @@ void runABCD() {
 
   fout->Close();
   f->Close();
-  fSignal->Close();
+  // fSignal->Close();
 } //end method ABCD()
 
-void makeABCDPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString tagType = "") {
+
+void makeABCDPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString tagType = "", TString year = "") {
   TH1F *histo_A = (TH1F*)dem_histos[0]->Clone("histo_A"); TH1F *histo_B = (TH1F*)dem_histos[1]->Clone("histo_B");
   TH1F *histo_C = (TH1F*)dem_histos[2]->Clone("histo_C"); TH1F *histo_D = (TH1F*)dem_histos[3]->Clone("histo_D");
   TH1F *histo_pred = (TH1F*)histo_B->Clone("histo_pred");
+  bool isData = false;
+  TString histoName = dem_histos[0]->GetName();
+  if (histoName.Contains("data")) isData=true;
 
   histo_pred->Multiply(histo_C);histo_pred->Divide(histo_D);
 
-  int numMETBins = histo_pred->GetNbinsX();
-  for (int i = 1; i<=numMETBins; i++){
-    if (histo_A->GetBinContent(i)<0.001){
-      std::cout<<"Attempting to solve problem"<<std::endl;
-      histo_A->SetBinContent(i,0.001);
-      if (histo_A->GetBinError(i)<0.001) histo_A->SetBinError(i,1.4);
-    }
-    if (histo_pred->GetBinContent(i)<0.001){
-      std::cout<<"Attempting to solve problem"<<std::endl;
-      histo_pred->SetBinContent(i,0.001);
-      if (histo_pred->GetBinError(i)<0.001) histo_pred->SetBinError(i,1.4);
+  if (!isData){
+    int numMETBins = histo_pred->GetNbinsX();
+    for (int i = 1; i<=numMETBins; i++){
+      if (histo_A->GetBinContent(i)<0.001){
+        std::cout<<"Attempting to solve problem"<<std::endl;
+        histo_A->SetBinContent(i,0.001);
+        if (histo_A->GetBinError(i)<0.001) histo_A->SetBinError(i,1.4);
+      }
+      if (histo_pred->GetBinContent(i)<0.001){
+        std::cout<<"Attempting to solve problem"<<std::endl;
+        histo_pred->SetBinContent(i,0.001);
+        if (histo_pred->GetBinError(i)<0.001) histo_pred->SetBinError(i,1.4);
+      }
     }
   }
+  else {
+    for (int i = 1; i<=3; i++){
+      if (histo_A->GetBinContent(i)<0.001){
+        std::cout<<"Attempting to solve problem"<<std::endl;
+        histo_A->SetBinContent(i,0.001);
+        if (histo_A->GetBinError(i)<0.001) histo_A->SetBinError(i,1.4);
+      }
+      if (histo_pred->GetBinContent(i)<0.001){
+        std::cout<<"Attempting to solve problem"<<std::endl;
+        histo_pred->SetBinContent(i,0.001);
+        if (histo_pred->GetBinError(i)<0.001) histo_pred->SetBinError(i,1.4);
+      }
+    }
+  }
+
+  // histo_A->SetBinError(3,1.0);
+  // histo_pred->SetBinError(3,1.0);
+  //
+  // cout<<"Will work!"<<endl;
+  // cout<<"A2: "<<histo_A->GetBinContent(1)<<"+/-"<<histo_A->GetBinError(1);
+  // cout<<", "<<histo_A->GetBinContent(2)<<"+/-"<<histo_A->GetBinError(2);
+  // cout<<", "<<histo_A->GetBinContent(3)<<"+/-"<<histo_A->GetBinError(3)<<endl;
+  //
+  // cout<<"Pred: "<<histo_pred->GetBinContent(1)<<"+/-"<<histo_pred->GetBinError(1);
+  // cout<<", "<<histo_pred->GetBinContent(2)<<"+/-"<<histo_pred->GetBinError(2);
+  // cout<<", "<<histo_pred->GetBinContent(3)<<"+/-"<<histo_pred->GetBinError(3)<<endl;
+
+  //apply kappa correction
+  // if (!isData) histo_pred->Scale(0.66);
 
   TGraphAsymmErrors * graph = new TGraphAsymmErrors(histo_A, histo_pred, "pois");
   TString canvName = bkgType+tagType;
@@ -747,7 +1065,7 @@ void makeABCDPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString tagTyp
   histo_pred->SetMarkerSize(0); histo_pred->SetLineWidth(1);
   histo_pred->SetLineColor(kBlue);
 
-  TString title = bkgType+";;nEvents";
+  TString title = bkgType+"_"+year+";;nEvents";
   histo_A->SetTitle(title); histo_pred->SetTitle(title);
   histo_pred->SetMinimum(0); histo_A->SetMinimum(0);
 
@@ -756,13 +1074,26 @@ void makeABCDPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString tagTyp
 
   TLegend* legend = new TLegend(0.60,0.7,0.93,0.91);
   legend->SetBorderSize(0);
-  if (tagType=="Double") {
-    legend->AddEntry(histo_A,"Simulation: A2","lp");
-    legend->AddEntry(histo_pred,"Prediction: B2*C/D","f");
+  if (!isData){
+    if (tagType=="Double") {
+      legend->AddEntry(histo_A,"MC: A2","lp");
+      legend->AddEntry(histo_pred,"Pred: B2*C/D","f");
+    }
+    else if (tagType=="Single") {
+      legend->AddEntry(histo_A,"MC: A1","lp");
+      legend->AddEntry(histo_pred,"Pred: B1*C/D","f");
+    }
   }
-  else if (tagType=="Single") {
-    legend->AddEntry(histo_A,"Simulation: A1","lp");
-    legend->AddEntry(histo_pred,"Prediction: B1*C/D","f");
+
+  else {
+    if (tagType=="Double") {
+      legend->AddEntry(histo_A,"Data A2","lp");
+      legend->AddEntry(histo_pred,"Pred: B2*C/D","f");
+    }
+    else if (tagType=="Single") {
+      legend->AddEntry(histo_A,"Data A1","lp");
+      legend->AddEntry(histo_pred,"Pred: B1*C/D","f");
+    }
   }
 
   float pred_bin1 = histo_pred->GetBinContent(1);
@@ -797,20 +1128,157 @@ void makeABCDPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString tagTyp
   // graph->GetYaxis()->SetRangeUser(0.3,1.5);
 
   graph->Draw("APE");
-  graph->GetXaxis()->SetRangeUser(250,1400);
+  graph->GetXaxis()->SetRangeUser(300,1400);
   graph->GetYaxis()->SetRangeUser(-1.0,5.0);
   if (tagType=="Single") graph->GetYaxis()->SetRangeUser(0.0,2.0);
   graph->Draw("APE");
   can_h->Modified(); can_h->Update();
+  graph->GetXaxis()->SetRangeUser(300,1400);
+  can_h->Modified(); can_h->Update();
 
-  TLine *line = new TLine(250,1.0,1400,1.0);
+
+  TLine *line = new TLine(300,1.0,1400,1.0);
   line->SetLineColor(kRed); line->SetLineStyle(2);
   line->Draw("same");
 
-  TString savename = "ABCD_"+tagType+"_"+bkgType;
-  // TString savename = whichRegion+"_"+tagType+"_"+bkgType;
+  TString savename = "ABCD_"+tagType+"_"+bkgType+"_"+year;
   cdABCD->cd();
   can_h->Write(savename);
+}
+
+void makeFullBkgClosure(vector<TH1F*> dem_histos, TString bkgType = "", TString tagType = "", TString year = "") {
+  TH1F *histo_A = (TH1F*)dem_histos[0]->Clone("histo_A"); TH1F *histo_B = (TH1F*)dem_histos[1]->Clone("histo_B");
+  TH1F *histo_C = (TH1F*)dem_histos[2]->Clone("histo_C"); TH1F *histo_D = (TH1F*)dem_histos[3]->Clone("histo_D");
+  TH1F *histo_pred = (TH1F*)histo_B->Clone("histo_pred");
+
+  TH1F *h_finalBkg = (TH1F*)histo_pred->Clone("h_finalBkg");
+  histo_pred->Multiply(histo_C);histo_pred->Divide(histo_D);
+
+  float bkgNorm = histo_pred->Integral();
+  // float kappa = 0.66; //SL
+  // float bkgFrac1 = 0.88; //SL
+  // float bkgFrac2 = 0.098; //SL
+  // float bkgFrac3 = 0.019; //SL
+
+  float kappa = 1.1; //Signal
+  float bkgFrac1 = 0.86; //Signal
+  float bkgFrac2 = 0.118; //Signal
+  float bkgFrac3 = 0.0251; //Signal
+
+  h_finalBkg->SetBinContent(1,bkgFrac1*bkgNorm*kappa);
+  h_finalBkg->SetBinContent(2,bkgFrac2*bkgNorm*kappa);
+  h_finalBkg->SetBinContent(3,bkgFrac3*bkgNorm*kappa);
+
+  // int numMETBins = h_finalBkg->GetNbinsX();
+  // for (int i = 1; i<=numMETBins; i++){
+  //     h_finalBkg->SetBinContent(i,0.001);
+  //     if (histo_pred->GetBinError(i)<0.001) histo_pred->SetBinError(i,1.4);
+  // }
+  // histo_A->SetBinError(3,1.0);
+  // histo_pred->SetBinError(3,1.0);
+
+  TGraphAsymmErrors * graph = new TGraphAsymmErrors(histo_A, h_finalBkg, "pois");
+  TString canvName = bkgType+tagType;
+  double W = 800; double H = 600;
+  double T = 0.08*H; double B = 0.12*H;
+  double L = 0.12*W; double R = 0.04*W;
+  TCanvas * can_h = new TCanvas(canvName,canvName, 50, 50, W, H);
+  can_h->SetFillColor(0); can_h->SetBorderMode(0);
+  can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
+  can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
+  can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
+  can_h->SetTickx(0); can_h->SetTicky(0);
+
+  double up_height = 0.8; // double dw_correction = 1.30;
+  double dw_correction = 1.18; double font_size_dw  = 0.1;
+  double dw_height = (1. - up_height) * dw_correction;
+  double dw_height_offset = 0.02;
+
+  TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
+  TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
+  pad1->SetTickx(0); pad1->SetTicky(0);
+  pad1->SetPad(0., 1 - up_height, 1., 1.00);
+  pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
+  pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.08); pad1->SetRightMargin(0.06);
+  pad1->Draw();
+
+  pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
+  pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
+  pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.01);
+  pad2->SetLeftMargin(0.08); pad2->SetRightMargin(0.06);
+  pad2->Draw(); pad1->cd();
+
+  h_finalBkg->SetStats(0); histo_A->SetStats(0);
+  h_finalBkg->SetFillColor(kBlue); h_finalBkg->SetFillStyle(3445);
+
+  h_finalBkg->SetMarkerSize(0); histo_pred->SetLineWidth(1);
+  h_finalBkg->SetLineColor(kBlue);
+
+  TString title = bkgType+"_"+year+";;nEvents";
+  histo_A->SetTitle(title); h_finalBkg->SetTitle(title);
+  h_finalBkg->SetMinimum(0); histo_A->SetMinimum(0);
+
+  histo_A->SetLineColor(kBlack); histo_A->SetMarkerStyle(20);
+  histo_A->SetMarkerColor(kBlack);
+
+  TLegend* legend = new TLegend(0.60,0.7,0.93,0.91);
+  legend->SetBorderSize(0);
+  if (tagType=="Double") {
+    legend->AddEntry(histo_A,"MC: A2","lp");
+    legend->AddEntry(h_finalBkg,"Pred: (B2*C/D)*kappa*bkgFrac","f");
+  }
+  else if (tagType=="Single") {
+    legend->AddEntry(histo_A,"MC: A1","lp");
+    legend->AddEntry(h_finalBkg,"Pred: (B1*C/D)*kappa*bkgFrac","f");
+  }
+
+  float pred_bin1 = h_finalBkg->GetBinContent(1);
+  float sig_bin1 = histo_A->GetBinContent(1);
+
+  if (pred_bin1>sig_bin1) {
+    h_finalBkg->GetYaxis()->SetTitleOffset(0.6);
+    h_finalBkg->GetXaxis()->SetLabelSize(0);
+    h_finalBkg->Draw("E2");
+    histo_A->Draw("same");
+  }
+  else {
+    histo_A->GetYaxis()->SetTitleOffset(0.6);
+    histo_A->GetXaxis()->SetLabelSize(0);
+    histo_A->Draw("same");
+    h_finalBkg->Draw("E2 same");
+  }
+  legend->Draw("same");
+
+  pad2->cd();
+  graph->SetTitle(";MET [GeV]; MC/Pred");
+  graph->SetMarkerStyle(20);
+  graph->SetLineColor(kBlack); graph->SetMarkerColor(kBlack);
+  graph->GetYaxis()->SetTitleOffset(0.25);
+  graph->GetYaxis()->SetTitleSize(0.13);
+  graph->GetXaxis()->SetTitleOffset(0.9);
+  graph->GetXaxis()->SetTitleSize(0.14);
+  graph->GetXaxis()->SetLabelSize(0.14);
+  graph->GetYaxis()->SetLabelSize(0.14);
+  graph->GetXaxis()->SetNdivisions(507);
+  graph->GetYaxis()->SetNdivisions(505);
+  // graph->GetYaxis()->SetRangeUser(0.3,1.5);
+
+  graph->Draw("APE");
+  graph->GetXaxis()->SetRangeUser(300,1400);
+  graph->GetYaxis()->SetRangeUser(-1.0,5.0);
+  if (tagType=="Single") graph->GetYaxis()->SetRangeUser(0.0,2.0);
+  graph->Draw("APE");
+  can_h->Modified(); can_h->Update();
+  graph->GetXaxis()->SetRangeUser(300,1400);
+  can_h->Modified(); can_h->Update();
+
+
+  TLine *line = new TLine(300,1.0,1400,1.0);
+  line->SetLineColor(kRed); line->SetLineStyle(2);
+  line->Draw("same");
+
+  cdClose->cd();
+  can_h->Write("ABCD_Closure");
 }
 
 void makeClosureStackPlot(vector<TH1F*> QCD_histos, vector<TH1F*> TT_histos, vector<TH1F*> WJets_histos,vector<TH1F*> ZJets_histos, vector<TH1F*> sum_histos){
@@ -828,8 +1296,6 @@ void makeClosureStackPlot(vector<TH1F*> QCD_histos, vector<TH1F*> TT_histos, vec
   TH1F *histo_MC  = (TH1F*)QCD_histo_A->Clone("histo_MC");
   histo_MC->Add(TT_histo_A); histo_MC->Add(WJets_histo_A); histo_MC->Add(ZJets_histo_A);
 
-  // histo_pred->SetMarkerStyle(20);
-  // histo_pred->SetLineColor(kRed);histo_pred->SetMarkerColor(kRed);
   histo_pred->SetFillColor(kRed);
   histo_pred->SetFillStyle(3445);
   QCD_histo_A->SetLineColor(kGray);QCD_histo_A->SetFillColor(kGray);
@@ -877,13 +1343,11 @@ void makeClosureStackPlot(vector<TH1F*> QCD_histos, vector<TH1F*> TT_histos, vec
   TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
   TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
   pad1->SetTickx(0); pad1->SetTicky(0);
-  // pad1->SetPad(0., 1 - up_height, 1., 1.00);
   pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
   pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.10);
   pad1->SetRightMargin(0.04);
   pad1->Draw();
 
-  // pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
   pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
   pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.03);
   pad2->SetLeftMargin(0.10); pad2->SetRightMargin(0.04);
@@ -895,11 +1359,6 @@ void makeClosureStackPlot(vector<TH1F*> QCD_histos, vector<TH1F*> TT_histos, vec
   stack_closure_MC->Draw("hist same");
   histo_pred->Draw("E2 same");
   histo_MC->Draw("same");
-
-  // stack_closure_MC->SetTitle(";MET [GeV];Events (137 fb^{-1})");
-  // stack_closure_MC->Draw("hist");
-  // histo_pred->Draw("same");
-
   legend->Draw("same");
 
   pad2->cd();
@@ -917,112 +1376,23 @@ void makeClosureStackPlot(vector<TH1F*> QCD_histos, vector<TH1F*> TT_histos, vec
   TLine *line = new TLine(250,1.0,1400,1.0);
   line->SetLineColor(kRed); line->SetLineStyle(2);
   line->Draw("same");
-
   c1->Modified();c1->Update();
 
   cdClose->cd();
   c1->Write("ABCD_Closure");
 }
 
-//Will only need to pass this (I think) two plots, one for SR and one for SB (IF the sum works)
-void makeAsummptionPlot(vector<TH1F*> dem_histos, TString bkgType = "") {
-  TH1D * SR_plot  = (TH1D*)dem_histos[0]->Clone("SR_"+bkgType);
-  TH1D * SB_plot  = (TH1D*)dem_histos[1]->Clone("SB_"+bkgType);
+void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType = "", TString tagType = "", TString year = "") {
+  TH1D * num   = (TH1D*)dem_histos[1]->Clone("num"+tagType+"_"+jetType+"_"+bkgType); //this should be 2H SB
+  TH1D * denom = (TH1D*)dem_histos[3]->Clone("denom"+tagType+"_"+jetType+"_"+bkgType);  //this should be 0H SB
+  // num->Add(dem_histos[1]); denom->Add(dem_histos[3]);
+  // num->Rebin(8);
 
-  // SR_plot->Rebin(2); SB_plot->Rebin(2);
+  if (!bkgType.Contains("_mJ")){
+    num->Rebin(2);
+    denom->Rebin(2);
+  }
 
-  SR_plot->SetMarkerStyle(20); SR_plot->SetMarkerSize(0.85);
-  SR_plot->SetLineColor(kBlack); SR_plot->SetMarkerColor(kBlack);
-  SR_plot->GetYaxis()->SetTitle("Normalized to area");
-
-
-  SB_plot->SetMarkerStyle(20); SB_plot->SetMarkerSize(0.85);
-  SB_plot->SetLineColor(kBlue); SB_plot->SetMarkerColor(kBlue);
-
-  TString SR_plotTitle = "SR_plot"+bkgType; TString SB_plotTitle = "SB_plot"+bkgType;
-  SR_plot->SetTitle(SR_plotTitle); SB_plot->SetTitle(SB_plotTitle);
-
-  TString graphName = "ratio"+bkgType;
-  TGraphAsymmErrors * graph = new TGraphAsymmErrors(SR_plot, SB_plot, "pois");
-  graph->SetName(graphName);
-  graph->SetTitle(";MET [GeV];Ratio SR/SB");
-  graph->GetYaxis()->SetTitleSize(0.055);
-  graph->SetMarkerStyle(20);
-  graph->SetMarkerSize(0.85);
-  // graph->SetMinimum(0.0);
-  graph->SetLineColor(kBlack);
-  graph->SetMarkerColor(kBlack);
-  // graph->GetXaxis()->SetRangeUser(50,250);
-
-  double W = 800; double H = 600;
-  double T = 0.08*H; double B = 0.12*H;
-  double L = 0.15*W; double R = 0.02*W;
-  TCanvas * can_h = new TCanvas(graphName,graphName, 50, 50, W, H);
-  can_h->SetFillColor(0); can_h->SetBorderMode(0);
-  can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
-  can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
-  can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
-  can_h->SetTickx(0); can_h->SetTicky(0);
-
-  double up_height     = 0.8; double dw_correction = 1.18;
-  double font_size_dw  = 0.1;
-  double dw_height = (1. - up_height) * dw_correction;
-  double dw_height_offset = 0.02;
-
-  TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
-  TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
-  pad1->SetTickx(0); pad1->SetTicky(0);
-  pad1->SetPad(0., 1 - up_height, 1., 1.00);
-  pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
-  pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.10);
-  pad1->SetRightMargin(0.04);
-  pad1->Draw();
-
-  pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
-  pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
-  pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.01);
-  pad2->SetLeftMargin(0.10); pad2->SetRightMargin(0.04);
-  pad2->Draw(); pad1->cd();
-
-  SR_plot->GetXaxis()->SetLabelSize(0);
-  SR_plot->GetYaxis()->SetTitleOffset(0.8);
-  SR_plot->SetTitle(bkgType);
-  SR_plot->DrawNormalized();
-  SB_plot->DrawNormalized("same");
-
-  // TLegend* legend = new TLegend(0.5426065,0.7935484,0.9498246,0.9403226,NULL,"brNDC") ;
-  TLegend* legend = new TLegend(0.5,0.7,0.95,0.9,NULL,"brNDC") ;
-  legend->SetBorderSize(0);
-  legend->AddEntry(SR_plot, "Higgs Search Region", "PL");
-  legend->AddEntry(SB_plot, "Sideband", "PL");
-  legend->Draw();
-
-  pad2->cd();
-  graph->GetYaxis()->SetTitleOffset(0.25);
-  graph->GetYaxis()->SetTitleSize(0.13);
-  graph->GetXaxis()->SetTitleOffset(0.9);
-  graph->GetXaxis()->SetTitleSize(0.14);
-  graph->GetXaxis()->SetLabelSize(0.14);
-  graph->GetYaxis()->SetLabelSize(0.10);
-  // graph->GetXaxis()->SetNdivisions(507);
-  graph->GetYaxis()->SetNdivisions(505);
-  graph->Draw("APE");
-  graph->GetXaxis()->SetRangeUser(250.,1400.);
-  // graph->Draw("APE");
-  TF1*f0=new TF1("f0","pol0");
-  graph->Fit("f0","Q");
-  gStyle->SetOptFit();
-  can_h->Modified(); can_h->Update();
-
-  cdAssum->cd();
-  can_h->Write(bkgType);
-}
-
-void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType = "", TString tagType = "") {
-  TH1D * num   = (TH1D*)dem_histos[0]->Clone("num"+tagType+"_"+jetType+"_"+bkgType);
-  TH1D * denom = (TH1D*)dem_histos[2]->Clone("denom"+tagType+"_"+jetType+"_"+bkgType);
-  num->Add(dem_histos[1]); denom->Add(dem_histos[3]);
-  num->Rebin(2); denom->Rebin(2);
 
   num->SetMarkerStyle(20); num->SetMarkerSize(0.85);
   num->SetLineColor(kRed); num->SetMarkerColor(kRed);
@@ -1030,11 +1400,10 @@ void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType
   denom->SetLineColor(kBlue); denom->SetMarkerColor(kBlue);
   num->SetMinimum(0.0);denom->SetMinimum(0.0);
 
-  TString thisType = tagType+"_"+jetType+"_"+bkgType;
+  TString thisType = tagType+"_"+jetType+"_"+bkgType+"_"+year;
   num->SetTitle(thisType+";;Normalized to area");
   num->GetYaxis()->SetTitleOffset(0.77);
-  TString numTitle = "num"+thisType; TString denomTitle = "denom"+thisType;
-  // num->SetTitle(numTitle); denom->SetTitle(denomTitle);
+
   TString graphName = "ratio"+thisType;
   // num->Sumw2(); denom->Sumw2(); //already done
   TGraphAsymmErrors * graph = new TGraphAsymmErrors(num, denom, "pois");
@@ -1072,21 +1441,25 @@ void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType
   pad2->Draw(); pad1->cd();
 
   num->GetXaxis()->SetLabelSize(0);
+  // num->Rebin(2);
+  // denom->Rebin(2);
   num->DrawNormalized();
   denom->DrawNormalized("same");
 
   TLegend* legend = new TLegend(0.5,0.65,0.95,0.88,NULL,"brNDC") ;
   legend->SetBorderSize(0);
+  // legend->SetHeader(year);
   if (tagType == "Single"){
-    legend->AddEntry(num, "1H (numerator)", "PL");
-    legend->AddEntry(denom, "0H (denominator)", "PL");
+    legend->AddEntry(num, "1H SB (numerator)", "PL");
+    legend->AddEntry(denom, "0H SB (denominator)", "PL");
     graph->SetTitle(";Soft-drop mass [GeV];R(1H/0H)");
   }
   else if (tagType == "Double"){
-    legend->AddEntry(num, "2H (numerator)", "PL");
-    legend->AddEntry(denom, "0H (denominator)", "PL");
+    legend->AddEntry(num, "2H SB (numerator)", "PL");
+    legend->AddEntry(denom, "0H SB (denominator)", "PL");
     graph->SetTitle(";Soft-drop mass [GeV];R(2H/0H)");
   }
+
   legend->Draw();
 
   pad2->cd();
@@ -1116,8 +1489,8 @@ void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType
   can_h->Modified();
   can_h->Update();
 
-  TF1*f0=new TF1("f0","pol0", 50,250);
-  graph->Fit("f0","Q","R",50,180);
+  TF1*f0=new TF1("f0","pol0", 50,150);
+  graph->Fit("f0","Q","R",50,150);
   double p0 = f0->GetParameter(0); //this does, indeed, work
   double error = f0->GetParError(0);
   graph->GetFunction("f0")->SetBit(TF1::kNotDraw);
@@ -1168,7 +1541,6 @@ void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType
   //   myfile<<"p0: "<<p0<<endl<<endl;
   //
   // }
-
     cdRPFFinal->cd();
     can_h->Write(thisType);
 
@@ -1177,6 +1549,7 @@ void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType
     denom->Write("Denom_"+thisType);
     graph->Write("RPFRatio_"+thisType);
 }
+
 
 void makeStackPlot(vector<TH1F*> h_QCD,vector<TH1F*> h_TT,vector<TH1F*> h_WJets,vector<TH1F*> h_ZJets, vector<TH1F*> h_T5HH1300,vector<TH1F*> h_T5HH1700,vector<TH1F*> h_T5HH2100, TString which = ""){
   TH1D *h_QCD_stack = (TH1D*)h_QCD[0]->Clone("QCDAll");
@@ -1271,7 +1644,6 @@ void makeStackPlot(vector<TH1F*> h_QCD,vector<TH1F*> h_TT,vector<TH1F*> h_WJets,
   else if (which == "leadpt") doubleBStack->GetXaxis()->SetTitle("Lead jet p_{T} [GeV]");
   else if (which == "subleadpt") doubleBStack->GetXaxis()->SetTitle("Sub-lead jet p_{T} [GeV]");
 
-
   h_T5HH1300_stack->Draw("same l");
   h_T5HH1700_stack->Draw("same l");
   h_T5HH2100_stack->Draw("same l");
@@ -1293,6 +1665,7 @@ void makeStackPlot(vector<TH1F*> h_QCD,vector<TH1F*> h_TT,vector<TH1F*> h_WJets,
   cdOther->cd();
   can_h->Write(savename);
 }
+
 
 void makeSingleLeptStackPlot(vector<TH1F*> h_TT,vector<TH1F*> h_WJets, TString which = "") {
   TH1D *h_TT_stack = (TH1D*)h_TT[0]->Clone("TTAll");
@@ -1406,7 +1779,6 @@ void makeMETStack(TH1F* h_QCD,TH1F* h_TT,TH1F* h_WJets,TH1F* h_ZJets, TH1F* h_T5
   can_h->Update(); can_h->Modified();
 
   TString savename = "MET"+which+"_Stack";
-  // if (useDeepDoubleB) savename = "MET"+which+"_deepDB_Stack";
   cdOther->cd();
   can_h->Write(savename);
 }
@@ -1464,247 +1836,116 @@ void QuickROC(TH1F* signalHist, TH1F* bkgHist, TString which = ""){
   can_h->Write(savename);
 }
 
-void ABCD1(){
-  TFile * f = TFile::Open("ALPHABEThistos_V12_METonly.root");
-  TFile * fSignal = TFile::Open("ALPHABEThistos_V12_METonly_signalOnly.root");
+void makeMETNorm(vector<TH1F*> dem_histos, TString tagType = "") {
+  //dem_histos will be [SR,0HSB,0HSBCuts,0HSR,0HSRCuts]
+  TH1D * h_SR   = (TH1D*)dem_histos[0]->Clone("h_SR");
+  // TH1D * h_0HSB_noCuts = (TH1D*)dem_histos[1]->Clone("h_0HSB_noCuts");
+  TH1D * h_0HSB_withCuts = (TH1D*)dem_histos[2]->Clone("h_0HSB_withCuts");
+  // TH1D * h_0HSR_noCuts = (TH1D*)dem_histos[3]->Clone("h_0HSR_noCuts");
+  TH1D * h_0HSR_withCuts = (TH1D*)dem_histos[4]->Clone("h_0HSR_withCuts");
 
-  TH1F* h_MET_double_QCD = (TH1F*)f->Get("MET_doubletagSR_QCD");
-  TH1F* h_MET_double_TT = (TH1F*)f->Get("MET_doubletagSR_TT");
-  TH1F* h_MET_double_WJets = (TH1F*)f->Get("MET_doubletagSR_WJets");
-  TH1F* h_MET_double_ZJets = (TH1F*)f->Get("MET_doubletagSR_ZJets");
+  // TH1D * h_SR_TT   = (TH1D*)dem_histos[0]->Clone("h_SR_TT"); //this will be 2HSR or 1HSR
+  // TH1D * h_SR_WJets   = (TH1D*)dem_histos[1]->Clone("h_SR_WJets");
+  // TH1D * h_0HSR_TT= (TH1D*)dem_histos[2]->Clone("h_0HSR_TT");
+  // TH1D * h_0HSR_WJets= (TH1D*)dem_histos[3]->Clone("h_0HSR_WJets");
+  // TH1D * h_0HSB_TT = (TH1D*)dem_histos[4]->Clone("h_0HSB_TT");
+  // TH1D * h_0HSB_WJets = (TH1D*)dem_histos[5]->Clone("h_0HSB_WJets");
 
-  TH1F* h_MET_double_TChiHH400 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH400");
-  TH1F* h_MET_double_TChiHH700 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH700");
-  TH1F* h_MET_double_TChiHH1000 = (TH1F*)fSignal->Get("MET_doubletagSR_TChiHH1000");
-
-  TH1F* h_MET_single_QCD = (TH1F*)f->Get("MET_tagSR_QCD");
-  TH1F* h_MET_single_TT = (TH1F*)f->Get("MET_tagSR_TT");
-  TH1F* h_MET_single_WJets = (TH1F*)f->Get("MET_tagSR_WJets");
-  TH1F* h_MET_single_ZJets = (TH1F*)f->Get("MET_tagSR_ZJets");
-
-  TH1F* h_MET_single_TChiHH400 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH400");
-  TH1F* h_MET_single_TChiHH700 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH700");
-  TH1F* h_MET_single_TChiHH1000 = (TH1F*)fSignal->Get("MET_tagSR_TChiHH1000");
-
-  vector<float> double_MET1_yields; vector<float> double_MET2_yields; vector<float> double_MET3_yields; vector<float> double_MET4_yields; vector<float> double_MET5_yields;
-  vector<float> single_MET1_yields; vector<float> single_MET2_yields; vector<float> single_MET3_yields; vector<float> single_MET4_yields; vector<float> single_MET5_yields;
-
-  vector<TH1F*> double_hists = {h_MET_double_QCD, h_MET_double_TT, h_MET_double_WJets, h_MET_double_ZJets, h_MET_double_TChiHH400, h_MET_double_TChiHH700, h_MET_double_TChiHH1000};
-  vector<TH1F*> single_hists = {h_MET_single_QCD, h_MET_single_TT, h_MET_single_WJets, h_MET_single_ZJets, h_MET_single_TChiHH400, h_MET_single_TChiHH700, h_MET_single_TChiHH1000};
-  for (int i = 0; i<7; i++) { //loop through samples
-    double_MET1_yields.push_back(double_hists[i]->GetBinContent(1)); single_MET1_yields.push_back(single_hists[i]->GetBinContent(1));
-    double_MET2_yields.push_back(double_hists[i]->GetBinContent(2)); single_MET2_yields.push_back(single_hists[i]->GetBinContent(2));
-    double_MET3_yields.push_back(double_hists[i]->GetBinContent(3)); single_MET3_yields.push_back(single_hists[i]->GetBinContent(3));
-    double_MET4_yields.push_back(double_hists[i]->GetBinContent(4)); single_MET4_yields.push_back(single_hists[i]->GetBinContent(4));
-    double_MET5_yields.push_back(double_hists[i]->GetBinContent(5)); single_MET5_yields.push_back(single_hists[i]->GetBinContent(5));
-  }
-
-  myfile.open("MCyields_V17.txt");
-  myfile << "\\hline Double \\\\ \\hline \n MET bin [GeV] & QCD & TT & WJets & ZJets & TChiHH400 & TChiHH700 & TChiHH1000 \\\\ \n \\hline";
-  myfile << "150-200 ";
-  for (int i=0;i<7;i++) myfile <<" & "<< double_MET1_yields[i];
-  myfile << " \\\\ \n 200-300 ";
-  for (int i=0;i<7;i++) myfile <<" & "<< double_MET2_yields[i];
-  myfile << " \\\\ \n 300-500 ";
-  for (int i=0;i<7;i++) myfile <<" & "<< double_MET3_yields[i];
-  myfile << " \\\\ \n 500-700 ";
-  for (int i=0;i<7;i++) myfile <<" & "<< double_MET4_yields[i];
-  myfile << " \\\\ \n $>$ 700 ";
-  for (int i=0;i<7;i++) myfile <<" & "<< double_MET5_yields[i];
-  myfile << " \\\\ \\hline \\hline \n Single \\\\ \\hline \n 150-200 ";
-
-  for (int i=0;i<7;i++) myfile <<" & "<< single_MET1_yields[i];
-  myfile << " \\\\ \n 200-300 ";
-  for (int i=0;i<7;i++) myfile <<" & "<< single_MET2_yields[i];
-  myfile << " \\\\ \n 300-500 ";
-  for (int i=0;i<7;i++) myfile <<" & "<< single_MET3_yields[i];
-  myfile << " \\\\ \n 500-700 ";
-  for (int i=0;i<7;i++) myfile <<" & "<< single_MET4_yields[i];
-  myfile << " \\\\ \n $>$ 700 ";
-  for (int i=0;i<7;i++) myfile <<" & "<< single_MET5_yields[i];
-  myfile << " \\\\ \\hline";
-  myfile.close();
-}
-
-//This is using the sublead RPF, doing an ABCD background method, but using the RPF as a kappa
-void makeTestClosurePlot(TH1F* h_antitagSR, TH1F* h_notagSB,TH1F* h_doubletagSR) {
-  //First clone all histos, so we aren't messing anything up
-  TH1F *antitagSR = (TH1F*)h_antitagSR->Clone("antitagSR");
-  TH1F *notagSB = (TH1F*)h_notagSB->Clone("notagSB");
-  TH1F *doubletagSR = (TH1F*)h_doubletagSR->Clone("doubletagSR");
-
-  TLegend* legend = new TLegend(0.60,0.7,0.93,0.91);
-  legend->SetBorderSize(0);
-
-  //First fancy up the doubletag SR
-  doubletagSR->SetMarkerStyle(20);
-  doubletagSR->SetMarkerSize(0.7);
-  doubletagSR->SetMarkerColor(kBlack);
-  doubletagSR->SetTitle(";; Events scaled to 137 fb^{-1}");
-  doubletagSR->SetTitleOffset(0.7);
-  doubletagSR->GetXaxis()->SetLabelSize(0);
-  legend->AddEntry(doubletagSR,"Double-tag SR: region A","lp");
-
-  //Then calculate the "green" band, which is the antitagSR scaled
-  //to the pass/fail ratio from the lead jet in the double-tag region (0.010883)
-  // antitagSR->Scale(0.010883); //this is for events with MET>300
-  antitagSR->Scale(0.013731); //this is for events with MET>250 (higher stats!)
-  antitagSR->SetFillColor(kGreen);
-  // antitagSR->SetFillStyle(3445);
-  legend->AddEntry(antitagSR,"AntiTag SR, scaled to RPF","f");
+  //Adding SR and SB together
+  // h_0HSB_noCuts->Add(h_0HSR_noCuts);
+  h_0HSB_withCuts->Add(h_0HSR_withCuts);
 
 
-  //Then calculate the integral of the green, and scale the normalized MET SB shape (without tagging)
-  //to this integral
-  float thisScaleIntegral = antitagSR->Integral();
-  notagSB->Scale(thisScaleIntegral/notagSB->Integral());
-  notagSB->SetFillColor(kRed);
-  notagSB->SetFillStyle(3445);
-  legend->AddEntry(notagSB,"MET SB, scaled to BkgNorm","f");
+  //try normalizing to 1?
+  h_SR->Scale(1/h_SR->Integral());
+  h_0HSB_withCuts->Scale(1/h_0HSB_withCuts->Integral());
 
-  TGraphAsymmErrors * graph1 = new TGraphAsymmErrors(doubletagSR, antitagSR, "pois");
-  TGraphAsymmErrors * graph2 = new TGraphAsymmErrors(doubletagSR, notagSB, "pois");
+  h_SR->SetMarkerStyle(20); h_SR->SetMarkerSize(0.85);
+  h_SR->SetLineColor(kRed); h_SR->SetMarkerColor(kRed);
+
+
+  h_0HSB_withCuts->SetMarkerStyle(20); h_0HSB_withCuts->SetMarkerSize(0.85);
+  h_0HSB_withCuts->SetLineColor(kBlack); h_0HSB_withCuts->SetMarkerColor(kBlack);
+
+  h_SR->SetTitle("BTagsM>1;MET [GeV];Normalized to area");
+
+  TString graphName = "MET";
+  TGraphAsymmErrors * graph = new TGraphAsymmErrors(h_SR, h_0HSB_withCuts, "pois");
+  graph->SetName(graphName);
+  graph->SetMarkerStyle(20); graph->SetMarkerSize(0.85);
+  graph->SetMinimum(-0.1); graph->GetXaxis()->SetRangeUser(300,1400);
+  graph->SetLineColor(kBlack); graph->SetMarkerColor(kBlack);
+  graph->SetTitle(";MET [GeV];2HSR / 0HCuts");
+
   double W = 800; double H = 600;
   double T = 0.08*H; double B = 0.12*H;
-  double L = 0.12*W; double R = 0.04*W;
-  TCanvas * can_h = new TCanvas("TestingWay2","TestingWay2", 50, 50, W, H);
+  double L = 0.12*W; double R = 0.06*W;
+  TCanvas * can_h = new TCanvas(graphName,graphName, 50, 50, W, H);
   can_h->SetFillColor(0); can_h->SetBorderMode(0);
   can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
   can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
   can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
   can_h->SetTickx(0); can_h->SetTicky(0);
 
-  double up_height = 0.8; // double dw_correction = 1.30;
-  double dw_correction = 1.18; double font_size_dw  = 0.1;
+  double up_height = 0.8; double dw_correction = 1.18;
+  double font_size_dw  = 0.1; double dw_height_offset = 0.02;
   double dw_height = (1. - up_height) * dw_correction;
-  double dw_height_offset = 0.02;
-
   TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
   TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
   pad1->SetTickx(0); pad1->SetTicky(0);
   pad1->SetPad(0., 1 - up_height, 1., 1.00);
   pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
-  pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.12); pad1->SetRightMargin(0.06);
+  pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.10); pad1->SetRightMargin(0.04);
   pad1->Draw();
 
   pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
   pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
   pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.01);
-  pad2->SetLeftMargin(0.08); pad2->SetRightMargin(0.06);
+  pad2->SetLeftMargin(0.10); pad2->SetRightMargin(0.04);
   pad2->Draw(); pad1->cd();
+  h_SR->GetXaxis()->SetLabelSize(0);
 
-  doubletagSR->Draw();
-  antitagSR->Draw("E2same");
-  notagSB->Draw("E2same");
-  doubletagSR->Draw("same");
-  legend->Draw("same");
+  h_SR->Draw();
+  h_0HSB_withCuts->Draw("same");
+
+  TLegend* legend = new TLegend(0.5,0.65,0.95,0.88,NULL,"brNDC") ;
+  legend->SetBorderSize(0);
+  TString legendEntryName = tagType+" SR";
+  legend->AddEntry(h_SR, legendEntryName, "PL");
+  legend->AddEntry(h_0HSB_withCuts, "0H SB+SR,BTagsM>1", "PL");
+  legend->Draw();
 
   pad2->cd();
-  graph1->SetTitle(";MET [GeV]; #kappa (Sim/Pred)");
-  graph1->SetMarkerStyle(20); graph1->SetLineColor(kGreen); graph1->SetMarkerColor(kGreen);
-  graph2->SetMarkerStyle(20); graph2->SetLineColor(kRed); graph2->SetMarkerColor(kRed);
-  graph1->GetYaxis()->SetTitleOffset(0.25);
-  graph1->GetYaxis()->SetTitleSize(0.13);
-  graph1->GetXaxis()->SetTitleOffset(0.9);
-  graph1->GetXaxis()->SetTitleSize(0.14);
-  graph1->GetXaxis()->SetLabelSize(0.14);
-  graph1->GetYaxis()->SetLabelSize(0.14);
-  graph1->GetXaxis()->SetNdivisions(507);
-  graph1->GetYaxis()->SetNdivisions(505);
-  // graph->GetYaxis()->SetRangeUser(0.3,1.5);
+  graph->Draw("APE");
+  graph->GetYaxis()->SetTitleOffset(0.25); graph->GetYaxis()->SetTitleSize(0.13);
+  graph->GetXaxis()->SetTitleOffset(0.9); graph->GetXaxis()->SetTitleSize(0.14);
+  graph->GetXaxis()->SetLabelSize(0.14); graph->GetYaxis()->SetLabelSize(0.10);
+  graph->GetYaxis()->SetNdivisions(505);
+  graph->Draw("APE");
+  double *this_y = graph->GetY();
+  cout<<"MET bin1: "<<this_y[0];
+  cout<<", MET bin2: "<<this_y[1];
+  cout<<", MET bin3: "<<this_y[2]<<endl;
 
-  graph1->Draw("APE");
-  graph2->Draw("E SAME");
-  graph1->GetXaxis()->SetRangeUser(250,1400);
-  // graph1->GetYaxis()->SetRangeUser(-1.0,5.0);
-  // if (tagType=="Single") graph->GetYaxis()->SetRangeUser(0.0,2.0);
-  // graph->Draw("APE");
-  can_h->Modified(); can_h->Update();
+
+  TF1*f0=new TF1("f0","pol0", 300,1400);
+  graph->Fit("f0","Q","R",300,1400);
+  double p0 = f0->GetParameter(0); //this does, indeed, work
+  double error = f0->GetParError(0);
+  graph->GetFunction("f0")->SetBit(TF1::kNotDraw);
+
+  TLine *line = new TLine(300.0,p0,1400.0,p0);
+  line->SetLineColor(kRed);
+  line->SetLineWidth(3);
+  line->SetLineStyle(2);
+  line->Draw("same");
+  std::string lineConst = to_string(p0); std::string lineErr = to_string(error);
+  TString constString = "Const: "+lineConst+" #pm "+ lineErr;
+  TLatex *t = new TLatex(0.2,0.85,constString);
+  t->SetNDC(); t->SetTextFont(52);
+  t->SetTextSize(0.13);
+  t->Draw();
+
   cdOther->cd();
-  can_h->Write("ClosureTest_SubleadRPF");
+  can_h->Write(tagType+"MET");
 }
-
-// void makeTestClosurePlot2(TH1F* notagSB,TH1F* doubletagSR) {
-//   //This script is almost entirely stylistic STUFF
-//   TLegend* legend = new TLegend(0.60,0.7,0.93,0.91);
-//   legend->SetBorderSize(0);
-//
-//   //First fancy up the doubletag SR
-//   doubletagSR->SetMarkerStyle(20);
-//   doubletagSR->SetMarkerSize(0.7);
-//   doubletagSR->SetMarkerColor(kBlack);
-//   doubletagSR->SetTitle(";MET [GeV]; Events scaled to 137 fb^{-1}");
-//   legend->AddEntry(doubletagSR,"Double-tag SR: region A","lp");
-//
-//   //Integral of sublead jet mass shape from the SB2 = 3.16445
-//   //Eventually will need to get this from Rishi
-//   // float thisScaleIntegral = 3.16445;
-//
-//   //Integral of antitagSR when weighted by the RPF from the lead jet
-//   float thisScaleIntegral = 1.4673840;
-//
-//   notagSB->Scale(thisScaleIntegral/notagSB->Integral());
-//   notagSB->SetFillColor(kRed);
-//   notagSB->SetFillStyle(3445);
-//   legend->AddEntry(notagSB,"MET SB, scaled to BkgNorm","f");
-//
-//   TGraphAsymmErrors * graph2 = new TGraphAsymmErrors(doubletagSR, notagSB, "pois");
-//   double W = 800; double H = 600;
-//   double T = 0.08*H; double B = 0.12*H;
-//   double L = 0.12*W; double R = 0.04*W;
-//   TCanvas * can_h = new TCanvas("TestingWay2","TestingWay2", 50, 50, W, H);
-//   can_h->SetFillColor(0); can_h->SetBorderMode(0);
-//   can_h->SetFrameFillStyle(0); can_h->SetFrameBorderMode(0);
-//   can_h->SetLeftMargin( L/W ); can_h->SetRightMargin( R/W );
-//   can_h->SetTopMargin( T/H ); can_h->SetBottomMargin( B/H );
-//   can_h->SetTickx(0); can_h->SetTicky(0);
-//
-//   double up_height = 0.8; // double dw_correction = 1.30;
-//   double dw_correction = 1.18; double font_size_dw  = 0.1;
-//   double dw_height = (1. - up_height) * dw_correction;
-//   double dw_height_offset = 0.02;
-//
-//   TPad *pad1 = new TPad("pad1", "top pad" , 0.0, 0.25, 1.0, 1.0);
-//   TPad *pad2 = new TPad("pad2", "bottom pad", 0.0, 0.0, 1.0, 0.25);
-//   pad1->SetTickx(0); pad1->SetTicky(0);
-//   pad1->SetPad(0., 1 - up_height, 1., 1.00);
-//   pad1->SetFrameFillColor(0); pad1->SetFillColor(0);
-//   pad1->SetTopMargin(0.08); pad1->SetLeftMargin(0.08); pad1->SetRightMargin(0.06);
-//   pad1->Draw();
-//
-//   pad2->SetPad(0., 0., 1., dw_height+dw_height_offset);
-//   pad2->SetFillColor(0); pad2->SetFrameFillColor(0);
-//   pad2->SetBottomMargin(0.33); pad2->SetTopMargin(0.01);
-//   pad2->SetLeftMargin(0.08); pad2->SetRightMargin(0.06);
-//   pad2->Draw(); pad1->cd();
-//
-//   doubletagSR->Draw();
-//   notagSB->Draw("E2same");
-//   doubletagSR->Draw("same");
-//   legend->Draw("same");
-//
-//    pad2->cd();
-//    pad2->cd();
-//    graph2->SetTitle(";MET [GeV]; #kappa (Sim/Pred)");
-//    graph2->SetMarkerStyle(20); graph2->SetLineColor(kRed); graph2->SetMarkerColor(kRed);
-//    graph2->GetYaxis()->SetTitleOffset(0.25);
-//    graph2->GetYaxis()->SetTitleSize(0.13);
-//    graph2->GetXaxis()->SetTitleOffset(0.9);
-//    graph2->GetXaxis()->SetTitleSize(0.14);
-//    graph2->GetXaxis()->SetLabelSize(0.14);
-//    graph2->GetYaxis()->SetLabelSize(0.14);
-//    graph2->GetXaxis()->SetNdivisions(507);
-//    graph2->GetYaxis()->SetNdivisions(505);
-//    // graph->GetYaxis()->SetRangeUser(0.3,1.5);
-//
-//    graph2->Draw("APE");
-//    graph2->GetXaxis()->SetRangeUser(300,1400);
-//    // graph1->GetYaxis()->SetRangeUser(-1.0,5.0);
-//    // if (tagType=="Single") graph->GetYaxis()->SetRangeUser(0.0,2.0);
-//    // graph->Draw("APE");
-//    can_h->Modified();
-//    can_h->Update();
-//
-//    can_h->SaveAs("ClosureTest2.pdf");
-//    can_h->SaveAs("ClosureTest2.root");
-// }

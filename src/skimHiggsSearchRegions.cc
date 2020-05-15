@@ -5,6 +5,8 @@
 #include "THStack.h"
 #include "TString.h"
 #include "TPad.h"
+#include "TLorentzVector.h"
+
 
 #include <vector>
 #include <map>
@@ -44,8 +46,8 @@ int main(int argc, char** argv) {
   TString regionName;
   TString cutName="baseline";
   regionName="signal";
-  // TFile* outputFile = new TFile("output.root","RECREATE");
-  TFile* outputFile = new TFile("output_V18.root","RECREATE");
+  TFile* outputFile = new TFile("output_V17.root","RECREATE");
+  // TFile* outputFile = new TFile("output_V18.root","RECREATE");
 
   // background MC samples - 0 lepton regions
   for ( int iSample = 0 ; iSample < skims.ntuples.size() ; iSample++) {
@@ -234,12 +236,10 @@ int main(int argc, char** argv) {
       nGenHs = getNumGenHiggses(ntuple);
 
 			if (runRealDeepBB) {
-				if (MET<300) bbtagCut=0.86;
-				else bbtagCut=0.70;
+				bbtagCut=0.70;
 			}
 			else {
-				if (MET<300) bbtagCut=0.89;
-				else bbtagCut=0.70;
+				bbtagCut=0.70;
 			}
 
       nAK4 = 0;
@@ -287,6 +287,7 @@ int main(int argc, char** argv) {
 
       // Stand-alone boosted case
       if ( boostedBaselineCut(ntuple) ) {
+        if (MET<300) continue;
         if (ntuple->JetsAK8_softDropMass->at(0)<1.0 || ntuple->JetsAK8_softDropMass->at(1)<1.0) continue;
 
         double J1_pT = ntuple->JetsAK8->at(0).Pt();double J2_pT = ntuple->JetsAK8->at(1).Pt();
@@ -300,12 +301,16 @@ int main(int argc, char** argv) {
 					J2_doubleB = ntuple->JetsAK8_pfMassIndependentDeepDoubleBvLJetTagsProbHbb->at(1);
 				}
 				else { //use unsupport deep bbtag
-					J1_doubleB = ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(0);
-					J2_doubleB = ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(1);
+					// J1_doubleB = ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(0);
+					// J2_doubleB = ntuple->JetsAK8_deepDoubleBDiscriminatorH->at(1);
+          J1_doubleB = ntuple->JetsAK8_doubleBDiscriminator->at(0);
+          J2_doubleB = ntuple->JetsAK8_doubleBDiscriminator->at(1);
 				}
 
         boost_J1mass = J1_softDropMass; boost_J2mass = J2_softDropMass;
         boost_J1bbtag = J1_doubleB; boost_J2bbtag = J2_doubleB;
+
+        bbtagCut = 0.3;
 
         bool J1_isBoost = (J1_pT>300.0 && J1_softDropMass>=85.0 && J1_softDropMass<135.0 && J1_doubleB>bbtagCut);
         bool J2_isBoost = (J2_pT>300.0 && J2_softDropMass>=85.0 && J2_softDropMass<135.0 && J2_doubleB>bbtagCut);
@@ -331,7 +336,7 @@ int main(int argc, char** argv) {
           H2_pt_boost = J2_pT;
         }
       }
-      
+
 
       //Stand-alone resolved case (using deepCSV)
 		  double CSVBtagLoose = 0.2217;
