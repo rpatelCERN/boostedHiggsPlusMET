@@ -68,6 +68,7 @@ class skimSamples {
     bool run_TChiHH2D = false;
     bool run_AllT5HH = false;
     bool run_SomeT5HH = false;
+    bool runData = false;
 
     if (r == kSignalOnly) {
       run_TT = false;
@@ -331,7 +332,7 @@ class skimSamples {
     std::vector<TString> SingleMuonNames;
     std::vector<TString> SinglePhotonFileNames;
 
-    if (Year.Contains("2016")){
+    if (Year.Contains("2016") && runData){
       SingleElectronNames.push_back("tree_SingleElectron_2016B.root");
       SingleElectronNames.push_back("tree_SingleElectron_2016C.root");
       SingleElectronNames.push_back("tree_SingleElectron_2016D.root");
@@ -391,7 +392,7 @@ class skimSamples {
 
     }
 
-    if (Year.Contains("2017")){
+    if (Year.Contains("2017") && runData){
       // SingleElectronNames.resize(0);
       SingleElectronNames.push_back("tree_SingleElectron_2017B.root");
       SingleElectronNames.push_back("tree_SingleElectron_2017C.root");
@@ -448,7 +449,7 @@ class skimSamples {
     }
 
 
-    if (Year.Contains("2018")){
+    if (Year.Contains("2018") && runData){
       // SingleElectronNames.resize(0);
       SingleElectronNames.push_back("tree_EGamma_2018A.root");
       SingleElectronNames.push_back("tree_EGamma_2018B.root");

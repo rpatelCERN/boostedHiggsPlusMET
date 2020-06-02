@@ -243,6 +243,73 @@ int main(int argc, char** argv) {
   antitagSBOpt2Plots.push_back(plot(J1_deepbbtag));
   antitagSBOpt2Plots.push_back(plot(J2_deepbbtag));
 
+  vector<plot> antitagSROpt3Plots;
+  antitagSROpt3Plots.push_back(plot(MET_Plot));
+  antitagSROpt3Plots.push_back(plot(J1pt_Ptplot));
+  antitagSROpt3Plots.push_back(plot(J2pt_Ptplot));
+  antitagSROpt3Plots.push_back(plot(J1pt_Mplot));
+  antitagSROpt3Plots.push_back(plot(J2pt_Mplot));
+  antitagSROpt3Plots.push_back(plot(J1_M_jetBins));
+  antitagSROpt3Plots.push_back(plot(J2_M_jetBins));
+  antitagSROpt3Plots.push_back(plot(J1_deepbbtag));
+  antitagSROpt3Plots.push_back(plot(J2_deepbbtag));
+
+  vector<plot> antitagSBOpt3Plots;
+  antitagSBOpt3Plots.push_back(plot(MET_Plot));
+  antitagSBOpt3Plots.push_back(plot(J1pt_Ptplot));
+  antitagSBOpt3Plots.push_back(plot(J2pt_Ptplot));
+  antitagSBOpt3Plots.push_back(plot(J1pt_Mplot));
+  antitagSBOpt3Plots.push_back(plot(J2pt_Mplot));
+  antitagSBOpt3Plots.push_back(plot(J1_M_jetBins));
+  antitagSBOpt3Plots.push_back(plot(J2_M_jetBins));
+  antitagSBOpt3Plots.push_back(plot(J1_deepbbtag));
+  antitagSBOpt3Plots.push_back(plot(J2_deepbbtag));
+
+  vector<plot> antitagSROpt4Plots;
+  antitagSROpt4Plots.push_back(plot(MET_Plot));
+  antitagSROpt4Plots.push_back(plot(J1pt_Ptplot));
+  antitagSROpt4Plots.push_back(plot(J2pt_Ptplot));
+  antitagSROpt4Plots.push_back(plot(J1pt_Mplot));
+  antitagSROpt4Plots.push_back(plot(J2pt_Mplot));
+  antitagSROpt4Plots.push_back(plot(J1_M_jetBins));
+  antitagSROpt4Plots.push_back(plot(J2_M_jetBins));
+  antitagSROpt4Plots.push_back(plot(J1_deepbbtag));
+  antitagSROpt4Plots.push_back(plot(J2_deepbbtag));
+
+  vector<plot> antitagSBOpt4Plots;
+  antitagSBOpt4Plots.push_back(plot(MET_Plot));
+  antitagSBOpt4Plots.push_back(plot(J1pt_Ptplot));
+  antitagSBOpt4Plots.push_back(plot(J2pt_Ptplot));
+  antitagSBOpt4Plots.push_back(plot(J1pt_Mplot));
+  antitagSBOpt4Plots.push_back(plot(J2pt_Mplot));
+  antitagSBOpt4Plots.push_back(plot(J1_M_jetBins));
+  antitagSBOpt4Plots.push_back(plot(J2_M_jetBins));
+  antitagSBOpt4Plots.push_back(plot(J1_deepbbtag));
+  antitagSBOpt4Plots.push_back(plot(J2_deepbbtag));
+
+  vector<plot> antitagSROpt5Plots;
+  antitagSROpt5Plots.push_back(plot(MET_Plot));
+  antitagSROpt5Plots.push_back(plot(J1pt_Ptplot));
+  antitagSROpt5Plots.push_back(plot(J2pt_Ptplot));
+  antitagSROpt5Plots.push_back(plot(J1pt_Mplot));
+  antitagSROpt5Plots.push_back(plot(J2pt_Mplot));
+  antitagSROpt5Plots.push_back(plot(J1_M_jetBins));
+  antitagSROpt5Plots.push_back(plot(J2_M_jetBins));
+  antitagSROpt5Plots.push_back(plot(J1_deepbbtag));
+  antitagSROpt5Plots.push_back(plot(J2_deepbbtag));
+
+  vector<plot> antitagSBOpt5Plots;
+  antitagSBOpt5Plots.push_back(plot(MET_Plot));
+  antitagSBOpt5Plots.push_back(plot(J1pt_Ptplot));
+  antitagSBOpt5Plots.push_back(plot(J2pt_Ptplot));
+  antitagSBOpt5Plots.push_back(plot(J1pt_Mplot));
+  antitagSBOpt5Plots.push_back(plot(J2pt_Mplot));
+  antitagSBOpt5Plots.push_back(plot(J1_M_jetBins));
+  antitagSBOpt5Plots.push_back(plot(J2_M_jetBins));
+  antitagSBOpt5Plots.push_back(plot(J1_deepbbtag));
+  antitagSBOpt5Plots.push_back(plot(J2_deepbbtag));
+
+
   vector<plot> notagSRPlots;
   notagSRPlots.push_back(plot(MET_Plot));
   notagSRPlots.push_back(plot(J1pt_Ptplot));
@@ -343,7 +410,7 @@ int main(int argc, char** argv) {
   // outputFile = new TFile("ALPHABET_ZJets16_withWeights.root","RECREATE");
   outputFile = new TFile("ALPHABET"+Year+"_V17"+regionName+METcut+cutName+"_2BoostedH.root","RECREATE");
   // outputFile = new TFile("ALPHABETBoost_V17_signalOnly.root","RECREATE");
-  // outputFile = new TFile("ALPHABETBoost_MC2016_V17_oldBBTag.root","RECREATE");
+  // outputFile = new TFile("ALPHABETBoost_"+Year+"_test.root","RECREATE");
 
   // background MC samples - 0 lepton regions
   // for (int iSample = 0; iSample < 0; iSample++) {
@@ -398,6 +465,30 @@ int main(int argc, char** argv) {
     for (int i = 0; i < antitagSBOpt2Plots.size(); i++) {
       antitagSBOpt2Plots[i].addNtuple(ntuple,"antitagSBOpt2_"+skims.sampleName[iSample]);
       antitagSBOpt2Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
+    }
+    for (int i = 0; i < antitagSROpt3Plots.size(); i++) {
+      antitagSROpt3Plots[i].addNtuple(ntuple,"antitagSROpt3_"+skims.sampleName[iSample]);
+      antitagSROpt3Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
+    }
+    for (int i = 0; i < antitagSBOpt3Plots.size(); i++) {
+      antitagSBOpt3Plots[i].addNtuple(ntuple,"antitagSBOpt3_"+skims.sampleName[iSample]);
+      antitagSBOpt3Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
+    }
+    for (int i = 0; i < antitagSROpt4Plots.size(); i++) {
+      antitagSROpt4Plots[i].addNtuple(ntuple,"antitagSROpt4_"+skims.sampleName[iSample]);
+      antitagSROpt4Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
+    }
+    for (int i = 0; i < antitagSBOpt4Plots.size(); i++) {
+      antitagSBOpt4Plots[i].addNtuple(ntuple,"antitagSBOpt4_"+skims.sampleName[iSample]);
+      antitagSBOpt4Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
+    }
+    for (int i = 0; i < antitagSROpt5Plots.size(); i++) {
+      antitagSROpt5Plots[i].addNtuple(ntuple,"antitagSROpt5_"+skims.sampleName[iSample]);
+      antitagSROpt5Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
+    }
+    for (int i = 0; i < antitagSBOpt5Plots.size(); i++) {
+      antitagSBOpt5Plots[i].addNtuple(ntuple,"antitagSBOpt5_"+skims.sampleName[iSample]);
+      antitagSBOpt5Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
     }
     for (int i = 0; i < notagSRPlots.size(); i++) {
       notagSRPlots[i].addNtuple(ntuple,"notagSR_"+skims.sampleName[iSample]);
@@ -607,6 +698,18 @@ int main(int argc, char** argv) {
             plots[bin][7].fill(ntuple,weight);
             for (int i = 0; i < antitagSROpt2Plots.size(); i++) antitagSROpt2Plots[i].fill(ntuple,weight);
           }
+          if (antitagSRCut_opt3( ntuple )) {
+            // plots[bin][7].fill(ntuple,weight);
+            for (int i = 0; i < antitagSROpt3Plots.size(); i++) antitagSROpt3Plots[i].fill(ntuple,weight);
+          }
+          if (antitagSRCut_opt4( ntuple )) {
+            // plots[bin][7].fill(ntuple,weight);
+            for (int i = 0; i < antitagSROpt4Plots.size(); i++) antitagSROpt4Plots[i].fill(ntuple,weight);
+          }
+          if (antitagSRCut_opt5( ntuple )) {
+            // plots[bin][7].fill(ntuple,weight);
+            for (int i = 0; i < antitagSROpt5Plots.size(); i++) antitagSROpt5Plots[i].fill(ntuple,weight);
+          }
         }
         else {
           if (antitagSBCut( ntuple )) {
@@ -619,6 +722,18 @@ int main(int argc, char** argv) {
             if (antitagSBCut_opt2( ntuple )) {
               plots[bin][9].fill(ntuple,weight);
               for (int i = 0; i < antitagSBOpt2Plots.size(); i++) antitagSBOpt2Plots[i].fill(ntuple,weight);
+            }
+            if (antitagSBCut_opt3( ntuple )) {
+              // plots[bin][9].fill(ntuple,weight);
+              for (int i = 0; i < antitagSBOpt3Plots.size(); i++) antitagSBOpt3Plots[i].fill(ntuple,weight);
+            }
+            if (antitagSBCut_opt4( ntuple )) {
+              // plots[bin][9].fill(ntuple,weight);
+              for (int i = 0; i < antitagSBOpt4Plots.size(); i++) antitagSBOpt4Plots[i].fill(ntuple,weight);
+            }
+            if (antitagSBCut_opt5( ntuple )) {
+              // plots[bin][9].fill(ntuple,weight);
+              for (int i = 0; i < antitagSBOpt5Plots.size(); i++) antitagSBOpt5Plots[i].fill(ntuple,weight);
             }
           }
         }
@@ -852,6 +967,30 @@ int main(int argc, char** argv) {
       antitagSROpt2Plots[i].sum->Write();
     }
   }
+  for (int i = 0; i < antitagSROpt3Plots.size(); i++) {
+    outputFile->cd();
+    antitagSROpt3Plots[i].Write();
+    if (sumBkgs) {
+      antitagSROpt3Plots[i].buildSum("antitagSROpt3");
+      antitagSROpt3Plots[i].sum->Write();
+    }
+  }
+  for (int i = 0; i < antitagSROpt4Plots.size(); i++) {
+    outputFile->cd();
+    antitagSROpt4Plots[i].Write();
+    if (sumBkgs) {
+      antitagSROpt4Plots[i].buildSum("antitagSROpt4");
+      antitagSROpt4Plots[i].sum->Write();
+    }
+  }
+  for (int i = 0; i < antitagSROpt5Plots.size(); i++) {
+    outputFile->cd();
+    antitagSROpt5Plots[i].Write();
+    if (sumBkgs) {
+      antitagSROpt5Plots[i].buildSum("antitagSROpt5");
+      antitagSROpt5Plots[i].sum->Write();
+    }
+  }
 
   for (int i = 0; i < antitagSBOpt1Plots.size(); i++) {
     outputFile->cd();
@@ -869,7 +1008,30 @@ int main(int argc, char** argv) {
       antitagSBOpt2Plots[i].sum->Write();
     }
   }
-
+  for (int i = 0; i < antitagSBOpt3Plots.size(); i++) {
+    outputFile->cd();
+    antitagSBOpt3Plots[i].Write();
+    if (sumBkgs) {
+      antitagSBOpt3Plots[i].buildSum("antitagSBOpt3");
+      antitagSBOpt3Plots[i].sum->Write();
+    }
+  }
+  for (int i = 0; i < antitagSBOpt4Plots.size(); i++) {
+    outputFile->cd();
+    antitagSBOpt4Plots[i].Write();
+    if (sumBkgs) {
+      antitagSBOpt4Plots[i].buildSum("antitagSBOpt4");
+      antitagSBOpt4Plots[i].sum->Write();
+    }
+  }
+  for (int i = 0; i < antitagSBOpt5Plots.size(); i++) {
+    outputFile->cd();
+    antitagSBOpt5Plots[i].Write();
+    if (sumBkgs) {
+      antitagSBOpt5Plots[i].buildSum("antitagSBOpt5");
+      antitagSBOpt5Plots[i].sum->Write();
+    }
+  }
   for (int i = 0; i < notagSRPlots.size(); i++) {
     outputFile->cd();
     notagSRPlots[i].Write();

@@ -1837,10 +1837,26 @@ template<typename ntupleType> bool antitagSRCut_opt1(ntupleType* ntuple) {
   return (antitagSR(ntuple,0) && antitagSR(ntuple,1) && thisNBs.at(1)>1);
 }
 
-template<typename ntupleType> bool antitagSRCut_opt2(ntupleType* ntuple) {
+template<typename ntupleType> bool antitagSRCut_opt2(ntupleType* ntuple) { //Now BTagsM>0
   if (ntuple->JetsAK8->size()<2) return false;
   vector<int> thisNBs = numDeepBs(ntuple);
-  return (antitagSR(ntuple,0) && antitagSR(ntuple,1) && thisNBs.at(1)>1 && thisNBs.at(2)>0);
+  return (antitagSR(ntuple,0) && antitagSR(ntuple,1) && thisNBs.at(1)>0);
+}
+
+template<typename ntupleType> bool antitagSRCut_opt3(ntupleType* ntuple) { //Now BTagsL>1
+  if (ntuple->JetsAK8->size()<2) return false;
+  vector<int> thisNBs = numDeepBs(ntuple);
+  return (antitagSR(ntuple,0) && antitagSR(ntuple,1) && thisNBs.at(0)>1);
+}
+template<typename ntupleType> bool antitagSRCut_opt4(ntupleType* ntuple) { //Now BTagsL>1 && BTagsM>0
+  if (ntuple->JetsAK8->size()<2) return false;
+  vector<int> thisNBs = numDeepBs(ntuple);
+  return (antitagSR(ntuple,0) && antitagSR(ntuple,1) && thisNBs.at(0)>1 && thisNBs.at(1)>0);
+}
+template<typename ntupleType> bool antitagSRCut_opt5(ntupleType* ntuple) { //Now BTagsT>0
+  if (ntuple->JetsAK8->size()<2) return false;
+  vector<int> thisNBs = numDeepBs(ntuple);
+  return (antitagSR(ntuple,0) && antitagSR(ntuple,1) && thisNBs.at(2)>0);
 }
 
 template<typename ntupleType> bool antitagSRCut_V12(ntupleType* ntuple) {
@@ -1866,14 +1882,46 @@ template<typename ntupleType> bool antitagSBCut_opt1(ntupleType* ntuple) {
   );
 }
 
-template<typename ntupleType> bool antitagSBCut_opt2(ntupleType* ntuple) {
+template<typename ntupleType> bool antitagSBCut_opt2(ntupleType* ntuple) { //Now this is BTagsM>0
   if (ntuple->JetsAK8->size()<2) return false;
   vector<int> thisNBs = numDeepBs(ntuple);
   return (
     ((antitagSB(ntuple,0) && antitagSB(ntuple,1)) ||
     (antitagSB(ntuple,0) && antitagSR(ntuple,1)) ||
     (antitagSR(ntuple,0) && antitagSB(ntuple,1)))
-    && thisNBs.at(1)>1 && thisNBs.at(2)>0
+    && thisNBs.at(1)>0
+  );
+}
+
+template<typename ntupleType> bool antitagSBCut_opt3(ntupleType* ntuple) { //Now this is BTagsL>1
+  if (ntuple->JetsAK8->size()<2) return false;
+  vector<int> thisNBs = numDeepBs(ntuple);
+  return (
+    ((antitagSB(ntuple,0) && antitagSB(ntuple,1)) ||
+    (antitagSB(ntuple,0) && antitagSR(ntuple,1)) ||
+    (antitagSR(ntuple,0) && antitagSB(ntuple,1)))
+    && thisNBs.at(0)>1
+  );
+}
+template<typename ntupleType> bool antitagSBCut_opt4(ntupleType* ntuple) { //Now this is BTagsL>1 && BTagsM>0
+  if (ntuple->JetsAK8->size()<2) return false;
+  vector<int> thisNBs = numDeepBs(ntuple);
+  return (
+    ((antitagSB(ntuple,0) && antitagSB(ntuple,1)) ||
+    (antitagSB(ntuple,0) && antitagSR(ntuple,1)) ||
+    (antitagSR(ntuple,0) && antitagSB(ntuple,1)))
+    && thisNBs.at(0)>1 && thisNBs.at(1)>0
+  );
+}
+
+template<typename ntupleType> bool antitagSBCut_opt5(ntupleType* ntuple) { //Now this is BTagsT>0
+  if (ntuple->JetsAK8->size()<2) return false;
+  vector<int> thisNBs = numDeepBs(ntuple);
+  return (
+    ((antitagSB(ntuple,0) && antitagSB(ntuple,1)) ||
+    (antitagSB(ntuple,0) && antitagSR(ntuple,1)) ||
+    (antitagSR(ntuple,0) && antitagSB(ntuple,1)))
+    && thisNBs.at(2)>0
   );
 }
 
