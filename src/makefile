@@ -6,7 +6,7 @@ INCLUDES=-I$(CMSSW_BASE)/src/AnalysisTools/src/ -I$(CMSSW_BASE)/src/ -I$(CMSSW_B
 # EXECS=fitWpeak flavorFit plotObs_photon_baseline plotObs_singleEleCR_baseline plotObs_lowDPhi_baseline plotObs_singleHiggsTag plotObs_doubleHiggsTag plotObs_antitag plotObs_baseline plotObs_singleMuCR_baseline cutflow NminusOne ALPHABET ALPHABET_photon datacardInputs photonSkim WtaggingEfficiency.cc plotWtagDist.cc skimHiggsSearchRegions
 # EXECS=cutflow ALPHABET ALPHABET_res ALPHABET_V12 skimHiggsSearchRegions skim0H
 EXECS=ALPHABET
-$(EXECS):RA2bTree.cc definitions.cc skimSamples.cc plotterUtils.cc
+$(EXECS):RA2bTree.cc definitions.cc skimSamples.cc plotterUtils.cc skimSamplesTogether.cc
 # flavorFit:flavorFit.cc
 # fitWpeak:fitWpeak.cc
 # plotObs_singleEleCR_baseline:plotObs_singleEleCR_baseline.cc
@@ -28,7 +28,7 @@ ALPHABET_res:ALPHABET_res.cc
 # WtaggingEfficiency:WtaggingEfficiency.cc
 # plotWtagDist:plotWtagDist.cc
 skimHiggsSearchRegions: skimHiggsSearchRegions.cc
-skim0H: skim0H.cc
+skim0H: skim0H.cc skimSamplesTogether.cc
 all:$(EXECS)
 
 # plotWtagDist:

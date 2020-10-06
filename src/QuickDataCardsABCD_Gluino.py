@@ -22,28 +22,17 @@ sumRegionA1.Scale(scale); sumRegionB1.Scale(scale);
 sumRegionC.Scale(scale); sumRegionD.Scale(scale);
 
 hino=int(sys.argv[1])
-LSP=int(sys.argv[2])
-
-# TotalEvents=float(sys.argv[2])
 print("\n\n\n-----------------------------------------------------")
-print("Looping over mass=%d, mLSP=%d now" %(hino,LSP))
+print("Looping over mass=%d now" %(hino))
 print("-----------------------------------------------------\n")
 f2=TFile("ALPHABET_V18_1Dsignal_2BoostedH.root", "READ")
-# f2=TFile("ALPHABET_V18_2Dsignal_2BoostedH.root", "READ")
 
-SignalA2=f2.Get("MET_doubletagSR_TChiHH_%d_%d" %(hino,LSP));
-SignalB2=f2.Get("MET_doubletagSB_TChiHH_%d_%d" %(hino,LSP));
-SignalA1=f2.Get("MET_tagSR_TChiHH_%d_%d" %(hino,LSP));
-SignalB1=f2.Get("MET_tagSB_TChiHH_%d_%d" %(hino,LSP));
-SignalC=f2.Get("MET_antitagSR_TChiHH_%d_%d" %(hino,LSP));
-SignalD=f2.Get("MET_antitagSB_TChiHH_%d_%d" %(hino,LSP));
-
-# SignalA2=f2.Get("MET_doubletagSR_TChiHH%d_LSP%d" %(hino,LSP));
-# SignalB2=f2.Get("MET_doubletagSB_TChiHH%d_LSP%d" %(hino,LSP));
-# SignalA1=f2.Get("MET_tagSR_TChiHH%d_LSP%d" %(hino,LSP));
-# SignalB1=f2.Get("MET_tagSB_TChiHH%d_LSP%d" %(hino,LSP));
-# SignalC=f2.Get("MET_antitagSR_TChiHH%d_LSP%d" %(hino,LSP));
-# SignalD=f2.Get("MET_antitagSB_TChiHH%d_LSP%d" %(hino,LSP));
+SignalA2=f2.Get("MET_doubletagSR_T5qqqqZH_%d_1" %(hino));
+SignalB2=f2.Get("MET_doubletagSB_T5qqqqZH_%d_1" %(hino));
+SignalA1=f2.Get("MET_tagSR_T5qqqqZH_%d_1" %(hino));
+SignalB1=f2.Get("MET_tagSB_T5qqqqZH_%d_1" %(hino));
+SignalC=f2.Get("MET_antitagSR_T5qqqqZH_%d_1" %(hino));
+SignalD=f2.Get("MET_antitagSB_T5qqqqZH_%d_1" %(hino));
 
 scale=1.0;
 SignalA2.Scale(scale)
@@ -66,7 +55,7 @@ kappas1H=[1.04,0.98,0.86] #sim/pred, will need to measure these
 
 
 fcard=open("SignalRegionTemplate.txt", 'r');
-fcardout=open("SRPure_TChiHH%d_LSP%d.txt" %(hino,LSP) , 'w')
+fcardout=open("SRPure_T5HH%d.txt" %hino , 'w')
 for line in fcard:
 	if "observation" in line:
 		newline="observation %g %g %g" %(Predictions2H.GetBinContent(1)*kappas2H[0],Predictions2H.GetBinContent(2)*kappas2H[1],Predictions2H.GetBinContent(3)*kappas2H[2])
@@ -83,7 +72,7 @@ fcardout.close()
 fcard.close()
 
 fcard=open("SignalRegion1Template.txt", 'r');
-fcardout=open("SR1Pure_TChiHH%d_LSP%d.txt" %(hino,LSP) , 'w')
+fcardout=open("SR1Pure_T5HH%d.txt" %(hino) , 'w')
 for line in fcard:
 	if "observation" in line:
 		newline="observation %g %g %g" %(Predictions1H.GetBinContent(1)*kappas1H[0],Predictions1H.GetBinContent(2)*kappas1H[1],Predictions1H.GetBinContent(3)*kappas1H[2])
@@ -99,7 +88,7 @@ for line in fcard:
 fcardout.close()
 fcard.close()
 
-fcardout=open("CRBPure_TChiHH%d_LSP%d.txt" %(hino,LSP) , 'w')
+fcardout=open("CRBPure_T5HH%d.txt" %hino , 'w')
 fcard=open("RegionBTemplate.txt", 'r');
 for line in fcard:
 	if "observation" in line:
@@ -115,7 +104,7 @@ for line in fcard:
 		fcardout.write(line);
 fcardout.close()
 
-fcardout=open("CRB1Pure_TChiHH%d_LSP%d.txt" %(hino,LSP) , 'w')
+fcardout=open("CRB1Pure_T5HH%d.txt" %(hino) , 'w')
 fcard=open("RegionB1Template.txt", 'r');
 for line in fcard:
 	if "observation" in line:
@@ -131,7 +120,7 @@ for line in fcard:
 		fcardout.write(line);
 fcardout.close()
 
-fcardout=open("CRCPure_TChiHH%d_LSP%d.txt" %(hino,LSP) , 'w')
+fcardout=open("CRCPure_T5HH%d.txt" %hino , 'w')
 fcard=open("RegionCTemplate.txt", 'r');
 for line in fcard:
 	if "observation" in line:
@@ -148,7 +137,7 @@ for line in fcard:
 fcardout.close()
 
 
-fcardout=open("CRDPure_TChiHH%d_LSP%d.txt" %(hino,LSP) , 'w')
+fcardout=open("CRDPure_T5HH%d.txt" %hino , 'w')
 fcard=open("RegionDTemplate.txt", 'r');
 for line in fcard:
 	if "observation" in line:
@@ -342,10 +331,10 @@ for line in fcard:
 fcardout.close()
 '''
 #BoostedOnly
-os.system("combineCards.py SRPure_TChiHH%d_LSP%d.txt CRBPure_TChiHH%d_LSP%d.txt CRCPure_TChiHH%d_LSP%d.txt  CRDPure_TChiHH%d_LSP%d.txt > TChiHH%d_LSP%d_2BoostedHPure.txt "%(hino,LSP,hino,LSP,hino,LSP,hino,LSP,hino,LSP))
-os.system("combineCards.py SR1Pure_TChiHH%d_LSP%d.txt CRB1Pure_TChiHH%d_LSP%d.txt CRCPure_TChiHH%d_LSP%d.txt  CRDPure_TChiHH%d_LSP%d.txt > TChiHH%d_LSP%d_1BoostedHPure.txt "%(hino,LSP,hino,LSP,hino,LSP,hino,LSP,hino,LSP))
-os.system("combineCards.py TChiHH%d_LSP%d_1BoostedHPure.txt TChiHH%d_LSP%d_2BoostedHPure.txt  > TChiHH%d_LSP%d_BothBoostedHPure.txt "%(hino,LSP,hino,LSP,hino,LSP))
-os.system("combine -M AsymptoticLimits -n TChiHH%d_LSP%d_BothBoostedHPure TChiHH%d_LSP%d_BothBoostedHPure.txt " %(hino,LSP,hino,LSP))
+os.system("combineCards.py SRPure_T5HH%d.txt CRBPure_T5HH%d.txt CRCPure_T5HH%d.txt  CRDPure_T5HH%d.txt > T5HH%d_2BoostedHPure.txt "%(hino,hino,hino,hino,hino))
+os.system("combineCards.py SR1Pure_T5HH%d.txt CRB1Pure_T5HH%d.txt CRCPure_T5HH%d.txt  CRDPure_T5HH%d.txt > T5HH%d_1BoostedHPure.txt "%(hino,hino,hino,hino,hino))
+os.system("combineCards.py T5HH%d_1BoostedH.txt T5HH%d_2BoostedH.txt  > T5HH%d_BothBoostedHPure.txt "%(hino,hino,hino))
+os.system("combine -M AsymptoticLimits -n T5HH%d_BothBoostedHPure T5HH%d_BothBoostedHPure.txt " %(hino,hino))
 
 #ResolvedOnly
 # os.system("combineCards.py SignalRegionRes4bTChiHH%d.txt ControlRegionResBTChiHH%d.txt ControlRegionResCTChiHH%d.txt  ControlRegionResDTChiHH%d.txt>TChiHH%dRes4b.txt "%(hino,hino,hino,hino,hino))

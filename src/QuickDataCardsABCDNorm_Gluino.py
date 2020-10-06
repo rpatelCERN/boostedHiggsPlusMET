@@ -9,238 +9,320 @@ def binContent(histo,binNum):
   	else:
 		 return 0.000001;
 
-f=TFile("ALPHABETBoost_V17_all.root", "READ"); #BoostedOnly
+# f=TFile("ALPHABET_V18_2BoostedH.root", "READ"); #BoostedOnly
+f=TFile("ALPHABET_0l_MET3.root", "READ"); #BoostedOnly
+
 fVeto=TFile("ALPHABETBoost_V17_resVeto_all.root", "READ"); #Boosted with resolved veto
 
-
-# f=TFile("ALPHABETInputTest.root", "READ"); #BoostedOnly
-
-
-#f=TFile("ALPHABETBoostMC2016_V18.root", "READ"); #BoostedOnly
-#f=TFile("ALPHABETBoostMC2016_V18_resVeto.root", "READ"); #Boosted with resolved veto
-
-ZregionA=f.Get("MET_doubletagSR_ZJets"); ZregionB=f.Get("MET_doubletagSB_ZJets");
-ZregionC=f.Get("MET_antitagSR_ZJets"); ZregionD=f.Get("MET_antitagSB_ZJets");
-WregionA=f.Get("MET_doubletagSR_WJets"); WregionB=f.Get("MET_doubletagSB_WJets");
-WregionC=f.Get("MET_antitagSR_WJets"); WregionD=f.Get("MET_antitagSB_WJets");
-TregionA=f.Get("MET_doubletagSR_TT"); TregionB=f.Get("MET_doubletagSB_TT");
-TregionC=f.Get("MET_antitagSR_TT"); TregionD=f.Get("MET_antitagSB_TT");
-QregionA=f.Get("MET_doubletagSR_QCD"); QregionB=f.Get("MET_doubletagSB_QCD");
-QregionC=f.Get("MET_antitagSR_QCD"); QregionD=f.Get("MET_antitagSB_QCD");
+sumRegionA2=f.Get("MET_doubletagSR_sum"); sumRegionA1=f.Get("MET_tagSR_sum");
+sumRegionB2=f.Get("MET_doubletagSB_sum"); sumRegionB1=f.Get("MET_tagSB_sum");
+#sumRegionB2=f.Get("MET_doubletagSB2_sum"); sumRegionB1=f.Get("MET_tagSB2_sum");
+sumRegionC=f.Get("MET_antitagSR_sum"); sumRegionD=f.Get("MET_antitagSB_sum");
+#sumRegionD=f.Get("MET_antitagSB2_sum");
 
 #for vetoed
-sumregionA=fVeto.Get("MET_doubletagSR_sum"); sumregionB=fVeto.Get("MET_doubletagSB_sum");
-sumregionC=fVeto.Get("MET_antitagSR_sum"); sumregionD=fVeto.Get("MET_antitagSB_sum");
+vetoSumRegionA2=fVeto.Get("MET_doubletagSR_sum"); vetoSumRegionB2=fVeto.Get("MET_doubletagSB_sum");
+vetoSumRegionA1=fVeto.Get("MET_tagSR_sum"); vetoSumRegionB1=fVeto.Get("MET_tagSB_sum");
+vetoSumRegionC=fVeto.Get("MET_antitagSR_sum"); vetoSumRegionD=fVeto.Get("MET_antitagSB_sum");
 
 
 scale=1.0;
-ZregionA.Scale(scale); ZregionB.Scale(scale);
-ZregionC.Scale(scale); ZregionD.Scale(scale);
-WregionA.Scale(scale); WregionB.Scale(scale);
-WregionC.Scale(scale); WregionD.Scale(scale);
-TregionA.Scale(scale); TregionB.Scale(scale);
-TregionC.Scale(scale); TregionD.Scale(scale);
-QregionA.Scale(scale); QregionB.Scale(scale);
-QregionC.Scale(scale); QregionD.Scale(scale);
+sumRegionA2.Scale(scale); sumRegionB2.Scale(scale);
+sumRegionA1.Scale(scale); sumRegionB1.Scale(scale);
+sumRegionC.Scale(scale); sumRegionD.Scale(scale);
+
 
 hino=int(sys.argv[1])
 # TotalEvents=float(sys.argv[2])
 print("\n\n\n-----------------------------------------------------")
 print("Looping over mass=%d now" %(hino))
 print("-----------------------------------------------------\n")
-SignalA=f.Get("MET_doubletagSR_T5HH%d" %(hino));
-SignalB=f.Get("MET_doubletagSB_T5HH%d" %(hino));
-SignalC=f.Get("MET_antitagSR_T5HH%d" %(hino));
-SignalD=f.Get("MET_antitagSB_T5HH%d" %(hino));
-scale=1.0;#137000.0/35862.824*4.0; #*4.0 for gluino is in ALPHABET now
-# scale=4.0;#137000.0/35862.824*4.0; #*4.0 for gluino is in ALPHABET now
-SignalA.Scale(scale)
-SignalB.Scale(scale)
+f2=TFile("ALPHABET_sig_MET3.root", "READ")
+# f2=TFile("ALPHABET_V18_1Dsignal_2BoostedH.root", "READ")
+
+SignalA2=f2.Get("MET_doubletagSR_T5qqqqZH_%d_1" %(hino));
+SignalB2=f2.Get("MET_doubletagSB_T5qqqqZH_%d_1" %(hino));
+#SignalB2=f2.Get("MET_doubletagSB2_T5qqqqZH_%d_1" %(hino));
+SignalA1=f2.Get("MET_tagSR_T5qqqqZH_%d_1" %(hino));
+SignalB1=f2.Get("MET_tagSB_T5qqqqZH_%d_1" %(hino));
+#SignalB1=f2.Get("MET_tagSB2_T5qqqqZH_%d_1" %(hino));
+SignalC=f2.Get("MET_antitagSR_T5qqqqZH_%d_1" %(hino));
+#SignalD=f2.Get("MET_antitagSB2_T5qqqqZH_%d_1" %(hino));
+SignalD=f2.Get("MET_antitagSB_T5qqqqZH_%d_1" %(hino));
+scale=1.0;
+SignalA2.Scale(scale)
+SignalB2.Scale(scale)
+SignalA1.Scale(scale)
+SignalB1.Scale(scale)
 SignalC.Scale(scale)
 SignalD.Scale(scale)
 
-# YieldsFile=TFile("OutputYields.root", "READ"); #BoostedOnly
-#YieldsFile=TFile("OutputYields_veto.root", "READ"); #Boosted with resolved veto
 
-TotalBackground=ZregionA.Clone("TotalBackground");
-TotalBackground.Add(WregionA);
-TotalBackground.Add(TregionA);
-TotalBackground.Add(QregionA);
-ControlB=ZregionB.Clone("ControlB");
-ControlB.Add(WregionB)
-ControlB.Add(TregionB)
-ControlB.Add(QregionB)
-ControlC=ZregionC.Clone("ControlC")
-ControlC.Add(WregionC)
-ControlC.Add(TregionC)
-ControlC.Add(QregionC)
-ControlD=ZregionD.Clone("ControlD")
-ControlD.Add(WregionD)
-ControlD.Add(TregionD)
-ControlD.Add(QregionD)
+Predictions2H=sumRegionB2.Clone("Predictions2H");
+Predictions2H.Multiply(sumRegionC)
+Predictions2H.Divide(sumRegionD)
 
-Predictions=ControlB.Clone("Predictions");
-Predictions.Multiply(ControlC)
-Predictions.Divide(ControlD)
+Predictions1H=sumRegionB1.Clone("Predictions1H");
+Predictions1H.Multiply(sumRegionC)
+Predictions1H.Divide(sumRegionD)
 
 #vetoed
-SignalAVeto=fVeto.Get("MET_doubletagSR_T5HH%d" %(hino));
-SignalBVeto=fVeto.Get("MET_doubletagSB_T5HH%d" %(hino));
+SignalA2Veto=fVeto.Get("MET_doubletagSR_T5HH%d" %(hino));
+SignalB2Veto=fVeto.Get("MET_doubletagSB_T5HH%d" %(hino));
+SignalA1Veto=fVeto.Get("MET_tagSR_T5HH%d" %(hino));
+SignalB1Veto=fVeto.Get("MET_tagSB_T5HH%d" %(hino));
 SignalCVeto=fVeto.Get("MET_antitagSR_T5HH%d" %(hino));
 SignalDVeto=fVeto.Get("MET_antitagSB_T5HH%d" %(hino));
 
+sumRegionA2Veto=vetoSumRegionA2.Clone("sumRegionA2Veto");
+sumRegionB2Veto=vetoSumRegionB2.Clone("sumRegionB2Veto");
+sumRegionA1Veto=vetoSumRegionA1.Clone("sumRegionA1Veto");
+sumRegionB1Veto=vetoSumRegionB1.Clone("sumRegionB1Veto");
+sumRegionCVeto=vetoSumRegionC.Clone("sumRegionCVeto");
+sumRegionDVeto=vetoSumRegionD.Clone("sumRegionDVeto");
 
-TotalBackgroundVeto=sumregionA.Clone("TotalBackgroundVeto");
-ControlBVeto=sumregionB.Clone("ControlBVeto");
-ControlCVeto=sumregionC.Clone("ControlCVeto");
-ControlDVeto=sumregionD.Clone("ControlDVeto");
+Predictions2HVeto=sumRegionB2Veto.Clone("Predictions2HVeto");
+Predictions2HVeto.Multiply(sumRegionCVeto)
+Predictions2HVeto.Divide(sumRegionDVeto)
 
-PredictionsVeto=ControlBVeto.Clone("PredictionsVeto");
-PredictionsVeto.Multiply(ControlCVeto)
-PredictionsVeto.Divide(ControlDVeto)
+Predictions1HVeto=sumRegionB1Veto.Clone("Predictions1HVeto");
+Predictions1HVeto.Multiply(sumRegionCVeto)
+Predictions1HVeto.Divide(sumRegionDVeto)
 
-bkgfrac=[0.85,0.1254,0.02367]
-kappas=[1.0,1.0,1.0] #sim/pred, these are hardcoded
-norm=ControlB.Integral(1,4)*ControlC.Integral(1,4)/ControlD.Integral(1,4)
-normVeto=ControlBVeto.Integral(1,4)*ControlCVeto.Integral(1,4)/ControlDVeto.Integral(1,4)
+# bkgfrac2H=[0.851,0.119,0.031] #V18
+# bkgfrac1H=[0.851,0.119,0.031] #V18
+bkgfrac2H=[0.763,0.190,0.048] #TEST
+bkgfrac1H=[0.763,0.190,0.048] #TEST
+# kappas2H = 1.08 #V18
+# kappas1H = 1.03 #V18
+# kappas2H = 1.0 #V18, original SB, removing kappas
+# kappas1H = 1.0 #V18, original SB, removing kappas
+# kappas2H = 1.51 #TEST
+# kappas1H = 1.29 #TEST
+kappas2H = 1.00 #V18
+kappas1H = 1.00 #V18
+#kappas2H = 1.66 #V18, SB
+#kappas1H = 1.19 #V18, SB2
+
+# bkgfrac2H=[0.857,0.118,0.023] #V17
+# bkgfrac1H=[0.843,0.130,0.027] #V17
+# kappas2H=[1.1,1.1,1.1] #V17
+# kappas1H=[1.1,1.1,1.1] #V17
+
+norm2H=sumRegionB2.Integral(1,4)*sumRegionC.Integral(1,4)/sumRegionD.Integral(1,4)
+norm2HVeto=sumRegionB2Veto.Integral(1,4)*sumRegionCVeto.Integral(1,4)/sumRegionDVeto.Integral(1,4)
+
+norm1H=sumRegionB1.Integral(1,4)*sumRegionC.Integral(1,4)/sumRegionD.Integral(1,4)
+norm1HVeto=sumRegionB1Veto.Integral(1,4)*sumRegionCVeto.Integral(1,4)/sumRegionDVeto.Integral(1,4)
 
 for i in range(1,4):
-	Predictions.SetBinContent(i, norm*bkgfrac[i-1]*kappas[0])
-	#print ("zvv B C D %g %g %g " %(ZregionB.GetBinContent(i),ZregionC.GetBinContent(i), ZregionD.GetBinContent(i)))
-	# print "B %g C %g D %g " %(ControlB.Integral(1,4), ControlC.Integral(1,4), ControlD.Integral(1,4))
-	# print "Pred %g " %(Predictions.GetBinContent(i))
-	PredictionsVeto.SetBinContent(i, normVeto*bkgfrac[i-1]*kappas[0])
+	Predictions2H.SetBinContent(i, norm2H*bkgfrac2H[i-1]*kappas2H)
+	Predictions1H.SetBinContent(i, norm1H*bkgfrac1H[i-1]*kappas1H)
+
+	Predictions2HVeto.SetBinContent(i, norm2HVeto*bkgfrac2H[i-1]*kappas2H)
+	Predictions1HVeto.SetBinContent(i, norm1HVeto*bkgfrac1H[i-1]*kappas1H)
 
 #Predictions=f.Get("BackgroundPred")
 
 #BoostedOnly
 fcard=open("SignalRegionTemplateMergeBkg.txt", 'r');
-fcardout=open("SignalRegionT5HH%d.txt" %hino , 'w')
+fcardout=open("SRMerge_T5HH%d.txt" %hino , 'w')
+#fcardout=open("SRMerge_T5HH%d_SB2.txt" %hino , 'w')
 for line in fcard:
 	if "observation" in line:
-		newline="observation %.3f %.3f %.3f" %(Predictions.GetBinContent(1),Predictions.GetBinContent(2),Predictions.GetBinContent(3)+Predictions.GetBinContent(4))
+		newline="observation %.3f %.3f %.3f" %(Predictions2H.GetBinContent(1),Predictions2H.GetBinContent(2),Predictions2H.GetBinContent(3)+Predictions2H.GetBinContent(4))
 		fcardout.write(newline);
 	elif "rate" in line and not "rateParam" in line:
 		newline="rate "
-		newline=newline+" %g %g %g %g %g %g \n"  %(binContent(SignalA,1),norm, binContent(SignalA,2), norm,SignalA.GetBinContent(3)+SignalA.GetBinContent(4),norm)
+		newline=newline+" %g %g %g %g %g %g \n"  %(binContent(SignalA2,1),norm2H, binContent(SignalA2,2), norm2H,SignalA2.GetBinContent(3)+SignalA2.GetBinContent(4),norm2H)
 		fcardout.write(newline);
-		print newline
+		# print newline
 	else:
 		fcardout.write(line);
 fcardout.close()
 fcard.close()
 
-fcardout=open("ControlRegionBT5HH%d.txt" %hino , 'w')
+fcard=open("SignalRegion1TemplateMergeBkg.txt", 'r');
+fcardout=open("SR1Merge_T5HH%d.txt" %(hino) , 'w')
+#fcardout=open("SR1Merge_T5HH%d_SB2.txt" %(hino) , 'w')
+for line in fcard:
+	if "observation" in line:
+		newline="observation %.3f %.3f %.3f" %(Predictions1H.GetBinContent(1),Predictions1H.GetBinContent(2),Predictions1H.GetBinContent(3)+Predictions1H.GetBinContent(4))
+		fcardout.write(newline);
+	elif "rate" in line and not "rateParam" in line:
+		newline="rate "
+		newline=newline+" %g %g %g %g %g %g \n"  %(binContent(SignalA1,1),norm1H, binContent(SignalA1,2), norm1H,SignalA1.GetBinContent(3)+SignalA1.GetBinContent(4),norm1H)
+		fcardout.write(newline);
+		# print newline
+	else:
+		fcardout.write(line);
+fcardout.close()
+fcard.close()
+
+fcardout=open("CRBMerge_T5HH%d.txt" %hino , 'w')
+#fcardout=open("CRBMerge_T5HH%d_SB2.txt" %hino , 'w')
 fcard=open("RegionBTemplateScaleMergeBkg.txt", 'r');
 for line in fcard:
 	if "observation" in line:
-		print line
-		newline="observation %.3f " %(ControlB.Integral(1,4))
+		# print line
+		newline="observation %.3f " %(sumRegionB2.Integral(1,4))
 		fcardout.write(newline);
 	elif "rate" in line and not "rateParam" in line:
 		newline="rate "
-		newline=newline +"%g %g \n" %(SignalB.Integral(1,4),ControlB.Integral(1,4))
+		newline=newline +"%g %g \n" %(SignalB2.Integral(1,4),sumRegionB2.Integral(1,4))
 		fcardout.write(newline);
-		print newline
+		# print newline
 	else:
 		fcardout.write(line);
 fcardout.close()
 
-fcardout=open("ControlRegionCT5HH%d.txt" %hino , 'w')
+fcardout=open("CRB1Merge_T5HH%d.txt" %(hino) , 'w')
+#fcardout=open("CRB1Merge_T5HH%d_SB2.txt" %(hino) , 'w')
+fcard=open("RegionB1TemplateScaleMergeBkg.txt", 'r');
+for line in fcard:
+	if "observation" in line:
+		# print line
+		newline="observation %.3f " %(sumRegionB1.Integral(1,4))
+		fcardout.write(newline);
+	elif "rate" in line and not "rateParam" in line:
+		newline="rate "
+		newline=newline +"%g %g \n" %(SignalB1.Integral(1,4),sumRegionB1.Integral(1,4))
+		fcardout.write(newline);
+		# print newline
+	else:
+		fcardout.write(line);
+fcardout.close()
+
+fcardout=open("CRCMerge_T5HH%d.txt" %hino , 'w')
+#fcardout=open("CRCMerge_T5HH%d_SB2.txt" %hino , 'w')
 fcard=open("RegionCTemplateScaleMergeBkg.txt", 'r');
 for line in fcard:
 	if "observation" in line:
-		print line
-		newline="observation %.3f " %(ControlC.Integral(1,4))
+		# print line
+		newline="observation %.3f " %(sumRegionC.Integral(1,4))
 		fcardout.write(newline);
 	elif "rate" in line and not "rateParam" in line:
 		newline="rate "
-		newline=newline +"%g %g  \n" %(SignalC.Integral(1,4),ControlC.Integral(1,4))
+		newline=newline +"%g %g  \n" %(SignalC.Integral(1,4),sumRegionC.Integral(1,4))
 		fcardout.write(newline);
-		print newline
+		# print newline
 	else:
 		fcardout.write(line);
 fcardout.close()
 
 
-fcardout=open("ControlRegionDT5HH%d.txt" %hino , 'w')
+fcardout=open("CRDMerge_T5HH%d.txt" %hino , 'w')
+#fcardout=open("CRDMerge_T5HH%d_SB2.txt" %hino , 'w')
 fcard=open("RegionDTemplateScaleMergeBkg.txt", 'r');
 for line in fcard:
 	if "observation" in line:
-		print line
-		newline="observation %.3f " %(ControlD.Integral(1,4))
+		# print line
+		newline="observation %.3f " %(sumRegionD.Integral(1,4))
 		fcardout.write(newline);
 	elif "rate" in line and not "rateParam" in line:
 		newline="rate "
-		newline=newline +"%g %g \n" %(SignalD.Integral(1,4),ControlD.Integral(1,4))
+		newline=newline +"%g %g \n" %(SignalD.Integral(1,4),sumRegionD.Integral(1,4))
 		fcardout.write(newline);
-		print newline
+		# print newline
 	else:
 		fcardout.write(line);
 fcardout.close()
 
 #Boosted w/ veto
-fcard=open("SignalRegionTemplateMergeBkg.txt", 'r');
-fcardout=open("SignalRegionT5HH%d_veto.txt" %hino , 'w')
+fcard=open("SignalRegionVetoTemplateMergeBkg.txt", 'r');
+fcardout=open("SRMerge_T5HH%d_veto.txt" %hino , 'w')
 for line in fcard:
 	if "observation" in line:
-		newline="observation %.3f %.3f %.3f" %(PredictionsVeto.GetBinContent(1),PredictionsVeto.GetBinContent(2),PredictionsVeto.GetBinContent(3)+PredictionsVeto.GetBinContent(4))
+		newline="observation %.3f %.3f %.3f" %(Predictions2HVeto.GetBinContent(1),Predictions2HVeto.GetBinContent(2),Predictions2HVeto.GetBinContent(3)+Predictions2HVeto.GetBinContent(4))
 		fcardout.write(newline);
 	elif "rate" in line and not "rateParam" in line:
 		newline="rate "
-		newline=newline+" %g %g %g %g %g %g \n"  %(binContent(SignalAVeto,1),normVeto, binContent(SignalAVeto,2), normVeto,SignalAVeto.GetBinContent(3)+SignalAVeto.GetBinContent(4),normVeto)
+		newline=newline+" %g %g %g %g %g %g \n"  %(binContent(SignalA2Veto,1),norm2HVeto, binContent(SignalA2Veto,2), norm2HVeto,SignalA2Veto.GetBinContent(3)+SignalA2Veto.GetBinContent(4),norm2HVeto)
 		fcardout.write(newline);
-		print newline
+		# print newline
 	else:
 		fcardout.write(line);
 fcardout.close()
 fcard.close()
 
-fcardout=open("ControlRegionBT5HH%d_veto.txt" %hino , 'w')
+fcard=open("SignalRegionVeto1TemplateMergeBkg.txt", 'r');
+fcardout=open("SR1Merge_T5HH%d_veto.txt" %(hino) , 'w')
+for line in fcard:
+	if "observation" in line:
+		newline="observation %.3f %.3f %.3f" %(Predictions1HVeto.GetBinContent(1),Predictions1HVeto.GetBinContent(2),Predictions1HVeto.GetBinContent(3)+Predictions1HVeto.GetBinContent(4))
+		fcardout.write(newline);
+	elif "rate" in line and not "rateParam" in line:
+		newline="rate "
+		newline=newline+" %g %g %g %g %g %g \n"  %(binContent(SignalA1Veto,1),norm1HVeto, binContent(SignalA1Veto,2), norm1HVeto,SignalA1Veto.GetBinContent(3)+SignalA1Veto.GetBinContent(4),norm1HVeto)
+		fcardout.write(newline);
+		# print newline
+	else:
+		fcardout.write(line);
+fcardout.close()
+fcard.close()
+
+fcardout=open("CRBMerge_T5HH%d_veto.txt" %hino , 'w')
 fcard=open("RegionBTemplateScaleMergeBkg.txt", 'r');
 for line in fcard:
 	if "observation" in line:
-		print line
-		newline="observation %.3f " %(ControlBVeto.Integral(1,4))
+		# print line
+		newline="observation %.3f " %(sumRegionB2Veto.Integral(1,4))
 		fcardout.write(newline);
 	elif "rate" in line and not "rateParam" in line:
 		newline="rate "
-		newline=newline +"%g %g \n" %(SignalBVeto.Integral(1,4),ControlBVeto.Integral(1,4))
+		newline=newline +"%g %g \n" %(SignalB2Veto.Integral(1,4),sumRegionB2Veto.Integral(1,4))
 		fcardout.write(newline);
-		print newline
+		# print newline
 	else:
 		fcardout.write(line);
 fcardout.close()
 
-fcardout=open("ControlRegionCT5HH%d_veto.txt" %hino , 'w')
+
+fcardout=open("CRB1Merge_T5HH%d_veto.txt" %(hino) , 'w')
+fcard=open("RegionB1TemplateScaleMergeBkg.txt", 'r');
+for line in fcard:
+	if "observation" in line:
+		# print line
+		newline="observation %.3f " %(sumRegionB1Veto.Integral(1,4))
+		fcardout.write(newline);
+	elif "rate" in line and not "rateParam" in line:
+		newline="rate "
+		newline=newline +"%g %g \n" %(SignalB1Veto.Integral(1,4),sumRegionB1Veto.Integral(1,4))
+		fcardout.write(newline);
+		# print newline
+	else:
+		fcardout.write(line);
+fcardout.close()
+
+fcardout=open("CRCMerge_T5HH%d_veto.txt" %hino , 'w')
 fcard=open("RegionCTemplateScaleMergeBkg.txt", 'r');
 for line in fcard:
 	if "observation" in line:
-		print line
-		newline="observation %.3f " %(ControlCVeto.Integral(1,4))
+		# print line
+		newline="observation %.3f " %(sumRegionCVeto.Integral(1,4))
 		fcardout.write(newline);
 	elif "rate" in line and not "rateParam" in line:
 		newline="rate "
-		newline=newline +"%g %g  \n" %(SignalCVeto.Integral(1,4),ControlCVeto.Integral(1,4))
+		newline=newline +"%g %g  \n" %(SignalCVeto.Integral(1,4),sumRegionCVeto.Integral(1,4))
 		fcardout.write(newline);
-		print newline
+		# print newline
 	else:
 		fcardout.write(line);
 fcardout.close()
 
 
-fcardout=open("ControlRegionDT5HH%d_veto.txt" %hino , 'w')
+fcardout=open("CRDMerge_T5HH%d_veto.txt" %hino , 'w')
 fcard=open("RegionDTemplateScaleMergeBkg.txt", 'r');
 for line in fcard:
 	if "observation" in line:
-		print line
-		newline="observation %.3f " %(ControlDVeto.Integral(1,4))
+		# print line
+		newline="observation %.3f " %(sumRegionDVeto.Integral(1,4))
 		fcardout.write(newline);
 	elif "rate" in line and not "rateParam" in line:
 		newline="rate "
-		newline=newline +"%g %g \n" %(SignalDVeto.Integral(1,4),ControlDVeto.Integral(1,4))
+		newline=newline +"%g %g \n" %(SignalDVeto.Integral(1,4),sumRegionDVeto.Integral(1,4))
 		fcardout.write(newline);
-		print newline
+		# print newline
 	else:
 		fcardout.write(line);
 fcardout.close()
@@ -248,7 +330,7 @@ fcardout.close()
 ########################################################################
 ######################### Resolved Cards ###############################
 ########################################################################
-
+'''
 fres=TFile("ALPHABETRes_V17_all.root", "READ");
 
 RegARes4bLow=fres.Get("MET_fourbSRLow_sum")
@@ -555,23 +637,34 @@ for line in fcard:
 		fcardout.write(line);
 fcardout.close()
 
-
+'''
 
 #BoostedOnly
-os.system("combineCards.py SignalRegionT5HH%d.txt ControlRegionBT5HH%d.txt ControlRegionCT5HH%d.txt  ControlRegionDT5HH%d.txt > T5HH%d_2BoostedH.txt "%(hino,hino,hino,hino,hino))
-os.system("combine -M AsymptoticLimits -n T5HH%d_2BoostedH T5HH%d_2BoostedH.txt " %(hino,hino))
+#os.system("combineCards.py SRMerge_T5HH%d_SB2.txt CRBMerge_T5HH%d_SB2.txt CRCMerge_T5HH%d_SB2.txt  CRDMerge_T5HH%d_SB2.txt > T5HH%d_2BoostedHMerge_SB2.txt "%(hino,hino,hino,hino,hino))
+#os.system("combineCards.py SR1Merge_T5HH%d_SB2.txt CRB1Merge_T5HH%d_SB2.txt CRCMerge_T5HH%d_SB2.txt  CRDMerge_T5HH%d_SB2.txt > T5HH%d_1BoostedHMerge_SB2.txt "%(hino,hino,hino,hino,hino))
+#os.system("combineCards.py T5HH%d_1BoostedHMerge_SB2.txt T5HH%d_2BoostedHMerge_SB2.txt  > T5HH%d_BothBoostedHMerge_SB2.txt "%(hino,hino,hino))
+#os.system("combine -M AsymptoticLimits -n T5HH%d_BothBoostedHMerge_SB2 T5HH%d_BothBoostedHMerge_SB2.txt " %(hino,hino))
+
+
+os.system("combineCards.py SRMerge_T5HH%d.txt CRBMerge_T5HH%d.txt CRCMerge_T5HH%d.txt  CRDMerge_T5HH%d.txt > T5HH%d_2H_MET3.txt "%(hino,hino,hino,hino,hino))
+os.system("combineCards.py SR1Merge_T5HH%d.txt CRB1Merge_T5HH%d.txt CRCMerge_T5HH%d.txt  CRDMerge_T5HH%d.txt > T5HH%d_1H_MET3.txt "%(hino,hino,hino,hino,hino))
+os.system("combineCards.py T5HH%d_1H_MET3.txt T5HH%d_2H_MET3.txt  > T5HH%d_MET3.txt "%(hino,hino,hino))
+os.system("combine -M AsymptoticLimits -n T5HH%d_MET3 T5HH%d_MET3.txt " %(hino,hino))
+
+# os.system("combine -M AsymptoticLimits -n T5HH%d_2BoostedH T5HH%d_2BoostedH.txt " %(hino,hino))
+# os.system("combine -M AsymptoticLimits -n T5HH%d_1BoostedH T5HH%d_1BoostedH.txt " %(hino,hino))
 
 #ResolvedOnly
-os.system("combineCards.py SignalRegionRes4bHighT5HH%d.txt ControlRegionResB4bHighT5HH%d.txt ControlRegionResCHighT5HH%d.txt  ControlRegionResDHighT5HH%d.txt>T5HH%dRes4bHigh.txt "%(hino,hino,hino,hino,hino))
-os.system("combineCards.py SignalRegionRes4bLowT5HH%d.txt ControlRegionResB4bLowT5HH%d.txt ControlRegionResCLowT5HH%d.txt  ControlRegionResDLowT5HH%d.txt>T5HH%dRes4bLow.txt "%(hino,hino,hino,hino,hino))
-os.system("combineCards.py SignalRegionRes3bHighT5HH%d.txt ControlRegionResB3bHighT5HH%d.txt ControlRegionResCHighT5HH%d.txt  ControlRegionResDHighT5HH%d.txt>T5HH%dRes3bHigh.txt "%(hino,hino,hino,hino,hino))
-os.system("combineCards.py SignalRegionRes3bLowT5HH%d.txt ControlRegionResB3bLowT5HH%d.txt ControlRegionResCLowT5HH%d.txt  ControlRegionResDLowT5HH%d.txt>T5HH%dRes3bLow.txt "%(hino,hino,hino,hino,hino))
-os.system("combineCards.py T5HH%dRes4bHigh.txt T5HH%dRes4bLow.txt  T5HH%dRes3bHigh.txt T5HH%dRes3bLow.txt > T5HH%dRes.txt "%(hino,hino,hino,hino,hino))
-os.system("combine -M AsymptoticLimits -n T5HH%dRes T5HH%dRes.txt " %(hino,hino))
-
-#Combo
-#os.system("combineCards.py SignalRegionRes4bT5HH%d.txt ControlRegionResBT5HH%d.txt ControlRegionResCT5HH%d.txt  ControlRegionResDT5HH%d.txt>T5HH%dRes4b.txt "%(hino,hino,hino,hino,hino))
-#os.system("combineCards.py SignalRegionRes3bT5HH%d.txt ControlRegionResB3bT5HH%d.txt >T5HH%dRes3b.txt "%(hino,hino,hino))
-os.system("combineCards.py SignalRegionT5HH%d_veto.txt ControlRegionBT5HH%d_veto.txt ControlRegionCT5HH%d_veto.txt  ControlRegionDT5HH%d_veto.txt > T5HH%d_2BoostedH_veto.txt "%(hino,hino,hino,hino,hino))
-os.system("combineCards.py T5HH%d_2BoostedH_veto.txt T5HH%dRes.txt > T5HH%dCombo.txt "%(hino,hino,hino))
-os.system("combine -M AsymptoticLimits -n T5HH%dCombo T5HH%dCombo.txt " %(hino,hino))
+# os.system("combineCards.py SignalRegionRes4bHighT5HH%d.txt ControlRegionResB4bHighT5HH%d.txt ControlRegionResCHighT5HH%d.txt  ControlRegionResDHighT5HH%d.txt>T5HH%dRes4bHigh.txt "%(hino,hino,hino,hino,hino))
+# os.system("combineCards.py SignalRegionRes4bLowT5HH%d.txt ControlRegionResB4bLowT5HH%d.txt ControlRegionResCLowT5HH%d.txt  ControlRegionResDLowT5HH%d.txt>T5HH%dRes4bLow.txt "%(hino,hino,hino,hino,hino))
+# os.system("combineCards.py SignalRegionRes3bHighT5HH%d.txt ControlRegionResB3bHighT5HH%d.txt ControlRegionResCHighT5HH%d.txt  ControlRegionResDHighT5HH%d.txt>T5HH%dRes3bHigh.txt "%(hino,hino,hino,hino,hino))
+# os.system("combineCards.py SignalRegionRes3bLowT5HH%d.txt ControlRegionResB3bLowT5HH%d.txt ControlRegionResCLowT5HH%d.txt  ControlRegionResDLowT5HH%d.txt>T5HH%dRes3bLow.txt "%(hino,hino,hino,hino,hino))
+# os.system("combineCards.py T5HH%dRes4bHigh.txt T5HH%dRes4bLow.txt  T5HH%dRes3bHigh.txt T5HH%dRes3bLow.txt > T5HH%dRes.txt "%(hino,hino,hino,hino,hino))
+# os.system("combine -M AsymptoticLimits -n T5HH%dRes T5HH%dRes.txt " %(hino,hino))
+#
+# #Combo
+# #os.system("combineCards.py SignalRegionRes4bT5HH%d.txt ControlRegionResBT5HH%d.txt ControlRegionResCT5HH%d.txt  ControlRegionResDT5HH%d.txt>T5HH%dRes4b.txt "%(hino,hino,hino,hino,hino))
+# #os.system("combineCards.py SignalRegionRes3bT5HH%d.txt ControlRegionResB3bT5HH%d.txt >T5HH%dRes3b.txt "%(hino,hino,hino))
+# os.system("combineCards.py SignalRegionT5HH%d_veto.txt ControlRegionBT5HH%d_veto.txt ControlRegionCT5HH%d_veto.txt  ControlRegionDT5HH%d_veto.txt > T5HH%d_2BoostedH_veto.txt "%(hino,hino,hino,hino,hino))
+# os.system("combineCards.py T5HH%d_2BoostedH_veto.txt T5HH%dRes.txt > T5HH%dCombo.txt "%(hino,hino,hino))
+# os.system("combine -M AsymptoticLimits -n T5HH%dCombo T5HH%dCombo.txt " %(hino,hino))

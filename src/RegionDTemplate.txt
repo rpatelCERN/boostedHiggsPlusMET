@@ -1,27 +1,16 @@
 imax 3 #number of channels
-jmax 4 #number of backgrounds
+jmax 1 #number of backgrounds
 kmax * nuissance
 shapes * * FAKE
 
 bin AntiSidebandRegion0 AntiSidebandRegion1 AntiSidebandRegion2
 observation obs1 obs2 obs3
 
-bin AntiSidebandRegion0 AntiSidebandRegion0 AntiSidebandRegion0 AntiSidebandRegion0 AntiSidebandRegion0 AntiSidebandRegion1 AntiSidebandRegion1 AntiSidebandRegion1 AntiSidebandRegion1 AntiSidebandRegion1 AntiSidebandRegion2 AntiSidebandRegion2 AntiSidebandRegion2 AntiSidebandRegion2 AntiSidebandRegion2
-process sig qcd zvv W Top sig qcd zvv W Top sig qcd zvv W Top
-process 0 1 2 3 4 0 1 2 3 4 0 1 2 3 4
-rate higgsino qcd zvv W Top higgsino qcd zvv W Top higgsino qcd zvv W Top
+bin AntiSidebandRegion0 AntiSidebandRegion0 AntiSidebandRegion1 AntiSidebandRegion1 AntiSidebandRegion2 AntiSidebandRegion2
+process sig bkg sig bkg sig bkg
+process 0 1 0 1 0 1
+rate higgsino bkg higgsino bkg higgsino bkg
 -----------------------
-Delta0 rateParam AntiSidebandRegion0 qcd 1 [0.00,4.00]
-Delta0 rateParam AntiSidebandRegion0 zvv 1 [0.00,4.00]
-Delta0 rateParam AntiSidebandRegion0 W 1 [0.00,4.00]
-Delta0 rateParam AntiSidebandRegion0 Top 1 [0.00,4.00]
-
-Delta1 rateParam AntiSidebandRegion1 qcd 1 [0.00,4.00]
-Delta1 rateParam AntiSidebandRegion1 zvv 1 [0.00,4.00]
-Delta1 rateParam AntiSidebandRegion1 W 1 [0.00,4.00]
-Delta1 rateParam AntiSidebandRegion1 Top 1 [0.00,4.00]
-
-Delta2 rateParam AntiSidebandRegion2 qcd 1 [0.00,4.00]
-Delta2 rateParam AntiSidebandRegion2 zvv 1 [0.00,4.00]
-Delta2 rateParam AntiSidebandRegion2 W 1 [0.00,4.00]
-Delta2 rateParam AntiSidebandRegion2 Top 1 [0.00,4.00]
+Delta0 rateParam AntiSidebandRegion0 bkg 1 [0.00,4.00]
+Delta1 rateParam AntiSidebandRegion1 bkg 1 [0.00,4.00]
+Delta2 rateParam AntiSidebandRegion2 bkg 1 [0.00,4.00]
