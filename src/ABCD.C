@@ -57,7 +57,6 @@ bool runTableOfYields = true;
 bool runPies = false;
 bool showNoCutLine = false;
 bool runPure = false;
-bool runDM = false;
 bool runMassCorrelations = true;
 
 bool savePDFs = true;
@@ -108,11 +107,6 @@ void runABCD() {
   TH1F * h_A_TT_SL; TH1F * h_B_TT_SL; TH1F * h_A1_TT_SL; TH1F * h_B1_TT_SL; TH1F * h_C_TT_SL; TH1F * h_D_TT_SL;
   TH1F * h_A_WJets; TH1F * h_B_WJets; TH1F * h_A1_WJets; TH1F * h_B1_WJets; TH1F * h_C_WJets; TH1F * h_D_WJets;
   TH1F * h_A_ZJets; TH1F * h_B_ZJets; TH1F * h_A1_ZJets; TH1F * h_B1_ZJets; TH1F * h_C_ZJets; TH1F * h_D_ZJets;
-
-  //Checking low vs high PU
-  TH1F * h_AlowPU_sum; TH1F * h_BlowPU_sum; TH1F * h_A1lowPU_sum; TH1F * h_B1lowPU_sum; TH1F *h_ClowPU_sum; TH1F *h_DlowPU_sum;
-  TH1F * h_AhighPU_sum; TH1F * h_BhighPU_sum; TH1F * h_A1highPU_sum; TH1F * h_B1highPU_sum; TH1F *h_ChighPU_sum; TH1F *h_DhighPU_sum;
-
 
   TH1F * h_A_TChiHH200; TH1F * h_B_TChiHH200; TH1F * h_A1_TChiHH200; TH1F * h_B1_TChiHH200; TH1F * h_C_TChiHH200; TH1F * h_D_TChiHH200;
   TH1F * h_A_TChiHH400; TH1F * h_B_TChiHH400; TH1F * h_A1_TChiHH400; TH1F * h_B1_TChiHH400; TH1F * h_C_TChiHH400; TH1F * h_D_TChiHH400;
@@ -253,23 +247,8 @@ void runABCD() {
 
 
   TH1F * h_DOpt1_sum; TH1F * h_COpt1_sum;
-  TH1F * h_DOpt2_sum; TH1F * h_COpt2_sum;
-  TH1F * h_DOpt3_sum; TH1F * h_COpt3_sum;
-  TH1F * h_DOpt4_sum; TH1F * h_COpt4_sum;
-  TH1F * h_DOpt5_sum; TH1F * h_COpt5_sum;
-
   TH1F * hP_DOpt1_sum; TH1F * hP_COpt1_sum;
-  TH1F * hP_DOpt2_sum; TH1F * hP_COpt2_sum;
-  TH1F * hP_DOpt3_sum; TH1F * hP_COpt3_sum;
-  TH1F * hP_DOpt4_sum; TH1F * hP_COpt4_sum;
-  TH1F * hP_DOpt5_sum; TH1F * hP_COpt5_sum;
-
   TH1F * h_D5Opt1_sum; TH1F * h_C5Opt1_sum;
-  TH1F * h_D5Opt2_sum; TH1F * h_C5Opt2_sum;
-  TH1F * h_D5Opt3_sum; TH1F * h_C5Opt3_sum;
-  TH1F * h_D5Opt4_sum; TH1F * h_C5Opt4_sum;
-
-
   TH1F * h_COpt1_TT;    TH1F * h_DOpt1_TT;
   TH1F * h_COpt1_GJets; TH1F * h_DOpt1_GJets;
   TH1F * h_COpt1_WJets; TH1F * h_DOpt1_WJets;
@@ -277,55 +256,10 @@ void runABCD() {
   TH1F * h_COpt1_QCD; TH1F * h_DOpt1_QCD;
   TH1F * h_COpt1_SnglT;TH1F * h_DOpt1_SnglT;
 
-  TH1F * h_COpt2_TT;    TH1F * h_DOpt2_TT;
-  TH1F * h_COpt2_GJets; TH1F * h_DOpt2_GJets;
-  TH1F * h_COpt2_WJets; TH1F * h_DOpt2_WJets;
-  TH1F * h_COpt2_ZJets; TH1F * h_DOpt2_ZJets;
-  TH1F * h_COpt2_QCD; TH1F * h_DOpt2_QCD;
-  TH1F * h_COpt2_SnglT;TH1F * h_DOpt2_SnglT;
-
-  TH1F * h_COpt3_TT;    TH1F * h_DOpt3_TT;
-  TH1F * h_COpt3_GJets; TH1F * h_DOpt3_GJets;
-  TH1F * h_COpt3_WJets; TH1F * h_DOpt3_WJets;
-  TH1F * h_COpt3_ZJets; TH1F * h_DOpt3_ZJets;
-  TH1F * h_COpt3_QCD; TH1F * h_DOpt3_QCD;
-  TH1F * h_COpt3_SnglT;TH1F * h_DOpt3_SnglT;
-
-  TH1F * h_COpt4_TT;    TH1F * h_DOpt4_TT;
-  TH1F * h_COpt4_GJets; TH1F * h_DOpt4_GJets;
-  TH1F * h_COpt4_WJets; TH1F * h_DOpt4_WJets;
-  TH1F * h_COpt4_ZJets; TH1F * h_DOpt4_ZJets;
-  TH1F * h_COpt4_QCD; TH1F * h_DOpt4_QCD;
-  TH1F * h_COpt4_SnglT;TH1F * h_DOpt4_SnglT;
-
-  TH1F * h_COpt5_TT;    TH1F * h_DOpt5_TT;
-  TH1F * h_COpt5_GJets; TH1F * h_DOpt5_GJets;
-  TH1F * h_COpt5_WJets; TH1F * h_DOpt5_WJets;
-  TH1F * h_COpt5_ZJets; TH1F * h_DOpt5_ZJets;
-  TH1F * h_COpt5_QCD; TH1F * h_DOpt5_QCD;
-  TH1F * h_COpt5_SnglT;TH1F * h_DOpt5_SnglT;
-
   if (whichRegion=="signal") {
     // h_A_sum = (TH1F*)f->Get("MET_doubletagSR_sum"); h_B_sum = (TH1F*)f->Get("MET_doubletagSB_sum");
     // h_A1_sum = (TH1F*)f->Get("MET_tagSR_sum"); h_B1_sum = (TH1F*)f->Get("MET_tagSB_sum");
     // h_C_sum = (TH1F*)f->Get("MET_antitagSR_sum"); h_D_sum = (TH1F*)f->Get("MET_antitagSB_sum");
-
-    h_AlowPU_sum = (TH1F*)f->Get("MET_doubletagSRlowPU_sum"); h_BlowPU_sum = (TH1F*)f->Get("MET_doubletagSBlowPU_sum");
-    h_A1lowPU_sum = (TH1F*)f->Get("MET_tagSRlowPU_sum"); h_B1lowPU_sum = (TH1F*)f->Get("MET_tagSBlowPU_sum");
-    h_ClowPU_sum = (TH1F*)f->Get("MET_antitagSRlowPU_sum"); h_DlowPU_sum = (TH1F*)f->Get("MET_antitagSBlowPU_sum");
-
-    h_AhighPU_sum = (TH1F*)f->Get("MET_doubletagSRhighPU_sum"); h_BhighPU_sum = (TH1F*)f->Get("MET_doubletagSBhighPU_sum");
-    h_A1highPU_sum = (TH1F*)f->Get("MET_tagSRhighPU_sum"); h_B1highPU_sum = (TH1F*)f->Get("MET_tagSBhighPU_sum");
-    h_ChighPU_sum = (TH1F*)f->Get("MET_antitagSRhighPU_sum"); h_DhighPU_sum = (TH1F*)f->Get("MET_antitagSBhighPU_sum");
-
-    if (runDM) {
-      h_avgM_A_sum = (TH1F*)f->Get("avgM_doubletagSR_sum");
-      h_avgM_B_sum = (TH1F*)f->Get("avgM_doubletagSB_sum");
-      h_avgM_A1_sum = (TH1F*)f->Get("avgM_tagSR_sum");
-      h_avgM_B1_sum = (TH1F*)f->Get("avgM_tagSB_sum");
-      h_avgM_C_sum = (TH1F*)f->Get("avgM_antitagSR_sum");
-      h_avgM_D_sum = (TH1F*)f->Get("avgM_antitagSB_sum");
-    }
 
     h_A5_sum = (TH1F*)f->Get("MET5_doubletagSR_sum"); h_B5_sum = (TH1F*)f->Get("MET5_doubletagSB_sum");
     h_A15_sum = (TH1F*)f->Get("MET5_tagSR_sum"); h_B15_sum = (TH1F*)f->Get("MET5_tagSB_sum");
@@ -360,35 +294,7 @@ void runABCD() {
     h_COpt1_TT = (TH1F*)f->Get("MET_antitagSROpt1_TT"); h_DOpt1_TT = (TH1F*)f->Get("MET_antitagSBOpt1_TT");
     h_COpt1_WJets = (TH1F*)f->Get("MET_antitagSROpt1_WJets"); h_DOpt1_WJets = (TH1F*)f->Get("MET_antitagSBOpt1_WJets");
     h_COpt1_ZJets = (TH1F*)f->Get("MET_antitagSROpt1_ZJets"); h_DOpt1_ZJets = (TH1F*)f->Get("MET_antitagSBOpt1_ZJets");
-
     h_C5Opt1_sum = (TH1F*)f->Get("MET5_antitagSROpt1_sum"); h_D5Opt1_sum = (TH1F*)f->Get("MET5_antitagSBOpt1_sum");
-    h_C5Opt2_sum = (TH1F*)f->Get("MET5_antitagSROpt2_sum"); h_D5Opt2_sum = (TH1F*)f->Get("MET5_antitagSBOpt2_sum");
-    h_C5Opt3_sum = (TH1F*)f->Get("MET5_antitagSROpt3_sum"); h_D5Opt3_sum = (TH1F*)f->Get("MET5_antitagSBOpt3_sum");
-    h_C5Opt4_sum = (TH1F*)f->Get("MET5_antitagSROpt4_sum"); h_D5Opt4_sum = (TH1F*)f->Get("MET5_antitagSBOpt4_sum");
-
-    h_COpt2_QCD = (TH1F*)f->Get("MET_antitagSROpt2_QCD"); h_DOpt2_QCD = (TH1F*)f->Get("MET_antitagSBOpt2_QCD");
-    h_COpt2_SnglT = (TH1F*)f->Get("MET_antitagSROpt2_SnglT"); h_DOpt2_SnglT = (TH1F*)f->Get("MET_antitagSBOpt2_SnglT");
-    h_COpt2_TT = (TH1F*)f->Get("MET_antitagSROpt2_TT"); h_DOpt2_TT = (TH1F*)f->Get("MET_antitagSBOpt2_TT");
-    h_COpt2_WJets = (TH1F*)f->Get("MET_antitagSROpt2_WJets"); h_DOpt2_WJets = (TH1F*)f->Get("MET_antitagSBOpt2_WJets");
-    h_COpt2_ZJets = (TH1F*)f->Get("MET_antitagSROpt2_ZJets"); h_DOpt2_ZJets = (TH1F*)f->Get("MET_antitagSBOpt2_ZJets");
-
-    h_COpt3_QCD = (TH1F*)f->Get("MET_antitagSROpt3_QCD"); h_DOpt3_QCD = (TH1F*)f->Get("MET_antitagSBOpt3_QCD");
-    h_COpt3_SnglT = (TH1F*)f->Get("MET_antitagSROpt3_SnglT"); h_DOpt3_SnglT = (TH1F*)f->Get("MET_antitagSBOpt3_SnglT");
-    h_COpt3_TT = (TH1F*)f->Get("MET_antitagSROpt3_TT"); h_DOpt3_TT = (TH1F*)f->Get("MET_antitagSBOpt3_TT");
-    h_COpt3_WJets = (TH1F*)f->Get("MET_antitagSROpt3_WJets"); h_DOpt3_WJets = (TH1F*)f->Get("MET_antitagSBOpt3_WJets");
-    h_COpt3_ZJets = (TH1F*)f->Get("MET_antitagSROpt3_ZJets"); h_DOpt3_ZJets = (TH1F*)f->Get("MET_antitagSBOpt3_ZJets");
-
-    h_COpt4_QCD = (TH1F*)f->Get("MET_antitagSROpt4_QCD"); h_DOpt4_QCD = (TH1F*)f->Get("MET_antitagSBOpt4_QCD");
-    h_COpt4_SnglT = (TH1F*)f->Get("MET_antitagSROpt4_SnglT"); h_DOpt4_SnglT = (TH1F*)f->Get("MET_antitagSBOpt4_SnglT");
-    h_COpt4_TT = (TH1F*)f->Get("MET_antitagSROpt4_TT"); h_DOpt4_TT = (TH1F*)f->Get("MET_antitagSBOpt4_TT");
-    h_COpt4_WJets = (TH1F*)f->Get("MET_antitagSROpt4_WJets"); h_DOpt4_WJets = (TH1F*)f->Get("MET_antitagSBOpt4_WJets");
-    h_COpt4_ZJets = (TH1F*)f->Get("MET_antitagSROpt4_ZJets"); h_DOpt4_ZJets = (TH1F*)f->Get("MET_antitagSBOpt4_ZJets");
-
-    h_COpt5_QCD = (TH1F*)f->Get("MET_antitagSROpt5_QCD"); h_DOpt5_QCD = (TH1F*)f->Get("MET_antitagSBOpt5_QCD");
-    h_COpt5_SnglT = (TH1F*)f->Get("MET_antitagSROpt5_SnglT"); h_DOpt5_SnglT = (TH1F*)f->Get("MET_antitagSBOpt5_SnglT");
-    h_COpt5_TT = (TH1F*)f->Get("MET_antitagSROpt5_TT"); h_DOpt5_TT = (TH1F*)f->Get("MET_antitagSBOpt5_TT");
-    h_COpt5_WJets = (TH1F*)f->Get("MET_antitagSROpt5_WJets"); h_DOpt5_WJets = (TH1F*)f->Get("MET_antitagSBOpt5_WJets");
-    h_COpt5_ZJets = (TH1F*)f->Get("MET_antitagSROpt5_ZJets"); h_DOpt5_ZJets = (TH1F*)f->Get("MET_antitagSBOpt5_ZJets");
 
     //Adding uncertainties to 0-event bins
     h_A_sum = make0EventUncSum({h_A_QCD,h_A_TT,h_A_WJets,h_A_ZJets,h_A_SnglT});
@@ -400,14 +306,6 @@ void runABCD() {
 
     h_COpt1_sum = make0EventUncSum({h_COpt1_QCD,h_COpt1_TT,h_COpt1_WJets,h_COpt1_ZJets,h_COpt1_SnglT});
     h_DOpt1_sum = make0EventUncSum({h_DOpt1_QCD,h_DOpt1_TT,h_DOpt1_WJets,h_DOpt1_ZJets,h_DOpt1_SnglT});
-    h_COpt2_sum = make0EventUncSum({h_COpt2_QCD,h_COpt2_TT,h_COpt2_WJets,h_COpt2_ZJets,h_COpt2_SnglT});
-    h_DOpt2_sum = make0EventUncSum({h_DOpt2_QCD,h_DOpt2_TT,h_DOpt2_WJets,h_DOpt2_ZJets,h_DOpt2_SnglT});
-    h_COpt3_sum = make0EventUncSum({h_COpt3_QCD,h_COpt3_TT,h_COpt3_WJets,h_COpt3_ZJets,h_COpt3_SnglT});
-    h_DOpt3_sum = make0EventUncSum({h_DOpt3_QCD,h_DOpt3_TT,h_DOpt3_WJets,h_DOpt3_ZJets,h_DOpt3_SnglT});
-    h_COpt4_sum = make0EventUncSum({h_COpt4_QCD,h_COpt4_TT,h_COpt4_WJets,h_COpt4_ZJets,h_COpt4_SnglT});
-    h_DOpt4_sum = make0EventUncSum({h_DOpt4_QCD,h_DOpt4_TT,h_DOpt4_WJets,h_DOpt4_ZJets,h_DOpt4_SnglT});
-    h_COpt5_sum = make0EventUncSum({h_COpt5_QCD,h_COpt5_TT,h_COpt5_WJets,h_COpt5_ZJets,h_COpt5_SnglT});
-    h_DOpt5_sum = make0EventUncSum({h_DOpt5_QCD,h_DOpt5_TT,h_DOpt5_WJets,h_DOpt5_ZJets,h_DOpt5_SnglT});
 
     h_A_sum->Write("ABCDRegions/h_A_sum");
     h_A1_sum->Write("ABCDRegions/h_A1_sum");
@@ -415,18 +313,9 @@ void runABCD() {
     h_B1_sum->Write("ABCDRegions/h_B1_sum");
     h_C_sum->Write("ABCDRegions/h_C_sum");
     h_D_sum->Write("ABCDRegions/h_D_sum");
-
-
     h_COpt1_sum->Write("ABCDRegions/h_C_M1_sum");
-    h_COpt2_sum->Write("ABCDRegions/h_C_M0_sum");
-    h_COpt3_sum->Write("ABCDRegions/h_C_T0_sum");
-    h_COpt4_sum->Write("ABCDRegions/h_C_L1M0_sum");
-    h_COpt5_sum->Write("ABCDRegions/h_C_M1T0_sum");
     h_DOpt1_sum->Write("ABCDRegions/h_D_M1_sum");
-    h_DOpt2_sum->Write("ABCDRegions/h_D_M0_sum");
-    h_DOpt3_sum->Write("ABCDRegions/h_D_T0_sum");
-    h_DOpt4_sum->Write("ABCDRegions/h_D_L1M0_sum");
-    h_DOpt5_sum->Write("ABCDRegions/h_D_M1T0_sum");
+
 
 
     if (0){
@@ -706,10 +595,6 @@ void runABCD() {
       h_J1Pt_tagSB_TChiHH1000 = (TH1F*)fSignal->Get("J1pt_Pt_tagSB_TChiHH1000"); h_J2Pt_tagSB_TChiHH1000 = (TH1F*)fSignal->Get("J2pt_Pt_tagSB_TChiHH1000");
       h_baseline_j1pt_TChiHH1000 = (TH1F*)fSignal->Get("J1pt_Pt_baseline_TChiHH1000"); h_baseline_j2pt_TChiHH1000 = (TH1F*)fSignal->Get("J2pt_Pt_baseline_TChiHH1000");
     }
-    // h_COpt1_sum = (TH1F*)f->Get("MET_antitagSROpt1_sum"); h_DOpt1_sum = (TH1F*)f->Get("MET_antitagSBOpt1_sum");
-    // h_COpt2_sum = (TH1F*)f->Get("MET_antitagSROpt2_sum"); h_DOpt2_sum = (TH1F*)f->Get("MET_antitagSBOpt2_sum");
-    // h_COpt3_sum = (TH1F*)f->Get("MET_antitagSROpt3_sum"); h_DOpt3_sum = (TH1F*)f->Get("MET_antitagSBOpt3_sum");
-    // h_COpt4_sum = (TH1F*)f->Get("MET_antitagSROpt4_sum"); h_DOpt4_sum = (TH1F*)f->Get("MET_antitagSBOpt4_sum");
   }
 
   if (whichRegion=="photon") {
@@ -785,50 +670,16 @@ void runABCD() {
     h_J2M_mjBins_doubletagSR_GJets = (TH1F*)fPhoton->Get("J2_M_jetBins_doubletagSR_GJets"); h_J2M_mjBins_doubletagSB_GJets = (TH1F*)fPhoton->Get("J2_M_jetBins_doubletagSB_GJets");
     h_J2M_mjBins_antitagSR_GJets = (TH1F*)fPhoton->Get("J2_M_jetBins_antitagSR_GJets"); h_J2M_mjBins_antitagSB_GJets = (TH1F*)fPhoton->Get("J2_M_jetBins_antitagSB_GJets");
 
-    // h_DOpt1_sum = (TH1F*)fPhoton->Get("MET_antitagSBOpt1_sum"); h_DOpt2_sum = (TH1F*)fPhoton->Get("MET_antitagSBOpt2_sum");
-    // h_COpt1_sum = (TH1F*)fPhoton->Get("MET_antitagSROpt1_sum"); h_COpt2_sum = (TH1F*)fPhoton->Get("MET_antitagSROpt2_sum");
+
     h_COpt1_QCD = (TH1F*)fPhoton->Get("MET_antitagSROpt1_QCD"); h_DOpt1_QCD = (TH1F*)fPhoton->Get("MET_antitagSBOpt1_QCD");
     h_COpt1_GJets = (TH1F*)fPhoton->Get("MET_antitagSROpt1_GJets"); h_DOpt1_GJets = (TH1F*)fPhoton->Get("MET_antitagSBOpt1_GJets");
     h_COpt1_sum = (TH1F*)fPhoton->Get("MET_antitagSROpt1_sum"); h_DOpt1_sum = (TH1F*)fPhoton->Get("MET_antitagSBOpt1_sum");
     hP_COpt1_sum = (TH1F*)fPhoton->Get("METPhoton_antitagSROpt1_sum"); hP_DOpt1_sum = (TH1F*)fPhoton->Get("METPhoton_antitagSBOpt1_sum");
-
     h_C5Opt1_sum = (TH1F*)fPhoton->Get("MET5_antitagSROpt1_sum"); h_D5Opt1_sum = (TH1F*)fPhoton->Get("MET5_antitagSBOpt1_sum");
-    h_C5Opt2_sum = (TH1F*)fPhoton->Get("MET5_antitagSROpt2_sum"); h_D5Opt2_sum = (TH1F*)fPhoton->Get("MET5_antitagSBOpt2_sum");
-    h_C5Opt3_sum = (TH1F*)fPhoton->Get("MET5_antitagSROpt3_sum"); h_D5Opt3_sum = (TH1F*)fPhoton->Get("MET5_antitagSBOpt3_sum");
-    h_C5Opt4_sum = (TH1F*)fPhoton->Get("MET5_antitagSROpt4_sum"); h_D5Opt4_sum = (TH1F*)fPhoton->Get("MET5_antitagSBOpt4_sum");
-
-    h_COpt2_QCD = (TH1F*)fPhoton->Get("MET_antitagSROpt2_QCD"); h_DOpt2_QCD = (TH1F*)fPhoton->Get("MET_antitagSBOpt2_QCD");
-    h_COpt2_GJets = (TH1F*)fPhoton->Get("MET_antitagSROpt2_GJets"); h_DOpt2_GJets = (TH1F*)fPhoton->Get("MET_antitagSBOpt2_GJets");
-    h_COpt2_sum = (TH1F*)fPhoton->Get("MET_antitagSROpt2_sum"); h_DOpt2_sum = (TH1F*)fPhoton->Get("MET_antitagSBOpt2_sum");
-    hP_COpt2_sum = (TH1F*)fPhoton->Get("METPhoton_antitagSROpt2_sum"); hP_DOpt2_sum = (TH1F*)fPhoton->Get("METPhoton_antitagSBOpt2_sum");
-
-    h_COpt3_QCD = (TH1F*)fPhoton->Get("MET_antitagSROpt3_QCD"); h_DOpt3_QCD = (TH1F*)fPhoton->Get("MET_antitagSBOpt3_QCD");
-    h_COpt3_GJets = (TH1F*)fPhoton->Get("MET_antitagSROpt3_GJets"); h_DOpt3_GJets = (TH1F*)fPhoton->Get("MET_antitagSBOpt3_GJets");
-    h_COpt3_sum = (TH1F*)fPhoton->Get("MET_antitagSROpt3_sum"); h_DOpt3_sum = (TH1F*)fPhoton->Get("MET_antitagSBOpt3_sum");
-    hP_COpt3_sum = (TH1F*)fPhoton->Get("METPhoton_antitagSROpt3_sum"); hP_DOpt3_sum = (TH1F*)fPhoton->Get("METPhoton_antitagSBOpt3_sum");
-
-    h_COpt4_QCD = (TH1F*)fPhoton->Get("MET_antitagSROpt4_QCD"); h_DOpt4_QCD = (TH1F*)fPhoton->Get("MET_antitagSBOpt4_QCD");
-    h_COpt4_GJets = (TH1F*)fPhoton->Get("MET_antitagSROpt4_GJets"); h_DOpt4_GJets = (TH1F*)fPhoton->Get("MET_antitagSBOpt4_GJets");
-    h_COpt4_sum = (TH1F*)fPhoton->Get("MET_antitagSROpt4_sum"); h_DOpt4_sum = (TH1F*)fPhoton->Get("MET_antitagSBOpt4_sum");
-    hP_COpt4_sum = (TH1F*)fPhoton->Get("METPhoton_antitagSROpt4_sum"); hP_DOpt4_sum = (TH1F*)fPhoton->Get("METPhoton_antitagSBOpt4_sum");
-
-    h_COpt5_QCD = (TH1F*)fPhoton->Get("MET_antitagSROpt5_QCD"); h_DOpt5_QCD = (TH1F*)fPhoton->Get("MET_antitagSBOpt5_QCD");
-    h_COpt5_GJets = (TH1F*)fPhoton->Get("MET_antitagSROpt5_GJets"); h_DOpt5_GJets = (TH1F*)fPhoton->Get("MET_antitagSBOpt5_GJets");
-    h_COpt5_sum = (TH1F*)fPhoton->Get("MET_antitagSROpt5_sum"); h_DOpt5_sum = (TH1F*)fPhoton->Get("MET_antitagSBOpt5_sum");
-    hP_COpt5_sum = (TH1F*)fPhoton->Get("METPhoton_antitagSROpt5_sum"); hP_DOpt5_sum = (TH1F*)fPhoton->Get("METPhoton_antitagSBOpt5_sum");
   }
 
 
   if (whichRegion=="singleLept") {
-    if (runDM) {
-      h_avgM_A_sum = (TH1F*)fSingleLept->Get("avgM_doubletagSR_sum");
-      h_avgM_B_sum = (TH1F*)fSingleLept->Get("avgM_doubletagSB_sum");
-      h_avgM_A1_sum = (TH1F*)fSingleLept->Get("avgM_tagSR_sum");
-      h_avgM_B1_sum = (TH1F*)fSingleLept->Get("avgM_tagSB_sum");
-      h_avgM_C_sum = (TH1F*)fSingleLept->Get("avgM_antitagSR_sum");
-      h_avgM_D_sum = (TH1F*)fSingleLept->Get("avgM_antitagSB_sum");
-    }
-
     // h_A_data = (TH1F*)fSingleLept->Get("MET_doubletagSR_data"); h_B_data = (TH1F*)fSingleLept->Get("MET_doubletagSB_data");
     // h_A1_data = (TH1F*)fSingleLept->Get("MET_tagSR_data"); h_B1_data = (TH1F*)fSingleLept->Get("MET_tagSB_data");
     // h_C_data = (TH1F*)fSingleLept->Get("MET_antitagSR_data"); h_D_data = (TH1F*)fSingleLept->Get("MET_antitagSB_data");
@@ -864,31 +715,7 @@ void runABCD() {
     h_COpt1_SnglT = (TH1F*)fSingleLept->Get("MET_antitagSROpt1_SnglT"); h_DOpt1_SnglT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt1_SnglT");
     h_COpt1_TT = (TH1F*)fSingleLept->Get("MET_antitagSROpt1_TT"); h_DOpt1_TT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt1_TT");
     h_COpt1_WJets = (TH1F*)fSingleLept->Get("MET_antitagSROpt1_WJets"); h_DOpt1_WJets = (TH1F*)fSingleLept->Get("MET_antitagSBOpt1_WJets");
-    h_COpt2_SnglT = (TH1F*)fSingleLept->Get("MET_antitagSROpt2_SnglT"); h_DOpt2_SnglT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt2_SnglT");
-    h_COpt2_TT = (TH1F*)fSingleLept->Get("MET_antitagSROpt2_TT"); h_DOpt2_TT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt2_TT");
-    h_COpt2_WJets = (TH1F*)fSingleLept->Get("MET_antitagSROpt2_WJets"); h_DOpt2_WJets = (TH1F*)fSingleLept->Get("MET_antitagSBOpt2_WJets");
-    h_COpt3_SnglT = (TH1F*)fSingleLept->Get("MET_antitagSROpt3_SnglT"); h_DOpt3_SnglT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt3_SnglT");
-    h_COpt3_TT = (TH1F*)fSingleLept->Get("MET_antitagSROpt3_TT"); h_DOpt3_TT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt3_TT");
-    h_COpt3_WJets = (TH1F*)fSingleLept->Get("MET_antitagSROpt3_WJets"); h_DOpt3_WJets = (TH1F*)fSingleLept->Get("MET_antitagSBOpt3_WJets");
-    h_COpt4_SnglT = (TH1F*)fSingleLept->Get("MET_antitagSROpt4_SnglT"); h_DOpt4_SnglT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt4_SnglT");
-    h_COpt4_TT = (TH1F*)fSingleLept->Get("MET_antitagSROpt4_TT"); h_DOpt4_TT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt4_TT");
-    h_COpt4_WJets = (TH1F*)fSingleLept->Get("MET_antitagSROpt4_WJets"); h_DOpt4_WJets = (TH1F*)fSingleLept->Get("MET_antitagSBOpt4_WJets");
-    h_COpt5_SnglT = (TH1F*)fSingleLept->Get("MET_antitagSROpt5_SnglT"); h_DOpt5_SnglT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt5_SnglT");
-    h_COpt5_TT = (TH1F*)fSingleLept->Get("MET_antitagSROpt5_TT"); h_DOpt5_TT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt5_TT");
-    h_COpt5_WJets = (TH1F*)fSingleLept->Get("MET_antitagSROpt5_WJets"); h_DOpt5_WJets = (TH1F*)fSingleLept->Get("MET_antitagSBOpt5_WJets");
-
     h_C5Opt1_sum = (TH1F*)fSingleLept->Get("MET5_antitagSROpt1_sum"); h_D5Opt1_sum = (TH1F*)fSingleLept->Get("MET5_antitagSBOpt1_sum");
-    h_C5Opt2_sum = (TH1F*)fSingleLept->Get("MET5_antitagSROpt2_sum"); h_D5Opt2_sum = (TH1F*)fSingleLept->Get("MET5_antitagSBOpt2_sum");
-    h_C5Opt3_sum = (TH1F*)fSingleLept->Get("MET5_antitagSROpt3_sum"); h_D5Opt3_sum = (TH1F*)fSingleLept->Get("MET5_antitagSBOpt3_sum");
-    h_C5Opt4_sum = (TH1F*)fSingleLept->Get("MET5_antitagSROpt4_sum"); h_D5Opt4_sum = (TH1F*)fSingleLept->Get("MET5_antitagSBOpt4_sum");
-
-    // h_A_sum = (TH1F*)h_A_TT->Clone("h_A_sum");  h_B_sum = (TH1F*)h_B_TT->Clone("h_B_sum");
-    // h_A1_sum = (TH1F*)h_A1_TT->Clone("h_A1_sum");  h_B1_sum = (TH1F*)h_B1_TT->Clone("h_B1_sum");
-    // h_C_sum = (TH1F*)h_C_TT->Clone("h_C_sum");  h_D_sum = (TH1F*)h_D_TT->Clone("h_D_sum");
-    // h_A_sum->Add(h_A_WJets); h_B_sum->Add(h_B_WJets);
-    // h_A1_sum->Add(h_A1_WJets); h_B1_sum->Add(h_B1_WJets);
-    // h_C_sum->Add(h_C_WJets); h_D_sum->Add(h_D_WJets);
-    //Adding uncertainties to 0-event bins
 
     //TH1F make0EventUncSum_1l(vector<TH1F*> dem_histos); //in this order: SnglT,TT, WJets
     h_A_sum = make0EventUncSum_1l({h_A_SnglT,h_A_TT,h_A_WJets});
@@ -897,7 +724,8 @@ void runABCD() {
     h_B1_sum = make0EventUncSum_1l({h_B1_SnglT,h_B1_TT,h_B1_WJets});
     h_C_sum = make0EventUncSum_1l({h_C_SnglT,h_C_TT,h_C_WJets});
     h_D_sum = make0EventUncSum_1l({h_D_SnglT,h_D_TT,h_D_WJets,});
-
+    h_COpt1_sum = make0EventUncSum_1l({h_COpt1_SnglT,h_COpt1_TT,h_COpt1_WJets});
+    h_DOpt1_sum = make0EventUncSum_1l({h_DOpt1_SnglT,h_DOpt1_TT,h_DOpt1_WJets});
 
     h_A_sum->Write("ABCDRegions/h_A_sum");
     h_A1_sum->Write("ABCDRegions/h_A1_sum");
@@ -905,31 +733,8 @@ void runABCD() {
     h_B1_sum->Write("ABCDRegions/h_B1_sum");
     h_C_sum->Write("ABCDRegions/h_C_sum");
     h_D_sum->Write("ABCDRegions/h_D_sum");
-
-
-    h_COpt1_sum = make0EventUncSum_1l({h_COpt1_SnglT,h_COpt1_TT,h_COpt1_WJets});
-    h_DOpt1_sum = make0EventUncSum_1l({h_DOpt1_SnglT,h_DOpt1_TT,h_DOpt1_WJets});
-    h_COpt2_sum = make0EventUncSum_1l({h_COpt2_SnglT,h_COpt2_TT,h_COpt2_WJets});
-    h_DOpt2_sum = make0EventUncSum_1l({h_DOpt2_SnglT,h_DOpt2_TT,h_DOpt2_WJets});
-    h_COpt3_sum = make0EventUncSum_1l({h_COpt3_SnglT,h_COpt3_TT,h_COpt3_WJets});
-    h_DOpt3_sum = make0EventUncSum_1l({h_DOpt3_SnglT,h_DOpt3_TT,h_DOpt3_WJets});
-    h_COpt4_sum = make0EventUncSum_1l({h_COpt4_SnglT,h_COpt4_TT,h_COpt4_WJets});
-    h_DOpt4_sum = make0EventUncSum_1l({h_DOpt4_SnglT,h_DOpt4_TT,h_DOpt4_WJets});
-    h_COpt5_sum = make0EventUncSum_1l({h_COpt5_SnglT,h_COpt5_TT,h_COpt5_WJets});
-    h_DOpt5_sum = make0EventUncSum_1l({h_DOpt5_SnglT,h_DOpt5_TT,h_DOpt5_WJets});
-
-
     h_COpt1_sum->Write("ABCDRegions/h_C_M1_sum");
-    h_COpt2_sum->Write("ABCDRegions/h_C_M0_sum");
-    h_COpt3_sum->Write("ABCDRegions/h_C_T0_sum");
-    h_COpt4_sum->Write("ABCDRegions/h_C_L1M0_sum");
-    h_COpt5_sum->Write("ABCDRegions/h_C_M1T0_sum");
     h_DOpt1_sum->Write("ABCDRegions/h_D_M1_sum");
-    h_DOpt2_sum->Write("ABCDRegions/h_D_M0_sum");
-    h_DOpt3_sum->Write("ABCDRegions/h_D_T0_sum");
-    h_DOpt4_sum->Write("ABCDRegions/h_D_L1M0_sum");
-    h_DOpt5_sum->Write("ABCDRegions/h_D_M1T0_sum");
-
 
     h_J1M_doubletagSR_sum = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSR_sum"); h_J2M_doubletagSR_sum = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSR_sum");
     h_J1M_doubletagSB_sum = (TH1F*)fSingleLept->Get("J1pt_M_doubletagSB_sum"); h_J2M_doubletagSB_sum = (TH1F*)fSingleLept->Get("J2pt_M_doubletagSB_sum");
@@ -1028,14 +833,6 @@ void runABCD() {
 
     h_J2M_mjBins_doubletagSR_WJets = (TH1F*)fSingleLept->Get("J2_M_jetBins_doubletagSR_WJets"); h_J2M_mjBins_doubletagSB_WJets = (TH1F*)fSingleLept->Get("J2_M_jetBins_doubletagSB_WJets");
     h_J2M_mjBins_antitagSR_WJets = (TH1F*)fSingleLept->Get("J2_M_jetBins_antitagSR_WJets"); h_J2M_mjBins_antitagSB_WJets = (TH1F*)fSingleLept->Get("J2_M_jetBins_antitagSB_WJets");
-    //
-    // h_DOpt1_sum = (TH1F*)fSingleLept->Get("MET_antitagSBOpt1_sum"); h_COpt1_sum = (TH1F*)fSingleLept->Get("MET_antitagSROpt1_sum");
-    // h_DOpt2_sum = (TH1F*)fSingleLept->Get("MET_antitagSBOpt2_sum"); h_COpt2_sum = (TH1F*)fSingleLept->Get("MET_antitagSROpt2_sum");
-    // h_DOpt3_sum = (TH1F*)fSingleLept->Get("MET_antitagSBOpt3_sum"); h_COpt3_sum = (TH1F*)fSingleLept->Get("MET_antitagSROpt3_sum");
-    // h_DOpt4_sum = (TH1F*)fSingleLept->Get("MET_antitagSBOpt4_sum"); h_COpt4_sum = (TH1F*)fSingleLept->Get("MET_antitagSROpt4_sum");
-
-    // h_DOpt1_TT = (TH1F*)fSingleLept->Get("MET_antitagSBOpt1_TT"); h_DOpt1_WJets = (TH1F*)fSingleLept->Get("MET_antitagSBOpt1_WJets");
-    // h_COpt1_TT = (TH1F*)fSingleLept->Get("MET_antitagSROpt1_TT"); h_COpt1_WJets = (TH1F*)fSingleLept->Get("MET_antitagSROpt1_WJets");
   }
 
   vector<TH1F*> histos_ABCD_data = {h_A_data, h_B_data, h_C_data, h_D_data};
@@ -1048,8 +845,6 @@ void runABCD() {
 
 
   vector<TH1F*> histos_ABCD_sum = {h_A_sum, h_B_sum, h_C_sum, h_D_sum};
-  vector<TH1F*> histos_ABCDlowPU_sum = {h_AlowPU_sum, h_BlowPU_sum, h_ClowPU_sum, h_DlowPU_sum};
-  vector<TH1F*> histos_ABCDhighPU_sum = {h_AhighPU_sum, h_BhighPU_sum, h_ChighPU_sum, h_DhighPU_sum};
   vector<TH1F*> histos_ABCD_QCD = {h_A_QCD, h_B_QCD, h_C_QCD, h_D_QCD};
   vector<TH1F*> histos_ABCD_GJets = {h_A_GJets, h_B_GJets, h_C_GJets, h_D_GJets};
   vector<TH1F*> histos_ABCD_SnglT = {h_A_SnglT, h_B_SnglT, h_C_SnglT, h_D_SnglT};
@@ -1067,8 +862,6 @@ void runABCD() {
   vector<TH1F*> histos_ABCD_TChiHH1500 = {h_A_TChiHH1500, h_B_TChiHH1500, h_C_TChiHH1500, h_D_TChiHH1500};
 
   vector<TH1F*> histos_A1B1CD_sum = {h_A1_sum, h_B1_sum, h_C_sum, h_D_sum};
-  vector<TH1F*> histos_A1B1CDlowPU_sum = {h_A1lowPU_sum, h_B1lowPU_sum, h_ClowPU_sum, h_DlowPU_sum};
-  vector<TH1F*> histos_A1B1CDhighPU_sum = {h_A1highPU_sum, h_B1highPU_sum, h_ChighPU_sum, h_DhighPU_sum};
   vector<TH1F*> histos_A1B1CD_QCD = {h_A1_QCD, h_B1_QCD, h_C_QCD, h_D_QCD};
   vector<TH1F*> histos_A1B1CD_GJets = {h_A1_GJets, h_B1_GJets, h_C_GJets, h_D_GJets};
   vector<TH1F*> histos_A1B1CD_SnglT = {h_A1_SnglT, h_B1_SnglT, h_C_SnglT, h_D_SnglT};
@@ -1084,9 +877,6 @@ void runABCD() {
   vector<TH1F*> histos_A1B1CD_TChiHH1000 = {h_A1_TChiHH1000, h_B1_TChiHH1000, h_C_TChiHH1000, h_D_TChiHH1000};
   vector<TH1F*> histos_A1B1CD_TChiHH1300 = {h_A1_TChiHH1300, h_B1_TChiHH1300, h_C_TChiHH1300, h_D_TChiHH1300};
   vector<TH1F*> histos_A1B1CD_TChiHH1500 = {h_A1_TChiHH1500, h_B1_TChiHH1500, h_C_TChiHH1500, h_D_TChiHH1500};
-
-  vector<TH1F*> histos_RPF_DM = {h_avgM_A_sum,h_avgM_B_sum,h_avgM_C_sum,h_avgM_D_sum};
-  vector<TH1F*> histos_RPFsingle_DM = {h_avgM_A1_sum,h_avgM_B1_sum,h_avgM_C_sum,h_avgM_D_sum};
 
   vector<TH1F*> histos_Rpf_J1_sum = {h_J1M_doubletagSR_sum, h_J1M_doubletagSB_sum, h_J1M_antitagSR_sum, h_J1M_antitagSB_sum};
   vector<TH1F*> histos_Rpf_J2_sum = {h_J2M_doubletagSR_sum, h_J2M_doubletagSB_sum, h_J2M_antitagSR_sum, h_J2M_antitagSB_sum};
@@ -1191,40 +981,33 @@ void runABCD() {
   vector<TH1F*> histos_j2pt_T5HH2200 = {h_J2Pt_doubletagSR_T5HH2200,h_J2Pt_doubletagSB_T5HH2200,h_J2Pt_tagSR_T5HH2200,h_J2Pt_tagSB_T5HH2200, h_J2Pt_antitagSR_T5HH2200, h_J2Pt_antitagSB_T5HH2200};
 
 
-  // vector<TH1F*> h_METShape_bkgSum_1H = {h_A1_sum,h_B1_sum,h_C_sum,h_COpt4_sum,h_D_sum,h_DOpt4_sum};
-  // vector<TH1F*> h_METShape_bkgSum_1H = {h_A1_sum,h_B1_sum,h_C_sum,h_COpt2_sum,h_D_sum,h_DOpt2_sum};
-  // vector<TH1F*> h_METShape_bkgSum_2H = {h_A_sum,h_B_sum,h_C_sum,h_COpt1_sum,h_D_sum,h_DOpt1_sum};
-  vector<TH1F*> h_METShape_bkgSum_1H = {h_A1_sum,h_B1_sum,h_C_sum,h_COpt3_sum,h_D_sum,h_DOpt3_sum};
-  vector<TH1F*> h_METShape_bkgSum_2H = {h_A_sum,h_B_sum,h_C_sum,h_COpt3_sum,h_D_sum,h_DOpt3_sum};
+  vector<TH1F*> h_METShape_bkgSum_1H = {h_A1_sum,h_B1_sum,h_C_sum,h_COpt1_sum,h_D_sum,h_DOpt1_sum};
+  vector<TH1F*> h_METShape_bkgSum_2H = {h_A_sum,h_B_sum,h_C_sum,h_COpt1_sum,h_D_sum,h_DOpt1_sum};
 
-  vector<TH1F*> h_METShapePhoton_bkgSum_1H = {hP_A1_sum,hP_B1_sum,hP_C_sum,hP_COpt3_sum,hP_D_sum,hP_DOpt3_sum};
-  vector<TH1F*> h_METShapePhoton_bkgSum_2H = {hP_A_sum,hP_B_sum,hP_C_sum,hP_COpt3_sum,hP_D_sum,hP_DOpt3_sum};
+  vector<TH1F*> h_METShapePhoton_bkgSum_1H = {hP_A1_sum,hP_B1_sum,hP_C_sum,hP_COpt1_sum,hP_D_sum,hP_DOpt1_sum};
+  vector<TH1F*> h_METShapePhoton_bkgSum_2H = {hP_A_sum,hP_B_sum,hP_C_sum,hP_COpt1_sum,hP_D_sum,hP_DOpt1_sum};
 
 
-  // vector<TH1F*> h_METShape5_bkgSum_2H = {h_A5_sum,h_B5_sum,h_C5_sum,h_C5Opt1_sum,h_D5_sum,h_D5Opt1_sum};
-  // vector<TH1F*> h_METShape5_bkgSum_1H = {h_A15_sum,h_B15_sum,h_C5_sum,h_C5Opt2_sum,h_D5_sum,h_D5Opt2_sum};
-  // vector<TH1F*> h_METShape5_bkgSum_1H = {h_A15_sum,h_B15_sum,h_C5_sum,h_C5Opt4_sum,h_D5_sum,h_D5Opt4_sum};
-  vector<TH1F*> h_METShape5_bkgSum_2H = {h_A5_sum,h_B5_sum,h_C5_sum,h_C5Opt3_sum,h_D5_sum,h_D5Opt3_sum};
-  vector<TH1F*> h_METShape5_bkgSum_1H = {h_A15_sum,h_B15_sum,h_C5_sum,h_C5Opt3_sum,h_D5_sum,h_D5Opt3_sum};
+  vector<TH1F*> h_METShape5_bkgSum_2H = {h_A5_sum,h_B5_sum,h_C5_sum,h_C5Opt1_sum,h_D5_sum,h_D5Opt1_sum};
+  vector<TH1F*> h_METShape5_bkgSum_1H = {h_A15_sum,h_B15_sum,h_C5_sum,h_C5Opt1_sum,h_D5_sum,h_D5Opt1_sum};
 
+  vector<TH1F*> h_METShape_SnglT_1H = {h_A1_SnglT,h_B1_SnglT,h_C_SnglT,h_COpt1_SnglT,h_D_SnglT,h_DOpt1_SnglT};
+  vector<TH1F*> h_METShape_SnglT_2H = {h_A_SnglT,h_B_SnglT,h_C_SnglT,h_COpt1_SnglT,h_D_SnglT,h_DOpt1_SnglT};
 
-  vector<TH1F*> h_METShape_SnglT_1H = {h_A1_SnglT,h_B1_SnglT,h_C_SnglT,h_COpt3_SnglT,h_D_SnglT,h_DOpt3_SnglT};
-  vector<TH1F*> h_METShape_SnglT_2H = {h_A_SnglT,h_B_SnglT,h_C_SnglT,h_COpt3_SnglT,h_D_SnglT,h_DOpt3_SnglT};
+  vector<TH1F*> h_METShape_TT_1H = {h_A1_TT,h_B1_TT,h_C_TT,h_COpt1_TT,h_D_TT,h_DOpt1_TT};
+  vector<TH1F*> h_METShape_TT_2H = {h_A_TT,h_B_TT,h_C_TT,h_COpt1_TT,h_D_TT,h_DOpt1_TT};
 
-  vector<TH1F*> h_METShape_TT_1H = {h_A1_TT,h_B1_TT,h_C_TT,h_COpt3_TT,h_D_TT,h_DOpt3_TT};
-  vector<TH1F*> h_METShape_TT_2H = {h_A_TT,h_B_TT,h_C_TT,h_COpt3_TT,h_D_TT,h_DOpt3_TT};
+  vector<TH1F*> h_METShape_ZJets_1H = {h_A1_ZJets,h_B1_ZJets,h_C_ZJets,h_COpt1_ZJets,h_D_ZJets,h_DOpt1_ZJets};
+  vector<TH1F*> h_METShape_ZJets_2H = {h_A_ZJets,h_B_ZJets,h_C_ZJets,h_COpt1_ZJets,h_D_ZJets,h_DOpt1_ZJets};
 
-  vector<TH1F*> h_METShape_ZJets_1H = {h_A1_ZJets,h_B1_ZJets,h_C_ZJets,h_COpt3_ZJets,h_D_ZJets,h_DOpt3_ZJets};
-  vector<TH1F*> h_METShape_ZJets_2H = {h_A_ZJets,h_B_ZJets,h_C_ZJets,h_COpt3_ZJets,h_D_ZJets,h_DOpt3_ZJets};
+  vector<TH1F*> h_METShape_WJets_1H = {h_A1_WJets,h_B1_WJets,h_C_WJets,h_COpt1_WJets,h_D_WJets,h_DOpt1_WJets};
+  vector<TH1F*> h_METShape_WJets_2H = {h_A_WJets,h_B_WJets,h_C_WJets,h_COpt1_WJets,h_D_WJets,h_DOpt1_WJets};
 
-  vector<TH1F*> h_METShape_WJets_1H = {h_A1_WJets,h_B1_WJets,h_C_WJets,h_COpt3_WJets,h_D_WJets,h_DOpt3_WJets};
-  vector<TH1F*> h_METShape_WJets_2H = {h_A_WJets,h_B_WJets,h_C_WJets,h_COpt3_WJets,h_D_WJets,h_DOpt3_WJets};
+  vector<TH1F*> h_METShape_GJets_1H = {h_A1_GJets,h_B1_GJets,h_C_GJets,h_COpt1_GJets,h_D_GJets,h_DOpt1_GJets};
+  vector<TH1F*> h_METShape_GJets_2H = {h_A_GJets,h_B_GJets,h_C_GJets,h_COpt1_GJets,h_D_GJets,h_DOpt1_GJets};
 
-  vector<TH1F*> h_METShape_GJets_1H = {h_A1_GJets,h_B1_GJets,h_C_GJets,h_COpt3_GJets,h_D_GJets,h_DOpt3_GJets};
-  vector<TH1F*> h_METShape_GJets_2H = {h_A_GJets,h_B_GJets,h_C_GJets,h_COpt3_GJets,h_D_GJets,h_DOpt3_GJets};
-
-  vector<TH1F*> h_METShape_QCD_1H = {h_A1_QCD,h_B1_QCD,h_C_QCD,h_COpt3_QCD,h_D_QCD,h_DOpt3_QCD};
-  vector<TH1F*> h_METShape_QCD_2H = {h_A_QCD,h_B_QCD,h_C_QCD,h_COpt3_QCD,h_D_QCD,h_DOpt3_QCD};
+  vector<TH1F*> h_METShape_QCD_1H = {h_A1_QCD,h_B1_QCD,h_C_QCD,h_COpt1_QCD,h_D_QCD,h_DOpt1_QCD};
+  vector<TH1F*> h_METShape_QCD_2H = {h_A_QCD,h_B_QCD,h_C_QCD,h_COpt1_QCD,h_D_QCD,h_DOpt1_QCD};
 
   if (runMassCorrelations){
     std::cout<<"Running mass correlations..."<<std::endl;
@@ -1244,10 +1027,7 @@ void runABCD() {
       pieChart({h_C_QCD,h_D_QCD}, {h_C_WJets,h_D_WJets}, {h_C_ZJets,h_D_ZJets}, {h_C_TT,h_D_TT}, {h_C_SnglT,h_D_SnglT}, "0H", "all");
       pieChart({h_C_QCD}, {h_C_WJets}, {h_C_ZJets}, {h_C_TT}, {h_C_SnglT}, "0HSR", "all");
       pieChart({h_D_QCD}, {h_D_WJets}, {h_D_ZJets}, {h_D_TT}, {h_D_SnglT}, "0HSB", "all");
-      pieChart({h_COpt1_QCD,h_DOpt1_QCD}, {h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_ZJets,h_DOpt1_ZJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsM>1", "all");
-      pieChart({h_COpt2_QCD,h_DOpt2_QCD}, {h_COpt2_WJets,h_DOpt2_WJets}, {h_COpt2_ZJets,h_DOpt2_ZJets}, {h_COpt2_TT,h_DOpt2_TT}, {h_COpt2_SnglT,h_DOpt2_SnglT}, "0H,BTagsM>0", "all");
-      pieChart({h_COpt3_QCD,h_DOpt3_QCD}, {h_COpt3_WJets,h_DOpt3_WJets}, {h_COpt3_ZJets,h_DOpt3_ZJets}, {h_COpt3_TT,h_DOpt3_TT}, {h_COpt3_SnglT,h_DOpt3_SnglT}, "0H,BTagsT>0", "all");
-      pieChart({h_COpt4_QCD,h_DOpt4_QCD}, {h_COpt4_WJets,h_DOpt4_WJets}, {h_COpt4_ZJets,h_DOpt4_ZJets}, {h_COpt4_TT,h_DOpt4_TT}, {h_COpt4_SnglT,h_DOpt4_SnglT}, "0H,BTagsL>1 and BTagsM>0", "all");
+      pieChart({h_COpt1_QCD,h_DOpt1_QCD}, {h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_ZJets,h_DOpt1_ZJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsT>0", "all");
 
       pieChart({h_A_QCD,h_B_QCD}, {h_A_WJets,h_B_WJets}, {h_A_ZJets,h_B_ZJets}, {h_A_TT,h_B_TT},{h_A_SnglT,h_B_SnglT}, "2H", "bin1");
       pieChart({h_A_QCD}, {h_A_WJets}, {h_A_ZJets}, {h_A_TT},{h_A_SnglT}, "2HSR", "bin1");
@@ -1258,10 +1038,7 @@ void runABCD() {
       pieChart({h_C_QCD,h_D_QCD}, {h_C_WJets,h_D_WJets}, {h_C_ZJets,h_D_ZJets}, {h_C_TT,h_D_TT}, {h_C_SnglT,h_D_SnglT}, "0H", "bin1");
       pieChart({h_C_QCD}, {h_C_WJets}, {h_C_ZJets}, {h_C_TT}, {h_C_SnglT}, "0HSR", "bin1");
       pieChart({h_D_QCD}, {h_D_WJets}, {h_D_ZJets}, {h_D_TT}, {h_D_SnglT}, "0HSB", "bin1");
-      pieChart({h_COpt1_QCD,h_DOpt1_QCD}, {h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_ZJets,h_DOpt1_ZJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsM>1", "bin1");
-      pieChart({h_COpt2_QCD,h_DOpt2_QCD}, {h_COpt2_WJets,h_DOpt2_WJets}, {h_COpt2_ZJets,h_DOpt2_ZJets}, {h_COpt2_TT,h_DOpt2_TT}, {h_COpt2_SnglT,h_DOpt2_SnglT}, "0H,BTagsM>0", "bin1");
-      pieChart({h_COpt3_QCD,h_DOpt3_QCD}, {h_COpt3_WJets,h_DOpt3_WJets}, {h_COpt3_ZJets,h_DOpt3_ZJets}, {h_COpt3_TT,h_DOpt3_TT}, {h_COpt3_SnglT,h_DOpt3_SnglT}, "0H,BTagsT>0", "bin1");
-      pieChart({h_COpt4_QCD,h_DOpt4_QCD}, {h_COpt4_WJets,h_DOpt4_WJets}, {h_COpt4_ZJets,h_DOpt4_ZJets}, {h_COpt4_TT,h_DOpt4_TT}, {h_COpt4_SnglT,h_DOpt4_SnglT}, "0H,BTagsL>1 and BTagsM>0", "bin1");
+      pieChart({h_COpt1_QCD,h_DOpt1_QCD}, {h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_ZJets,h_DOpt1_ZJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsT>0", "bin1");
 
       pieChart({h_A_QCD,h_B_QCD}, {h_A_WJets,h_B_WJets}, {h_A_ZJets,h_B_ZJets}, {h_A_TT,h_B_TT},{h_A_SnglT,h_B_SnglT}, "2H", "bin2");
       pieChart({h_A_QCD}, {h_A_WJets}, {h_A_ZJets}, {h_A_TT},{h_A_SnglT}, "2HSR", "bin2");
@@ -1272,10 +1049,7 @@ void runABCD() {
       pieChart({h_C_QCD,h_D_QCD}, {h_C_WJets,h_D_WJets}, {h_C_ZJets,h_D_ZJets}, {h_C_TT,h_D_TT}, {h_C_SnglT,h_D_SnglT}, "0H", "bin2");
       pieChart({h_C_QCD}, {h_C_WJets}, {h_C_ZJets}, {h_C_TT}, {h_C_SnglT}, "0HSR", "bin2");
       pieChart({h_D_QCD}, {h_D_WJets}, {h_D_ZJets}, {h_D_TT}, {h_D_SnglT}, "0HSB", "bin2");
-      pieChart({h_COpt1_QCD,h_DOpt1_QCD}, {h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_ZJets,h_DOpt1_ZJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsM>1", "bin2");
-      pieChart({h_COpt2_QCD,h_DOpt2_QCD}, {h_COpt2_WJets,h_DOpt2_WJets}, {h_COpt2_ZJets,h_DOpt2_ZJets}, {h_COpt2_TT,h_DOpt2_TT}, {h_COpt2_SnglT,h_DOpt2_SnglT}, "0H,BTagsM>0", "bin2");
-      pieChart({h_COpt3_QCD,h_DOpt3_QCD}, {h_COpt3_WJets,h_DOpt3_WJets}, {h_COpt3_ZJets,h_DOpt3_ZJets}, {h_COpt3_TT,h_DOpt3_TT}, {h_COpt3_SnglT,h_DOpt3_SnglT}, "0H,BTagsT>0", "bin2");
-      pieChart({h_COpt4_QCD,h_DOpt4_QCD}, {h_COpt4_WJets,h_DOpt4_WJets}, {h_COpt4_ZJets,h_DOpt4_ZJets}, {h_COpt4_TT,h_DOpt4_TT}, {h_COpt4_SnglT,h_DOpt4_SnglT}, "0H,BTagsL>1 and BTagsM>0", "bin2");
+      pieChart({h_COpt1_QCD,h_DOpt1_QCD}, {h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_ZJets,h_DOpt1_ZJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsT>0", "bin2");
 
       pieChart({h_A_QCD,h_B_QCD}, {h_A_WJets,h_B_WJets}, {h_A_ZJets,h_B_ZJets}, {h_A_TT,h_B_TT},{h_A_SnglT,h_B_SnglT}, "2H", "bin3");
       pieChart({h_A_QCD}, {h_A_WJets}, {h_A_ZJets}, {h_A_TT},{h_A_SnglT}, "2HSR", "bin3");
@@ -1286,12 +1060,7 @@ void runABCD() {
       pieChart({h_C_QCD,h_D_QCD}, {h_C_WJets,h_D_WJets}, {h_C_ZJets,h_D_ZJets}, {h_C_TT,h_D_TT}, {h_C_SnglT,h_D_SnglT}, "0H", "bin3");
       pieChart({h_C_QCD}, {h_C_WJets}, {h_C_ZJets}, {h_C_TT}, {h_C_SnglT}, "0HSR", "bin3");
       pieChart({h_D_QCD}, {h_D_WJets}, {h_D_ZJets}, {h_D_TT}, {h_D_SnglT}, "0HSB", "bin3");
-      pieChart({h_COpt1_QCD,h_DOpt1_QCD}, {h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_ZJets,h_DOpt1_ZJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsM>1", "bin3");
-      pieChart({h_COpt2_QCD,h_DOpt2_QCD}, {h_COpt2_WJets,h_DOpt2_WJets}, {h_COpt2_ZJets,h_DOpt2_ZJets}, {h_COpt2_TT,h_DOpt2_TT}, {h_COpt2_SnglT,h_DOpt2_SnglT}, "0H,BTagsM>0", "bin3");
-      pieChart({h_COpt3_QCD,h_DOpt3_QCD}, {h_COpt3_WJets,h_DOpt3_WJets}, {h_COpt3_ZJets,h_DOpt3_ZJets}, {h_COpt3_TT,h_DOpt3_TT}, {h_COpt3_SnglT,h_DOpt3_SnglT}, "0H,BTagsT>0", "bin3");
-      pieChart({h_COpt4_QCD,h_DOpt4_QCD}, {h_COpt4_WJets,h_DOpt4_WJets}, {h_COpt4_ZJets,h_DOpt4_ZJets}, {h_COpt4_TT,h_DOpt4_TT}, {h_COpt4_SnglT,h_DOpt4_SnglT}, "0H,BTagsL>1 and BTagsM>0", "bin3");
-
-      // pieChart({h_COpt5_QCD,h_DOpt5_QCD}, {h_COpt5_WJets,h_DOpt5_WJets}, {h_COpt5_ZJets,h_DOpt5_ZJets}, {h_COpt5_TT,h_DOpt5_TT}, {h_COpt5_SnglT,h_DOpt5_SnglT}, "0H,BTagsT>0 and BTagsM>1");
+      pieChart({h_COpt1_QCD,h_DOpt1_QCD}, {h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_ZJets,h_DOpt1_ZJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsT>0", "bin3");
 
     }
     else if (whichRegion=="singleLept"){
@@ -1304,10 +1073,8 @@ void runABCD() {
       pieChart1l({h_C_WJets,h_D_WJets}, {h_C_TT,h_D_TT}, {h_C_SnglT,h_C_SnglT}, "0H", "all");
       pieChart1l({h_C_WJets}, {h_C_TT}, {h_C_SnglT}, "0HSR", "all");
       pieChart1l({h_D_WJets}, {h_D_TT}, {h_D_SnglT}, "0HSB", "all");
-      pieChart1l({h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsM>1", "all");
-      pieChart1l({h_COpt3_WJets,h_DOpt3_WJets}, {h_COpt3_TT,h_DOpt3_TT}, {h_COpt3_SnglT,h_DOpt3_SnglT}, "0H,BTagsT>0", "all");
-      pieChart1l({h_COpt4_WJets,h_DOpt4_WJets}, {h_COpt4_TT,h_DOpt4_TT}, {h_COpt4_SnglT,h_DOpt4_SnglT}, "0H,BTagsL>1 and BTagsM>0", "all");
-      // pieChart1l({h_COpt2_WJets,h_DOpt2_WJets}, {h_COpt2_TT,h_DOpt2_TT}, {h_COpt2_SnglT,h_DOpt2_SnglT}, "0H,BTagsM>0");
+      pieChart1l({h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsT>0", "all");
+
 
       pieChart1l({h_A_WJets,h_B_WJets}, {h_A_TT,h_B_TT}, {h_A_SnglT,h_B_SnglT}, "2H", "bin1");
       pieChart1l({h_A_WJets}, {h_A_TT}, {h_A_SnglT}, "2HSR", "bin1");
@@ -1318,10 +1085,7 @@ void runABCD() {
       pieChart1l({h_C_WJets,h_D_WJets}, {h_C_TT,h_D_TT}, {h_C_SnglT,h_C_SnglT}, "0H", "bin1");
       pieChart1l({h_C_WJets}, {h_C_TT}, {h_C_SnglT}, "0HSR", "bin1");
       pieChart1l({h_D_WJets}, {h_D_TT}, {h_D_SnglT}, "0HSB", "bin1");
-      pieChart1l({h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsM>1", "bin1");
-      pieChart1l({h_COpt3_WJets,h_DOpt3_WJets}, {h_COpt3_TT,h_DOpt3_TT}, {h_COpt3_SnglT,h_DOpt3_SnglT}, "0H,BTagsT>0", "bin1");
-      pieChart1l({h_COpt4_WJets,h_DOpt4_WJets}, {h_COpt4_TT,h_DOpt4_TT}, {h_COpt4_SnglT,h_DOpt4_SnglT}, "0H,BTagsL>1 and BTagsM>0", "bin1");
-      // pieChart1l({h_COpt2_WJets,h_DOpt2_WJets}, {h_COpt2_TT,h_DOpt2_TT}, {h_COpt2_SnglT,h_DOpt2_SnglT}, "0H,BTagsM>0");
+      pieChart1l({h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsT>0", "bin1");
 
       pieChart1l({h_A_WJets,h_B_WJets}, {h_A_TT,h_B_TT}, {h_A_SnglT,h_B_SnglT}, "2H", "bin2");
       pieChart1l({h_A_WJets}, {h_A_TT}, {h_A_SnglT}, "2HSR", "bin2");
@@ -1332,10 +1096,7 @@ void runABCD() {
       pieChart1l({h_C_WJets,h_D_WJets}, {h_C_TT,h_D_TT}, {h_C_SnglT,h_C_SnglT}, "0H", "bin2");
       pieChart1l({h_C_WJets}, {h_C_TT}, {h_C_SnglT}, "0HSR", "bin2");
       pieChart1l({h_D_WJets}, {h_D_TT}, {h_D_SnglT}, "0HSB", "bin2");
-      pieChart1l({h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsM>1", "bin2");
-      pieChart1l({h_COpt3_WJets,h_DOpt3_WJets}, {h_COpt3_TT,h_DOpt3_TT}, {h_COpt3_SnglT,h_DOpt3_SnglT}, "0H,BTagsT>0", "bin2");
-      pieChart1l({h_COpt4_WJets,h_DOpt4_WJets}, {h_COpt4_TT,h_DOpt4_TT}, {h_COpt4_SnglT,h_DOpt4_SnglT}, "0H,BTagsL>1 and BTagsM>0", "bin2");
-      // pieChart1l({h_COpt2_WJets,h_DOpt2_WJets}, {h_COpt2_TT,h_DOpt2_TT}, {h_COpt2_SnglT,h_DOpt2_SnglT}, "0H,BTagsM>0");
+      pieChart1l({h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsT>0", "bin2");
 
       pieChart1l({h_A_WJets,h_B_WJets}, {h_A_TT,h_B_TT}, {h_A_SnglT,h_B_SnglT}, "2H", "bin3");
       pieChart1l({h_A_WJets}, {h_A_TT}, {h_A_SnglT}, "2HSR", "bin3");
@@ -1346,10 +1107,7 @@ void runABCD() {
       pieChart1l({h_C_WJets,h_D_WJets}, {h_C_TT,h_D_TT}, {h_C_SnglT,h_C_SnglT}, "0H", "bin3");
       pieChart1l({h_C_WJets}, {h_C_TT}, {h_C_SnglT}, "0HSR", "bin3");
       pieChart1l({h_D_WJets}, {h_D_TT}, {h_D_SnglT}, "0HSB", "bin3");
-      pieChart1l({h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsM>1", "bin3");
-      pieChart1l({h_COpt3_WJets,h_DOpt3_WJets}, {h_COpt3_TT,h_DOpt3_TT}, {h_COpt3_SnglT,h_DOpt3_SnglT}, "0H,BTagsT>0", "bin3");
-      pieChart1l({h_COpt4_WJets,h_DOpt4_WJets}, {h_COpt4_TT,h_DOpt4_TT}, {h_COpt4_SnglT,h_DOpt4_SnglT}, "0H,BTagsL>1 and BTagsM>0", "bin3");
-      // pieChart1l({h_COpt2_WJets,h_DOpt2_WJets}, {h_COpt2_TT,h_DOpt2_TT}, {h_COpt2_SnglT,h_DOpt2_SnglT}, "0H,BTagsM>0");
+      pieChart1l({h_COpt1_WJets,h_DOpt1_WJets}, {h_COpt1_TT,h_DOpt1_TT}, {h_COpt1_SnglT,h_DOpt1_SnglT}, "0H,BTagsT>0", "bin3");
     }
 
     else if (whichRegion=="photon"){ //GJets, QCD
@@ -1362,9 +1120,7 @@ void runABCD() {
       pieChartPhoton({h_C_GJets,h_D_GJets}, {h_C_QCD,h_D_QCD}, "0H", "all");
       pieChartPhoton({h_C_GJets}, {h_C_QCD}, "0HSR", "all");
       pieChartPhoton({h_D_GJets}, {h_D_QCD}, "0HSB", "all");
-      pieChartPhoton({h_COpt1_GJets,h_DOpt1_GJets}, {h_COpt1_QCD,h_DOpt1_QCD}, "0H,BTagsM>1", "all");
-      pieChartPhoton({h_COpt3_GJets,h_DOpt3_GJets}, {h_COpt3_QCD,h_DOpt3_QCD}, "0H,BTagsT>0", "all");
-      pieChartPhoton({h_COpt4_GJets,h_DOpt4_GJets}, {h_COpt4_QCD,h_DOpt4_QCD}, "0H,BTagsL>1 and BTagsM>0", "all");
+      pieChartPhoton({h_COpt1_GJets,h_DOpt1_GJets}, {h_COpt1_QCD,h_DOpt1_QCD}, "0H,BTagsT>0", "all");
 
       pieChartPhoton({h_A_GJets,h_B_GJets}, {h_A_QCD,h_B_QCD}, "2H", "bin1");
       pieChartPhoton({h_A_GJets}, {h_A_QCD}, "2HSR", "bin1");
@@ -1375,9 +1131,7 @@ void runABCD() {
       pieChartPhoton({h_C_GJets,h_D_GJets}, {h_C_QCD,h_D_QCD}, "0H", "bin1");
       pieChartPhoton({h_C_GJets}, {h_C_QCD}, "0HSR", "bin1");
       pieChartPhoton({h_D_GJets}, {h_D_QCD}, "0HSB", "bin1");
-      pieChartPhoton({h_COpt1_GJets,h_DOpt1_GJets}, {h_COpt1_QCD,h_DOpt1_QCD}, "0H,BTagsM>1", "bin1");
-      pieChartPhoton({h_COpt3_GJets,h_DOpt3_GJets}, {h_COpt3_QCD,h_DOpt3_QCD}, "0H,BTagsT>0", "bin1");
-      pieChartPhoton({h_COpt4_GJets,h_DOpt4_GJets}, {h_COpt4_QCD,h_DOpt4_QCD}, "0H,BTagsL>1 and BTagsM>0", "bin1");
+      pieChartPhoton({h_COpt1_GJets,h_DOpt1_GJets}, {h_COpt1_QCD,h_DOpt1_QCD}, "0H,BTagsT>0", "bin1");
 
       pieChartPhoton({h_A_GJets,h_B_GJets}, {h_A_QCD,h_B_QCD}, "2H", "bin2");
       pieChartPhoton({h_A_GJets}, {h_A_QCD}, "2HSR", "bin2");
@@ -1388,9 +1142,7 @@ void runABCD() {
       pieChartPhoton({h_C_GJets,h_D_GJets}, {h_C_QCD,h_D_QCD}, "0H", "bin2");
       pieChartPhoton({h_C_GJets}, {h_C_QCD}, "0HSR", "bin2");
       pieChartPhoton({h_D_GJets}, {h_D_QCD}, "0HSB", "bin2");
-      pieChartPhoton({h_COpt1_GJets,h_DOpt1_GJets}, {h_COpt1_QCD,h_DOpt1_QCD}, "0H,BTagsM>1", "bin2");
-      pieChartPhoton({h_COpt3_GJets,h_DOpt3_GJets}, {h_COpt3_QCD,h_DOpt3_QCD}, "0H,BTagsT>0", "bin2");
-      pieChartPhoton({h_COpt4_GJets,h_DOpt4_GJets}, {h_COpt4_QCD,h_DOpt4_QCD}, "0H,BTagsL>1 and BTagsM>0", "bin2");
+      pieChartPhoton({h_COpt1_GJets,h_DOpt1_GJets}, {h_COpt1_QCD,h_DOpt1_QCD}, "0H,BTagsT>0", "bin2");
 
       pieChartPhoton({h_A_GJets,h_B_GJets}, {h_A_QCD,h_B_QCD}, "2H", "bin3");
       pieChartPhoton({h_A_GJets}, {h_A_QCD},  "2HSR", "bin3");
@@ -1401,9 +1153,7 @@ void runABCD() {
       pieChartPhoton({h_C_GJets,h_D_GJets}, {h_C_QCD,h_D_QCD}, "0H", "bin3");
       pieChartPhoton({h_C_GJets}, {h_C_QCD}, "0HSR", "bin3");
       pieChartPhoton({h_D_GJets}, {h_D_QCD}, "0HSB", "bin3");
-      pieChartPhoton({h_COpt1_GJets,h_DOpt1_GJets}, {h_COpt1_QCD,h_DOpt1_QCD}, "0H,BTagsM>1", "bin3");
-      pieChartPhoton({h_COpt3_GJets,h_DOpt3_GJets}, {h_COpt3_QCD,h_DOpt3_QCD}, "0H,BTagsT>0", "bin3");
-      pieChartPhoton({h_COpt4_GJets,h_DOpt4_GJets}, {h_COpt4_QCD,h_DOpt4_QCD}, "0H,BTagsL>1 and BTagsM>0", "bin3");
+      pieChartPhoton({h_COpt1_GJets,h_DOpt1_GJets}, {h_COpt1_QCD,h_DOpt1_QCD}, "0H,BTagsT>0", "bin3");
     }
   }
 
@@ -1425,14 +1175,6 @@ void runABCD() {
     if (whichRegion=="signal"){
       makeABCDPlot(histos_ABCD_sum, "BkgSum", "Double",year);
       makeABCDPlot(histos_A1B1CD_sum, "BkgSum", "Single",year);
-
-      makeABCDPlot(histos_ABCDlowPU_sum, "BkgSumlowPU", "Double",year);
-      makeABCDPlot(histos_A1B1CDlowPU_sum, "BkgSumlowPU", "Single",year);
-
-      makeABCDPlot(histos_ABCDhighPU_sum, "BkgSumhighPU", "Double",year);
-      makeABCDPlot(histos_A1B1CDhighPU_sum, "BkgSumhighPU", "Single",year);
-
-
 
       makeABCDPlot(histos_ABCD_QCD, "QCD", "Double",year);
       makeABCDPlot(histos_ABCD_SnglT, "SnglT", "Double",year);
@@ -1479,13 +1221,6 @@ void runABCD() {
     std::cout<<"Running RPF plots..."<<std::endl;
 
     if (whichRegion=="signal"){
-      //DM
-      if (runDM) {
-        makeRpfPlot(histos_RPF_DM, "BkgSum_DM", "Avg", "Double",year);
-        makeRpfPlot(histos_RPFsingle_DM, "BkgSum_DM", "Avg", "Single",year);
-      }
-
-
       //J1+J2
       makeRpfPlot(histos_Rpf_J1J2_sum, "BkgSum", "Both", "Double",year);
       makeRpfPlot(histos_Rpfsingle_J1J2_sum, "BkgSum", "Both", "Single",year);
@@ -1533,12 +1268,6 @@ void runABCD() {
       makeRpfPlot(histos_Rpfsingle_J2_ZJets, "ZJets", "J2", "Single",year);
     }
     if (whichRegion=="singleLept"){
-      //DM
-      if (runDM) {
-        makeRpfPlot(histos_RPF_DM, "BkgSum_DM", "Avg", "Double",year);
-        makeRpfPlot(histos_RPFsingle_DM, "BkgSum_DM", "Avg", "Single",year);
-      }
-
       //J1+J2
       makeRpfPlot(histos_Rpf_J1J2_sum, "BkgSum", "Both", "Double",year);
       makeRpfPlot(histos_Rpfsingle_J1J2_sum, "BkgSum", "Both", "Single",year);
@@ -1726,12 +1455,6 @@ void runABCD() {
       }
       tableOfYields(histos_ABCD_sum, "BkgSum", "Double");
       tableOfYields(histos_A1B1CD_sum, "BkgSum", "Single");
-
-      tableOfYields(histos_ABCDlowPU_sum, "BkgSumlowPU", "Double");
-      tableOfYields(histos_A1B1CDlowPU_sum, "BkgSumlowPU", "Single");
-
-      tableOfYields(histos_ABCDhighPU_sum, "BkgSumhighPU", "Double");
-      tableOfYields(histos_A1B1CDhighPU_sum, "BkgSumhighPU", "Single");
 
       tableOfYields(histos_ABCD_QCD, "QCD", "Double");
       tableOfYields(histos_ABCD_SnglT, "SnglT", "Double");
@@ -2306,7 +2029,6 @@ void makeRpfPlot(vector<TH1F*> dem_histos, TString bkgType = "", TString jetType
   pad2->cd();
   graph->Draw("APE");
   graph->GetYaxis()->SetRangeUser(-0.1,0.5);
-  if (bkgType.Contains("_DM")) graph->GetXaxis()->SetTitle("Avg. soft-drop mass [GeV]");
   can_h->Modified();
   can_h->Update();
 

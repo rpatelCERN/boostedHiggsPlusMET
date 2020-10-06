@@ -23,18 +23,19 @@ using namespace std;
 using namespace alphabet;
 
 int main(int argc, char** argv) {
+  std::cout<<"In ALPHABET: start"<<std::endl;
 
   int region(0);
   int runVeto(0);
   bool runData = false;
 
-  gROOT->ProcessLine(".L tdrstyle.C");
-  gROOT->ProcessLine("setTDRStyle()");
+  // gROOT->ProcessLine(".L tdrstyle.C");
+  // gROOT->ProcessLine("setTDRStyle()");
 
   region = atoi(argv[1]);
   TString Year(argv[2]);
   runVeto = atoi(argv[3]);
-  cout <<"region: "<<region<<", veto?: "<<runVeto<<endl;
+  cout <<"In ALPHABET: region: "<<region<<", veto?: "<<runVeto<<endl;
 
   // TriggerCorrector trigcorror; TriggerCorrector trigcorrorHT; TriggerCorrector trigcorrorFakeMHT;
 	// TriggerCorrector trigcorrorPhoBarrel; TriggerCorrector trigcorrorPhoEndcap;
@@ -70,14 +71,16 @@ int main(int argc, char** argv) {
   else if (region == 5 ) skims_ = new skimSamples(skimSamples::kLowDphi, Year);
   else assert(1);
 
+  std::cout<<"In ALPHABET: after skimSamples"<<std::endl;
+
   typedef bool(*cuts)(RA2bTree*);
   vector<cuts> baselineCuts;
 
 
-  if (region == 0 || region == 1) baselineCuts.push_back(*boostedBaselineCut<RA2bTree>);
+  if (region == 0 || region == 1) baselineCuts.push_back(*boostedBaselineCut<RA2bTree>); //boostedBaselineCut_loose
   else if (region == 2) baselineCuts.push_back(*singleMuBaselineCut<RA2bTree>);
   else if (region == 3) baselineCuts.push_back(*singleEleBaselineCut<RA2bTree>);
-  else if (region == 4) baselineCuts.push_back(*photonBaselineCut<RA2bTree>);
+  else if (region == 4) baselineCuts.push_back(*photonBaselineCut<RA2bTree>); //photonBaselineCut_loose (usual cuts)
   else if (region == 5) baselineCuts.push_back(*lowDphiBaselineCut<RA2bTree>);
   else assert(1);
 
@@ -86,8 +89,8 @@ int main(int argc, char** argv) {
   TFile* outputFile;
   TString regionName;
   TString cutName="";
-  // TString METcut = "_MET300";
-  TString METcut = "_PUWeights";
+  TString METcut = "_MET300";
+  // TString METcut = "_PUWeights";
 
   if (region == 0) regionName="";
   if (region == 1) {
@@ -106,7 +109,6 @@ int main(int argc, char** argv) {
   typedef plot<RA2bTree> plot;
   vector<vector<plot> > plots;
 
-
   double mJbins[4]={baselineMassLow,HmassWindowLow,HmassWindowHigh,baselineMassHigh};
 
   double METbinsPhoton[5]={100.,300.,500.,700.,1400.};
@@ -121,7 +123,6 @@ int main(int argc, char** argv) {
   for (int i = 0; i < numMETbins ; i++) {
     TString tag="_";
     tag+=METbins_string[i];
-    // tag+=lowestMET+i*binWidth;
     vector<plot> plotsTemp;
     plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_doubletagSR"+tag,"m_{J} [GeV]",3,mJbins));
     plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_doubletagSB"+tag,"m_{J} [GeV]",3,mJbins));
@@ -130,11 +131,7 @@ int main(int argc, char** argv) {
     plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_antitagSR"+tag,"m_{J} [GeV]",3,mJbins));
     plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_antitagSB"+tag,"m_{J} [GeV]",3,mJbins));
     plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_antitagSROpt1"+tag,"m_{J} [GeV]",3,mJbins));
-    plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_antitagSROpt2"+tag,"m_{J} [GeV]",3,mJbins));
     plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_antitagSBOpt1"+tag,"m_{J} [GeV]",3,mJbins));
-    plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_antitagSBOpt2"+tag,"m_{J} [GeV]",3,mJbins));
-    plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_doubletagSRLead"+tag,"m_{J} [GeV]",3,mJbins));
-    plotsTemp.push_back(plot(*fillLeadingJetMass<RA2bTree>,"mJ_antitagSRLead"+tag,"m_{J} [GeV]",3,mJbins));
     plots.push_back(plotsTemp);
   }
 
@@ -153,9 +150,7 @@ int main(int argc, char** argv) {
   plot J2_M_jetBins(*fillSubLeadingJetMass<RA2bTree>,"J2_M_jetBins","m_{J} [GeV]",3,mJbins);
   plot J1_deepbbtag(*fillLeadingdeepBBtag<RA2bTree>,"LeadDeepBBTag","Lead jet deep bb-tag",50,0.0,1.0);
   plot J2_deepbbtag(*fillSubLeadingdeepBBtag<RA2bTree>,"SubLeadDeepBBTag","Sub-lead jet deep bb-tag",50,0.0,1.0);
-
-  // plot avgMass(*fillAverageJetMass<RA2bTree>,"avgM","average m_{J} [GeV]",80,60.,260.);
-  // plot massDiff(*fillJetMassDiff<RA2bTree>,"mDiff","#Delta(m_{J}) [GeV]",80,0.,80.);
+  plot nVert(*fillNVtx<RA2bTree>,"NVert","NVtx",100,0.0,100.0);
 
   vector<plot> baselinePlots;
   baselinePlots.push_back(plot(MET_Plot));
@@ -171,6 +166,7 @@ int main(int argc, char** argv) {
   baselinePlots.push_back(plot(J2_M_jetBins));
   baselinePlots.push_back(plot(J1_deepbbtag));
   baselinePlots.push_back(plot(J2_deepbbtag));
+  baselinePlots.push_back(plot(nVert));
 
   vector<plot> doubletagSRPlots;
   doubletagSRPlots.push_back(plot(MET_Plot));
@@ -186,36 +182,7 @@ int main(int argc, char** argv) {
   doubletagSRPlots.push_back(plot(J2_M_jetBins));
   doubletagSRPlots.push_back(plot(J1_deepbbtag));
   doubletagSRPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> doubletagSRlowPUPlots;
-  doubletagSRlowPUPlots.push_back(plot(MET_Plot));
-  doubletagSRlowPUPlots.push_back(plot(METall_Plot));
-  doubletagSRlowPUPlots.push_back(plot(METPhoton_Plot));
-  doubletagSRlowPUPlots.push_back(plot(MET5_Plot));
-  doubletagSRlowPUPlots.push_back(plot(HT_Plot));
-  doubletagSRlowPUPlots.push_back(plot(J1pt_Ptplot));
-  doubletagSRlowPUPlots.push_back(plot(J2pt_Ptplot));
-  doubletagSRlowPUPlots.push_back(plot(J1pt_Mplot));
-  doubletagSRlowPUPlots.push_back(plot(J2pt_Mplot));
-  doubletagSRlowPUPlots.push_back(plot(J1_M_jetBins));
-  doubletagSRlowPUPlots.push_back(plot(J2_M_jetBins));
-  doubletagSRlowPUPlots.push_back(plot(J1_deepbbtag));
-  doubletagSRlowPUPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> doubletagSRhighPUPlots;
-  doubletagSRhighPUPlots.push_back(plot(MET_Plot));
-  doubletagSRhighPUPlots.push_back(plot(METall_Plot));
-  doubletagSRhighPUPlots.push_back(plot(METPhoton_Plot));
-  doubletagSRhighPUPlots.push_back(plot(MET5_Plot));
-  doubletagSRhighPUPlots.push_back(plot(HT_Plot));
-  doubletagSRhighPUPlots.push_back(plot(J1pt_Ptplot));
-  doubletagSRhighPUPlots.push_back(plot(J2pt_Ptplot));
-  doubletagSRhighPUPlots.push_back(plot(J1pt_Mplot));
-  doubletagSRhighPUPlots.push_back(plot(J2pt_Mplot));
-  doubletagSRhighPUPlots.push_back(plot(J1_M_jetBins));
-  doubletagSRhighPUPlots.push_back(plot(J2_M_jetBins));
-  doubletagSRhighPUPlots.push_back(plot(J1_deepbbtag));
-  doubletagSRhighPUPlots.push_back(plot(J2_deepbbtag));
+  doubletagSRPlots.push_back(plot(nVert));
 
   vector<plot> doubletagSBPlots;
   doubletagSBPlots.push_back(plot(MET_Plot));
@@ -231,36 +198,7 @@ int main(int argc, char** argv) {
   doubletagSBPlots.push_back(plot(J2_M_jetBins));
   doubletagSBPlots.push_back(plot(J1_deepbbtag));
   doubletagSBPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> doubletagSBlowPUPlots;
-  doubletagSBlowPUPlots.push_back(plot(MET_Plot));
-  doubletagSBlowPUPlots.push_back(plot(METall_Plot));
-  doubletagSBlowPUPlots.push_back(plot(METPhoton_Plot));
-  doubletagSBlowPUPlots.push_back(plot(MET5_Plot));
-  doubletagSBlowPUPlots.push_back(plot(HT_Plot));
-  doubletagSBlowPUPlots.push_back(plot(J1pt_Ptplot));
-  doubletagSBlowPUPlots.push_back(plot(J2pt_Ptplot));
-  doubletagSBlowPUPlots.push_back(plot(J1pt_Mplot));
-  doubletagSBlowPUPlots.push_back(plot(J2pt_Mplot));
-  doubletagSBlowPUPlots.push_back(plot(J1_M_jetBins));
-  doubletagSBlowPUPlots.push_back(plot(J2_M_jetBins));
-  doubletagSBlowPUPlots.push_back(plot(J1_deepbbtag));
-  doubletagSBlowPUPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> doubletagSBhighPUPlots;
-  doubletagSBhighPUPlots.push_back(plot(MET_Plot));
-  doubletagSBhighPUPlots.push_back(plot(METall_Plot));
-  doubletagSBhighPUPlots.push_back(plot(METPhoton_Plot));
-  doubletagSBhighPUPlots.push_back(plot(MET5_Plot));
-  doubletagSBhighPUPlots.push_back(plot(HT_Plot));
-  doubletagSBhighPUPlots.push_back(plot(J1pt_Ptplot));
-  doubletagSBhighPUPlots.push_back(plot(J2pt_Ptplot));
-  doubletagSBhighPUPlots.push_back(plot(J1pt_Mplot));
-  doubletagSBhighPUPlots.push_back(plot(J2pt_Mplot));
-  doubletagSBhighPUPlots.push_back(plot(J1_M_jetBins));
-  doubletagSBhighPUPlots.push_back(plot(J2_M_jetBins));
-  doubletagSBhighPUPlots.push_back(plot(J1_deepbbtag));
-  doubletagSBhighPUPlots.push_back(plot(J2_deepbbtag));
+  doubletagSBPlots.push_back(plot(nVert));
 
   vector<plot> tagSRPlots;
   tagSRPlots.push_back(plot(MET_Plot));
@@ -276,36 +214,7 @@ int main(int argc, char** argv) {
   tagSRPlots.push_back(plot(J2_M_jetBins));
   tagSRPlots.push_back(plot(J1_deepbbtag));
   tagSRPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> tagSRlowPUPlots;
-  tagSRlowPUPlots.push_back(plot(MET_Plot));
-  tagSRlowPUPlots.push_back(plot(METall_Plot));
-  tagSRlowPUPlots.push_back(plot(METPhoton_Plot));
-  tagSRlowPUPlots.push_back(plot(MET5_Plot));
-  tagSRlowPUPlots.push_back(plot(HT_Plot));
-  tagSRlowPUPlots.push_back(plot(J1pt_Ptplot));
-  tagSRlowPUPlots.push_back(plot(J2pt_Ptplot));
-  tagSRlowPUPlots.push_back(plot(J1pt_Mplot));
-  tagSRlowPUPlots.push_back(plot(J2pt_Mplot));
-  tagSRlowPUPlots.push_back(plot(J1_M_jetBins));
-  tagSRlowPUPlots.push_back(plot(J2_M_jetBins));
-  tagSRlowPUPlots.push_back(plot(J1_deepbbtag));
-  tagSRlowPUPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> tagSRhighPUPlots;
-  tagSRhighPUPlots.push_back(plot(MET_Plot));
-  tagSRhighPUPlots.push_back(plot(METall_Plot));
-  tagSRhighPUPlots.push_back(plot(METPhoton_Plot));
-  tagSRhighPUPlots.push_back(plot(MET5_Plot));
-  tagSRhighPUPlots.push_back(plot(HT_Plot));
-  tagSRhighPUPlots.push_back(plot(J1pt_Ptplot));
-  tagSRhighPUPlots.push_back(plot(J2pt_Ptplot));
-  tagSRhighPUPlots.push_back(plot(J1pt_Mplot));
-  tagSRhighPUPlots.push_back(plot(J2pt_Mplot));
-  tagSRhighPUPlots.push_back(plot(J1_M_jetBins));
-  tagSRhighPUPlots.push_back(plot(J2_M_jetBins));
-  tagSRhighPUPlots.push_back(plot(J1_deepbbtag));
-  tagSRhighPUPlots.push_back(plot(J2_deepbbtag));
+  tagSRPlots.push_back(plot(nVert));
 
   vector<plot> tagSBPlots;
   tagSBPlots.push_back(plot(MET_Plot));
@@ -321,37 +230,7 @@ int main(int argc, char** argv) {
   tagSBPlots.push_back(plot(J2_M_jetBins));
   tagSBPlots.push_back(plot(J1_deepbbtag));
   tagSBPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> tagSBlowPUPlots;
-  tagSBlowPUPlots.push_back(plot(MET_Plot));
-  tagSBlowPUPlots.push_back(plot(METall_Plot));
-  tagSBlowPUPlots.push_back(plot(METPhoton_Plot));
-  tagSBlowPUPlots.push_back(plot(MET5_Plot));
-  tagSBlowPUPlots.push_back(plot(HT_Plot));
-  tagSBlowPUPlots.push_back(plot(J1pt_Ptplot));
-  tagSBlowPUPlots.push_back(plot(J2pt_Ptplot));
-  tagSBlowPUPlots.push_back(plot(J1pt_Mplot));
-  tagSBlowPUPlots.push_back(plot(J2pt_Mplot));
-  tagSBlowPUPlots.push_back(plot(J1_M_jetBins));
-  tagSBlowPUPlots.push_back(plot(J2_M_jetBins));
-  tagSBlowPUPlots.push_back(plot(J1_deepbbtag));
-  tagSBlowPUPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> tagSBhighPUPlots;
-  tagSBhighPUPlots.push_back(plot(MET_Plot));
-  tagSBhighPUPlots.push_back(plot(METall_Plot));
-  tagSBhighPUPlots.push_back(plot(METPhoton_Plot));
-  tagSBhighPUPlots.push_back(plot(MET5_Plot));
-  tagSBhighPUPlots.push_back(plot(HT_Plot));
-  tagSBhighPUPlots.push_back(plot(J1pt_Ptplot));
-  tagSBhighPUPlots.push_back(plot(J2pt_Ptplot));
-  tagSBhighPUPlots.push_back(plot(J1pt_Mplot));
-  tagSBhighPUPlots.push_back(plot(J2pt_Mplot));
-  tagSBhighPUPlots.push_back(plot(J1_M_jetBins));
-  tagSBhighPUPlots.push_back(plot(J2_M_jetBins));
-  tagSBhighPUPlots.push_back(plot(J1_deepbbtag));
-  tagSBhighPUPlots.push_back(plot(J2_deepbbtag));
-
+  tagSBPlots.push_back(plot(nVert));
 
   vector<plot> antitagSRPlots;
   antitagSRPlots.push_back(plot(MET_Plot));
@@ -367,36 +246,7 @@ int main(int argc, char** argv) {
   antitagSRPlots.push_back(plot(J2_M_jetBins));
   antitagSRPlots.push_back(plot(J1_deepbbtag));
   antitagSRPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSRlowPUPlots;
-  antitagSRlowPUPlots.push_back(plot(MET_Plot));
-  antitagSRlowPUPlots.push_back(plot(METall_Plot));
-  antitagSRlowPUPlots.push_back(plot(METPhoton_Plot));
-  antitagSRlowPUPlots.push_back(plot(MET5_Plot));
-  antitagSRlowPUPlots.push_back(plot(HT_Plot));
-  antitagSRlowPUPlots.push_back(plot(J1pt_Ptplot));
-  antitagSRlowPUPlots.push_back(plot(J2pt_Ptplot));
-  antitagSRlowPUPlots.push_back(plot(J1pt_Mplot));
-  antitagSRlowPUPlots.push_back(plot(J2pt_Mplot));
-  antitagSRlowPUPlots.push_back(plot(J1_M_jetBins));
-  antitagSRlowPUPlots.push_back(plot(J2_M_jetBins));
-  antitagSRlowPUPlots.push_back(plot(J1_deepbbtag));
-  antitagSRlowPUPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSRhighPUPlots;
-  antitagSRhighPUPlots.push_back(plot(MET_Plot));
-  antitagSRhighPUPlots.push_back(plot(METall_Plot));
-  antitagSRhighPUPlots.push_back(plot(METPhoton_Plot));
-  antitagSRhighPUPlots.push_back(plot(MET5_Plot));
-  antitagSRhighPUPlots.push_back(plot(HT_Plot));
-  antitagSRhighPUPlots.push_back(plot(J1pt_Ptplot));
-  antitagSRhighPUPlots.push_back(plot(J2pt_Ptplot));
-  antitagSRhighPUPlots.push_back(plot(J1pt_Mplot));
-  antitagSRhighPUPlots.push_back(plot(J2pt_Mplot));
-  antitagSRhighPUPlots.push_back(plot(J1_M_jetBins));
-  antitagSRhighPUPlots.push_back(plot(J2_M_jetBins));
-  antitagSRhighPUPlots.push_back(plot(J1_deepbbtag));
-  antitagSRhighPUPlots.push_back(plot(J2_deepbbtag));
+  antitagSRPlots.push_back(plot(nVert));
 
   vector<plot> antitagSBPlots;
   antitagSBPlots.push_back(plot(MET_Plot));
@@ -412,39 +262,9 @@ int main(int argc, char** argv) {
   antitagSBPlots.push_back(plot(J2_M_jetBins));
   antitagSBPlots.push_back(plot(J1_deepbbtag));
   antitagSBPlots.push_back(plot(J2_deepbbtag));
+  antitagSBPlots.push_back(plot(nVert));
 
-  vector<plot> antitagSBlowPUPlots;
-  antitagSBlowPUPlots.push_back(plot(MET_Plot));
-  antitagSBlowPUPlots.push_back(plot(METall_Plot));
-  antitagSBlowPUPlots.push_back(plot(METPhoton_Plot));
-  antitagSBlowPUPlots.push_back(plot(MET5_Plot));
-  antitagSBlowPUPlots.push_back(plot(HT_Plot));
-  antitagSBlowPUPlots.push_back(plot(J1pt_Ptplot));
-  antitagSBlowPUPlots.push_back(plot(J2pt_Ptplot));
-  antitagSBlowPUPlots.push_back(plot(J1pt_Mplot));
-  antitagSBlowPUPlots.push_back(plot(J2pt_Mplot));
-  antitagSBlowPUPlots.push_back(plot(J1_M_jetBins));
-  antitagSBlowPUPlots.push_back(plot(J2_M_jetBins));
-  antitagSBlowPUPlots.push_back(plot(J1_deepbbtag));
-  antitagSBlowPUPlots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSBhighPUPlots;
-  antitagSBhighPUPlots.push_back(plot(MET_Plot));
-  antitagSBhighPUPlots.push_back(plot(METall_Plot));
-  antitagSBhighPUPlots.push_back(plot(METPhoton_Plot));
-  antitagSBhighPUPlots.push_back(plot(MET5_Plot));
-  antitagSBhighPUPlots.push_back(plot(HT_Plot));
-  antitagSBhighPUPlots.push_back(plot(J1pt_Ptplot));
-  antitagSBhighPUPlots.push_back(plot(J2pt_Ptplot));
-  antitagSBhighPUPlots.push_back(plot(J1pt_Mplot));
-  antitagSBhighPUPlots.push_back(plot(J2pt_Mplot));
-  antitagSBhighPUPlots.push_back(plot(J1_M_jetBins));
-  antitagSBhighPUPlots.push_back(plot(J2_M_jetBins));
-  antitagSBhighPUPlots.push_back(plot(J1_deepbbtag));
-  antitagSBhighPUPlots.push_back(plot(J2_deepbbtag));
-
-
-  vector<plot> antitagSROpt1Plots;
+  vector<plot> antitagSROpt1Plots; //this is BTagsT>0 now, so used for the MET shape
   antitagSROpt1Plots.push_back(plot(MET_Plot));
   antitagSROpt1Plots.push_back(plot(METall_Plot));
   antitagSROpt1Plots.push_back(plot(METPhoton_Plot));
@@ -458,6 +278,7 @@ int main(int argc, char** argv) {
   antitagSROpt1Plots.push_back(plot(J2_M_jetBins));
   antitagSROpt1Plots.push_back(plot(J1_deepbbtag));
   antitagSROpt1Plots.push_back(plot(J2_deepbbtag));
+  antitagSROpt1Plots.push_back(plot(nVert));
 
   vector<plot> antitagSBOpt1Plots;
   antitagSBOpt1Plots.push_back(plot(MET_Plot));
@@ -473,126 +294,7 @@ int main(int argc, char** argv) {
   antitagSBOpt1Plots.push_back(plot(J2_M_jetBins));
   antitagSBOpt1Plots.push_back(plot(J1_deepbbtag));
   antitagSBOpt1Plots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSROpt2Plots;
-  antitagSROpt2Plots.push_back(plot(MET_Plot));
-  antitagSROpt2Plots.push_back(plot(METall_Plot));
-  antitagSROpt2Plots.push_back(plot(METPhoton_Plot));
-  antitagSROpt2Plots.push_back(plot(MET5_Plot));
-  antitagSROpt2Plots.push_back(plot(HT_Plot));
-  antitagSROpt2Plots.push_back(plot(J1pt_Ptplot));
-  antitagSROpt2Plots.push_back(plot(J2pt_Ptplot));
-  antitagSROpt2Plots.push_back(plot(J1pt_Mplot));
-  antitagSROpt2Plots.push_back(plot(J2pt_Mplot));
-  antitagSROpt2Plots.push_back(plot(J1_M_jetBins));
-  antitagSROpt2Plots.push_back(plot(J2_M_jetBins));
-  antitagSROpt2Plots.push_back(plot(J1_deepbbtag));
-  antitagSROpt2Plots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSBOpt2Plots;
-  antitagSBOpt2Plots.push_back(plot(MET_Plot));
-  antitagSBOpt2Plots.push_back(plot(METall_Plot));
-  antitagSBOpt2Plots.push_back(plot(METPhoton_Plot));
-  antitagSBOpt2Plots.push_back(plot(MET5_Plot));
-  antitagSBOpt2Plots.push_back(plot(HT_Plot));
-  antitagSBOpt2Plots.push_back(plot(J1pt_Ptplot));
-  antitagSBOpt2Plots.push_back(plot(J2pt_Ptplot));
-  antitagSBOpt2Plots.push_back(plot(J1pt_Mplot));
-  antitagSBOpt2Plots.push_back(plot(J2pt_Mplot));
-  antitagSBOpt2Plots.push_back(plot(J1_M_jetBins));
-  antitagSBOpt2Plots.push_back(plot(J2_M_jetBins));
-  antitagSBOpt2Plots.push_back(plot(J1_deepbbtag));
-  antitagSBOpt2Plots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSROpt3Plots;
-  antitagSROpt3Plots.push_back(plot(MET_Plot));
-  antitagSROpt3Plots.push_back(plot(METall_Plot));
-  antitagSROpt3Plots.push_back(plot(METPhoton_Plot));
-  antitagSROpt3Plots.push_back(plot(MET5_Plot));
-  antitagSROpt3Plots.push_back(plot(HT_Plot));
-  antitagSROpt3Plots.push_back(plot(J1pt_Ptplot));
-  antitagSROpt3Plots.push_back(plot(J2pt_Ptplot));
-  antitagSROpt3Plots.push_back(plot(J1pt_Mplot));
-  antitagSROpt3Plots.push_back(plot(J2pt_Mplot));
-  antitagSROpt3Plots.push_back(plot(J1_M_jetBins));
-  antitagSROpt3Plots.push_back(plot(J2_M_jetBins));
-  antitagSROpt3Plots.push_back(plot(J1_deepbbtag));
-  antitagSROpt3Plots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSBOpt3Plots;
-  antitagSBOpt3Plots.push_back(plot(MET_Plot));
-  antitagSBOpt3Plots.push_back(plot(METall_Plot));
-  antitagSBOpt3Plots.push_back(plot(METPhoton_Plot));
-  antitagSBOpt3Plots.push_back(plot(MET5_Plot));
-  antitagSBOpt3Plots.push_back(plot(HT_Plot));
-  antitagSBOpt3Plots.push_back(plot(J1pt_Ptplot));
-  antitagSBOpt3Plots.push_back(plot(J2pt_Ptplot));
-  antitagSBOpt3Plots.push_back(plot(J1pt_Mplot));
-  antitagSBOpt3Plots.push_back(plot(J2pt_Mplot));
-  antitagSBOpt3Plots.push_back(plot(J1_M_jetBins));
-  antitagSBOpt3Plots.push_back(plot(J2_M_jetBins));
-  antitagSBOpt3Plots.push_back(plot(J1_deepbbtag));
-  antitagSBOpt3Plots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSROpt4Plots;
-  antitagSROpt4Plots.push_back(plot(MET_Plot));
-  antitagSROpt4Plots.push_back(plot(METall_Plot));
-  antitagSROpt4Plots.push_back(plot(METPhoton_Plot));
-  antitagSROpt4Plots.push_back(plot(MET5_Plot));
-  antitagSROpt4Plots.push_back(plot(HT_Plot));
-  antitagSROpt4Plots.push_back(plot(J1pt_Ptplot));
-  antitagSROpt4Plots.push_back(plot(J2pt_Ptplot));
-  antitagSROpt4Plots.push_back(plot(J1pt_Mplot));
-  antitagSROpt4Plots.push_back(plot(J2pt_Mplot));
-  antitagSROpt4Plots.push_back(plot(J1_M_jetBins));
-  antitagSROpt4Plots.push_back(plot(J2_M_jetBins));
-  antitagSROpt4Plots.push_back(plot(J1_deepbbtag));
-  antitagSROpt4Plots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSBOpt4Plots;
-  antitagSBOpt4Plots.push_back(plot(MET_Plot));
-  antitagSBOpt4Plots.push_back(plot(METall_Plot));
-  antitagSBOpt4Plots.push_back(plot(METPhoton_Plot));
-  antitagSBOpt4Plots.push_back(plot(MET5_Plot));
-  antitagSBOpt4Plots.push_back(plot(HT_Plot));
-  antitagSBOpt4Plots.push_back(plot(J1pt_Ptplot));
-  antitagSBOpt4Plots.push_back(plot(J2pt_Ptplot));
-  antitagSBOpt4Plots.push_back(plot(J1pt_Mplot));
-  antitagSBOpt4Plots.push_back(plot(J2pt_Mplot));
-  antitagSBOpt4Plots.push_back(plot(J1_M_jetBins));
-  antitagSBOpt4Plots.push_back(plot(J2_M_jetBins));
-  antitagSBOpt4Plots.push_back(plot(J1_deepbbtag));
-  antitagSBOpt4Plots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSROpt5Plots;
-  antitagSROpt5Plots.push_back(plot(MET_Plot));
-  antitagSROpt5Plots.push_back(plot(METall_Plot));
-  antitagSROpt5Plots.push_back(plot(METPhoton_Plot));
-  antitagSROpt5Plots.push_back(plot(MET5_Plot));
-  antitagSROpt5Plots.push_back(plot(HT_Plot));
-  antitagSROpt5Plots.push_back(plot(J1pt_Ptplot));
-  antitagSROpt5Plots.push_back(plot(J2pt_Ptplot));
-  antitagSROpt5Plots.push_back(plot(J1pt_Mplot));
-  antitagSROpt5Plots.push_back(plot(J2pt_Mplot));
-  antitagSROpt5Plots.push_back(plot(J1_M_jetBins));
-  antitagSROpt5Plots.push_back(plot(J2_M_jetBins));
-  antitagSROpt5Plots.push_back(plot(J1_deepbbtag));
-  antitagSROpt5Plots.push_back(plot(J2_deepbbtag));
-
-  vector<plot> antitagSBOpt5Plots;
-  antitagSBOpt5Plots.push_back(plot(MET_Plot));
-  antitagSBOpt5Plots.push_back(plot(METall_Plot));
-  antitagSBOpt5Plots.push_back(plot(METPhoton_Plot));
-  antitagSBOpt5Plots.push_back(plot(MET5_Plot));
-  antitagSBOpt5Plots.push_back(plot(HT_Plot));
-  antitagSBOpt5Plots.push_back(plot(J1pt_Ptplot));
-  antitagSBOpt5Plots.push_back(plot(J2pt_Ptplot));
-  antitagSBOpt5Plots.push_back(plot(J1pt_Mplot));
-  antitagSBOpt5Plots.push_back(plot(J2pt_Mplot));
-  antitagSBOpt5Plots.push_back(plot(J1_M_jetBins));
-  antitagSBOpt5Plots.push_back(plot(J2_M_jetBins));
-  antitagSBOpt5Plots.push_back(plot(J1_deepbbtag));
-  antitagSBOpt5Plots.push_back(plot(J2_deepbbtag));
+  antitagSBOpt1Plots.push_back(plot(nVert));
 
 
   //Region counters
@@ -618,73 +320,25 @@ int main(int argc, char** argv) {
       doubletagSRPlots[i].addNtuple(ntuple,"doubletagSR_"+skims.sampleName[iSample]);
       doubletagSRPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
     }
-    for (int i = 0; i < doubletagSRlowPUPlots.size(); i++) {
-      doubletagSRlowPUPlots[i].addNtuple(ntuple,"doubletagSRlowPU_"+skims.sampleName[iSample]);
-      doubletagSRlowPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < doubletagSRhighPUPlots.size(); i++) {
-      doubletagSRhighPUPlots[i].addNtuple(ntuple,"doubletagSRhighPU_"+skims.sampleName[iSample]);
-      doubletagSRhighPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
     for (int i = 0; i < doubletagSBPlots.size(); i++) {
       doubletagSBPlots[i].addNtuple(ntuple,"doubletagSB_"+skims.sampleName[iSample]);
       doubletagSBPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < doubletagSBlowPUPlots.size(); i++) {
-      doubletagSBlowPUPlots[i].addNtuple(ntuple,"doubletagSBlowPU_"+skims.sampleName[iSample]);
-      doubletagSBlowPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < doubletagSBhighPUPlots.size(); i++) {
-      doubletagSBhighPUPlots[i].addNtuple(ntuple,"doubletagSBhighPU_"+skims.sampleName[iSample]);
-      doubletagSBhighPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
     }
     for (int i = 0; i < tagSRPlots.size(); i++) {
       tagSRPlots[i].addNtuple(ntuple,"tagSR_"+skims.sampleName[iSample]);
       tagSRPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
     }
-    for (int i = 0; i < tagSRlowPUPlots.size(); i++) {
-      tagSRlowPUPlots[i].addNtuple(ntuple,"tagSRlowPU_"+skims.sampleName[iSample]);
-      tagSRlowPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < tagSRhighPUPlots.size(); i++) {
-      tagSRhighPUPlots[i].addNtuple(ntuple,"tagSRhighPU_"+skims.sampleName[iSample]);
-      tagSRhighPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
     for (int i = 0; i < tagSBPlots.size(); i++) {
       tagSBPlots[i].addNtuple(ntuple,"tagSB_"+skims.sampleName[iSample]);
       tagSBPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < tagSBlowPUPlots.size(); i++) {
-      tagSBlowPUPlots[i].addNtuple(ntuple,"tagSBlowPU_"+skims.sampleName[iSample]);
-      tagSBlowPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < tagSBhighPUPlots.size(); i++) {
-      tagSBhighPUPlots[i].addNtuple(ntuple,"tagSBhighPU_"+skims.sampleName[iSample]);
-      tagSBhighPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
     }
     for (int i = 0; i < antitagSRPlots.size(); i++) {
       antitagSRPlots[i].addNtuple(ntuple,"antitagSR_"+skims.sampleName[iSample]);
       antitagSRPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
     }
-    for (int i = 0; i < antitagSRlowPUPlots.size(); i++) {
-      antitagSRlowPUPlots[i].addNtuple(ntuple,"antitagSRlowPU_"+skims.sampleName[iSample]);
-      antitagSRlowPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSRhighPUPlots.size(); i++) {
-      antitagSRhighPUPlots[i].addNtuple(ntuple,"antitagSRhighPU_"+skims.sampleName[iSample]);
-      antitagSRhighPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
     for (int i = 0; i < antitagSBPlots.size(); i++) {
       antitagSBPlots[i].addNtuple(ntuple,"antitagSB_"+skims.sampleName[iSample]);
       antitagSBPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSBlowPUPlots.size(); i++) {
-      antitagSBlowPUPlots[i].addNtuple(ntuple,"antitagSBlowPU_"+skims.sampleName[iSample]);
-      antitagSBlowPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSBhighPUPlots.size(); i++) {
-      antitagSBhighPUPlots[i].addNtuple(ntuple,"antitagSBhighPU_"+skims.sampleName[iSample]);
-      antitagSBhighPUPlots[i].setFillColor(ntuple,skims.fillColor[iSample]);
     }
     for (int i = 0; i < antitagSROpt1Plots.size(); i++) {
       antitagSROpt1Plots[i].addNtuple(ntuple,"antitagSROpt1_"+skims.sampleName[iSample]);
@@ -693,38 +347,6 @@ int main(int argc, char** argv) {
     for (int i = 0; i < antitagSBOpt1Plots.size(); i++) {
       antitagSBOpt1Plots[i].addNtuple(ntuple,"antitagSBOpt1_"+skims.sampleName[iSample]);
       antitagSBOpt1Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSROpt2Plots.size(); i++) {
-      antitagSROpt2Plots[i].addNtuple(ntuple,"antitagSROpt2_"+skims.sampleName[iSample]);
-      antitagSROpt2Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSBOpt2Plots.size(); i++) {
-      antitagSBOpt2Plots[i].addNtuple(ntuple,"antitagSBOpt2_"+skims.sampleName[iSample]);
-      antitagSBOpt2Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSROpt3Plots.size(); i++) {
-      antitagSROpt3Plots[i].addNtuple(ntuple,"antitagSROpt3_"+skims.sampleName[iSample]);
-      antitagSROpt3Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSBOpt3Plots.size(); i++) {
-      antitagSBOpt3Plots[i].addNtuple(ntuple,"antitagSBOpt3_"+skims.sampleName[iSample]);
-      antitagSBOpt3Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSROpt4Plots.size(); i++) {
-      antitagSROpt4Plots[i].addNtuple(ntuple,"antitagSROpt4_"+skims.sampleName[iSample]);
-      antitagSROpt4Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSBOpt4Plots.size(); i++) {
-      antitagSBOpt4Plots[i].addNtuple(ntuple,"antitagSBOpt4_"+skims.sampleName[iSample]);
-      antitagSBOpt4Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSROpt5Plots.size(); i++) {
-      antitagSROpt5Plots[i].addNtuple(ntuple,"antitagSROpt5_"+skims.sampleName[iSample]);
-      antitagSROpt5Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
-    }
-    for (int i = 0; i < antitagSBOpt5Plots.size(); i++) {
-      antitagSBOpt5Plots[i].addNtuple(ntuple,"antitagSBOpt5_"+skims.sampleName[iSample]);
-      antitagSBOpt5Plots[i].setFillColor(ntuple,skims.fillColor[iSample]);
     }
 
     int numEvents = ntuple->fChain->GetEntries();
@@ -748,12 +370,11 @@ int main(int argc, char** argv) {
       TFile *fin = new TFile(filename,"READ");
       TH1F *nEventsHisto = (TH1F*)fin->Get("nEventProc");
       TotalEvents = nEventsHisto->GetBinContent(1);
-      // h_njetsisr = (TH1*)fin->Get("NJetsISR");
     }
 
 
-    // for (int iEvt = 2000000; iEvt < numEvents ; iEvt++) {
-      for (int iEvt = 0; iEvt < numEvents ; iEvt++) {
+    for (int iEvt = 0; iEvt < numEvents ; iEvt++) {
+      // if (iEvt>200000) break;
       ntuple->GetEntry(iEvt);
       if (iEvt % 100000 == 0) cout << skims.sampleName[iSample] << ": " << iEvt << "/" << numEvents << endl;
 
@@ -765,7 +386,6 @@ int main(int argc, char** argv) {
       if (!passBaseline) continue;
 
       // if (( filename.Contains("SingleLept") || filename.Contains("DiLept") ) && ntuple->madHT>600. )continue;
-      // if (( filename.Contains("SingleLeptFromT_MC") || filename.Contains("SingleLeptFromTbar_MC") || filename.Contains("DiLept_MC") ) && ntuple->GenMET>150.) continue;
       if (filename.Contains("MC2018")) {
         if (( filename.Contains("SingleLeptFromT_MC") || filename.Contains("SingleLeptFromTbar_MC")  || filename.Contains("DiLept_MC") ) && ntuple->GenMET>80.) continue;
       }
@@ -816,13 +436,13 @@ int main(int argc, char** argv) {
 
 
       double isrweight = 1.0;
-      // if (region == 1 && filename.Contains("T5qqqqZH")) isrweight = SignalISRCorrection(ntuple); //this is for strong SUSY
-      // else if (region == 1 && filename.Contains("TChiHH_HToBB")) isrweight = SignalEWKISRCorrection(ntuple); //this is for EWK SUSY
-      // else if (filename.Contains("TTJets") && Year=="MC2016")    isrweight = SignalISRCorrection(ntuple); //this is for tt, 2016 MC fullSIM only
-      // else isrweight = 1.0;
+      if (region == 1 && filename.Contains("T5qqqqZH")) isrweight = SignalISRCorrection(ntuple); //this is for strong SUSY
+      else if (region == 1 && filename.Contains("TChiHH_HToBB")) isrweight = SignalEWKISRCorrection(ntuple); //this is for EWK SUSY
+      else if (filename.Contains("TTJets") && Year=="MC2016")    isrweight = SignalISRCorrection(ntuple); //this is for tt, 2016 MC fullSIM only
+      else isrweight = 1.0;
 
       double puweight = 1.0;
-      puweight = ntuple->puWeight;
+      // puweight = ntuple->puWeight;
 
       weight = ntuple->Weight*this_lumi*trigWeight*isrweight*puweight;
 
@@ -852,123 +472,43 @@ int main(int argc, char** argv) {
           count_2HSR++;
           // plots[bin][0].fill(ntuple,weight);
           for (int i = 0; i < doubletagSRPlots.size(); i++) {doubletagSRPlots[i].fill(ntuple,weight);}
-
-          if (isHighPU(ntuple)){
-            for (int i = 0; i < doubletagSRhighPUPlots.size(); i++) {doubletagSRhighPUPlots[i].fill(ntuple,weight);}
-          }
-          else if (!isHighPU(ntuple)){
-            for (int i = 0; i < doubletagSRlowPUPlots.size(); i++) {doubletagSRlowPUPlots[i].fill(ntuple,weight);}
-          }
         }
         else if (doubletagSBCut(ntuple)) {
           count_2HSB++;
-
           // plots[bin][1].fill(ntuple,weight);
           for (int i = 0; i < doubletagSBPlots.size(); i++) {doubletagSBPlots[i].fill(ntuple,weight);}
-
-          if (isHighPU(ntuple)){
-            for (int i = 0; i < doubletagSBhighPUPlots.size(); i++) {doubletagSBhighPUPlots[i].fill(ntuple,weight);}
-          }
-          else if (!isHighPU(ntuple)){
-            for (int i = 0; i < doubletagSBlowPUPlots.size(); i++) {doubletagSBlowPUPlots[i].fill(ntuple,weight);}
-          }
         }
       } //end 2H
 
       //then check for 1H
       if (singleHiggsTagLooseCut(ntuple)) {
-
         if (tagSRCut( ntuple )) {
           count_1HSR++;
-
           // plots[bin][2].fill(ntuple,weight);
           for (int i = 0; i < tagSRPlots.size(); i++) tagSRPlots[i].fill(ntuple,weight);
-
-          if (isHighPU(ntuple)){
-            for (int i = 0; i < tagSRhighPUPlots.size(); i++) {tagSRhighPUPlots[i].fill(ntuple,weight);}
-          }
-          else if (!isHighPU(ntuple)){
-            for (int i = 0; i < tagSRlowPUPlots.size(); i++) {tagSRlowPUPlots[i].fill(ntuple,weight);}
-          }
         }
         else if (tagSBCut( ntuple )) {
           count_1HSB++;
-
           // plots[bin][3].fill(ntuple,weight);
           for (int i = 0; i < tagSBPlots.size(); i++) tagSBPlots[i].fill(ntuple,weight);
-          if (isHighPU(ntuple)){
-            for (int i = 0; i < tagSBhighPUPlots.size(); i++) {tagSBhighPUPlots[i].fill(ntuple,weight);}
-          }
-          else if (!isHighPU(ntuple)){
-            for (int i = 0; i < tagSBlowPUPlots.size(); i++) {tagSBlowPUPlots[i].fill(ntuple,weight);}
-          }
         }
       } //end 1H
 
       //then check for 0H
       if (antiTaggingLooseCut(ntuple)) {
-
         if (antitagSRCut( ntuple )) {
           count_0HSR++;
-
           // plots[bin][4].fill(ntuple,weight);
           for (int i = 0; i < antitagSRPlots.size(); i++) antitagSRPlots[i].fill(ntuple,weight);
-          if (isHighPU(ntuple)){
-            for (int i = 0; i < antitagSRhighPUPlots.size(); i++) {antitagSRhighPUPlots[i].fill(ntuple,weight);}
-          }
-          else if (!isHighPU(ntuple)){
-            for (int i = 0; i < antitagSRlowPUPlots.size(); i++) {antitagSRlowPUPlots[i].fill(ntuple,weight);}
-          }
-
-          if (antitagSRCut_opt1( ntuple )) {
-            // plots[bin][6].fill(ntuple,weight);
-            for (int i = 0; i < antitagSROpt1Plots.size(); i++) antitagSROpt1Plots[i].fill(ntuple,weight);
-          }
-          if (antitagSRCut_opt2( ntuple )) {
-            // plots[bin][7].fill(ntuple,weight);
-            for (int i = 0; i < antitagSROpt2Plots.size(); i++) antitagSROpt2Plots[i].fill(ntuple,weight);
-          }
-          if (antitagSRCut_opt3( ntuple )) {
-            for (int i = 0; i < antitagSROpt3Plots.size(); i++) antitagSROpt3Plots[i].fill(ntuple,weight);
-          }
-          if (antitagSRCut_opt4( ntuple )) {
-            for (int i = 0; i < antitagSROpt4Plots.size(); i++) antitagSROpt4Plots[i].fill(ntuple,weight);
-          }
-          if (antitagSRCut_opt5( ntuple )) {
-            for (int i = 0; i < antitagSROpt5Plots.size(); i++) antitagSROpt5Plots[i].fill(ntuple,weight);
-          }
+          if (antitagSRCut_opt1( ntuple )) for (int i = 0; i < antitagSROpt1Plots.size(); i++) antitagSROpt1Plots[i].fill(ntuple,weight);
         }
         else {
           if (antitagSBCut( ntuple )) {
             count_0HSB++;
-
             // plots[bin][5].fill(ntuple,weight);
             for (int i = 0; i < antitagSBPlots.size(); i++) antitagSBPlots[i].fill(ntuple,weight);
+            if (antitagSBCut_opt1( ntuple )) for (int i = 0; i < antitagSBOpt1Plots.size(); i++) antitagSBOpt1Plots[i].fill(ntuple,weight);
 
-            if (isHighPU(ntuple)){
-              for (int i = 0; i < antitagSBhighPUPlots.size(); i++) {antitagSBhighPUPlots[i].fill(ntuple,weight);}
-            }
-            else if (!isHighPU(ntuple)){
-              for (int i = 0; i < antitagSBlowPUPlots.size(); i++) {antitagSBlowPUPlots[i].fill(ntuple,weight);}
-            }
-
-            if (antitagSBCut_opt1( ntuple )) {
-              // plots[bin][8].fill(ntuple,weight);
-              for (int i = 0; i < antitagSBOpt1Plots.size(); i++) antitagSBOpt1Plots[i].fill(ntuple,weight);
-            }
-            if (antitagSBCut_opt2( ntuple )) {
-              // plots[bin][9].fill(ntuple,weight);
-              for (int i = 0; i < antitagSBOpt2Plots.size(); i++) antitagSBOpt2Plots[i].fill(ntuple,weight);
-            }
-            if (antitagSBCut_opt3( ntuple )) {
-              for (int i = 0; i < antitagSBOpt3Plots.size(); i++) antitagSBOpt3Plots[i].fill(ntuple,weight);
-            }
-            if (antitagSBCut_opt4( ntuple )) {
-              for (int i = 0; i < antitagSBOpt4Plots.size(); i++) antitagSBOpt4Plots[i].fill(ntuple,weight);
-            }
-            if (antitagSBCut_opt5( ntuple )) {
-              for (int i = 0; i < antitagSBOpt5Plots.size(); i++) antitagSBOpt5Plots[i].fill(ntuple,weight);
-            }
           }
         }
       } //end 0H region
@@ -1032,17 +572,14 @@ int main(int argc, char** argv) {
       }
       if (!passBaseline) continue;
 
-      double trigWeight=1.0;
-      double prefireweight = 1.0;
-      double isrweight = 1.0;
-      double weight = 0.0;
+      double weight = 1.0;
       double this_lumi = 35862.824;
       if ( filename.Contains("2016") ) this_lumi = 35922.0;
       else if ( filename.Contains("2017") ) this_lumi = 41529.0;
       else if ( filename.Contains("2018") ) this_lumi = 59740.0;
       // else if ( filename.Contains("2017") ) this_lumi = 101269.0;
 
-      weight = ntuple->Weight*this_lumi*trigWeight*prefireweight*isrweight;
+      weight = ntuple->Weight*this_lumi;
 
       //Toggle whether or not we veto resolved events
       if (runVeto && resolvedBaselineCut(ntuple)) continue;
@@ -1085,22 +622,12 @@ int main(int argc, char** argv) {
       if (antiTaggingLooseCut(ntuple) && region!=1) {
         if (antitagSRCut( ntuple )) {
           for (int i = 0; i < antitagSRPlots.size(); i++) antitagSRPlots[i].fillData(ntuple);
-          if (antitagSRCut_opt1( ntuple )) {
-            for (int i = 0; i < antitagSROpt1Plots.size(); i++) antitagSROpt1Plots[i].fillData(ntuple);
-          }
-          if (antitagSRCut_opt2( ntuple )) {
-            for (int i = 0; i < antitagSROpt2Plots.size(); i++) antitagSROpt2Plots[i].fillData(ntuple);
-          }
+          if (antitagSRCut_opt1( ntuple )) for (int i = 0; i < antitagSROpt1Plots.size(); i++) antitagSROpt1Plots[i].fillData(ntuple);
         }
         else {
           if (antitagSBCut( ntuple )) {
             for (int i = 0; i < antitagSBPlots.size(); i++) antitagSBPlots[i].fillData(ntuple);
-            if (antitagSBCut_opt1( ntuple )) {
-              for (int i = 0; i < antitagSBOpt1Plots.size(); i++) antitagSBOpt1Plots[i].fillData(ntuple);
-            }
-            if (antitagSBCut_opt2( ntuple )) {
-              for (int i = 0; i < antitagSBOpt2Plots.size(); i++) antitagSBOpt2Plots[i].fillData(ntuple);
-            }
+            if (antitagSBCut_opt1( ntuple )) for (int i = 0; i < antitagSBOpt1Plots.size(); i++) antitagSBOpt1Plots[i].fillData(ntuple);
           }
         }
       } //end 0H region
@@ -1140,44 +667,12 @@ int main(int argc, char** argv) {
       doubletagSRPlots[i].sum->Write();
     }
   }
-  for (int i = 0; i < doubletagSRlowPUPlots.size(); i++) {
-    outputFile->cd();
-    doubletagSRlowPUPlots[i].Write();
-    if (sumBkgs) {
-      doubletagSRlowPUPlots[i].buildSum("doubletagSRlowPU");
-      doubletagSRlowPUPlots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < doubletagSRhighPUPlots.size(); i++) {
-    outputFile->cd();
-    doubletagSRhighPUPlots[i].Write();
-    if (sumBkgs) {
-      doubletagSRhighPUPlots[i].buildSum("doubletagSRhighPU");
-      doubletagSRhighPUPlots[i].sum->Write();
-    }
-  }
   for (int i = 0; i < doubletagSBPlots.size(); i++) {
     outputFile->cd();
     doubletagSBPlots[i].Write();
     if (sumBkgs) {
       doubletagSBPlots[i].buildSum("doubletagSB");
       doubletagSBPlots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < doubletagSBlowPUPlots.size(); i++) {
-    outputFile->cd();
-    doubletagSBlowPUPlots[i].Write();
-    if (sumBkgs) {
-      doubletagSBlowPUPlots[i].buildSum("doubletagSBlowPU");
-      doubletagSBlowPUPlots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < doubletagSBhighPUPlots.size(); i++) {
-    outputFile->cd();
-    doubletagSBhighPUPlots[i].Write();
-    if (sumBkgs) {
-      doubletagSBhighPUPlots[i].buildSum("doubletagSBhighPU");
-      doubletagSBhighPUPlots[i].sum->Write();
     }
   }
   for (int i = 0; i < tagSRPlots.size(); i++) {
@@ -1188,44 +683,12 @@ int main(int argc, char** argv) {
       tagSRPlots[i].sum->Write();
     }
   }
-  for (int i = 0; i < tagSRlowPUPlots.size(); i++) {
-    outputFile->cd();
-    tagSRlowPUPlots[i].Write();
-    if (sumBkgs) {
-      tagSRlowPUPlots[i].buildSum("tagSRlowPU");
-      tagSRlowPUPlots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < tagSRhighPUPlots.size(); i++) {
-    outputFile->cd();
-    tagSRhighPUPlots[i].Write();
-    if (sumBkgs) {
-      tagSRhighPUPlots[i].buildSum("tagSRhighPU");
-      tagSRhighPUPlots[i].sum->Write();
-    }
-  }
   for (int i = 0; i < tagSBPlots.size(); i++) {
     outputFile->cd();
     tagSBPlots[i].Write();
     if (sumBkgs) {
       tagSBPlots[i].buildSum("tagSB");
       tagSBPlots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < tagSBlowPUPlots.size(); i++) {
-    outputFile->cd();
-    tagSBlowPUPlots[i].Write();
-    if (sumBkgs) {
-      tagSBlowPUPlots[i].buildSum("tagSBlowPU");
-      tagSBlowPUPlots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < tagSBhighPUPlots.size(); i++) {
-    outputFile->cd();
-    tagSBhighPUPlots[i].Write();
-    if (sumBkgs) {
-      tagSBhighPUPlots[i].buildSum("tagSBhighPU");
-      tagSBhighPUPlots[i].sum->Write();
     }
   }
   for (int i = 0; i < antitagSRPlots.size(); i++) {
@@ -1236,44 +699,12 @@ int main(int argc, char** argv) {
       antitagSRPlots[i].sum->Write();
     }
   }
-  for (int i = 0; i < antitagSRlowPUPlots.size(); i++) {
-    outputFile->cd();
-    antitagSRlowPUPlots[i].Write();
-    if (sumBkgs) {
-      antitagSRlowPUPlots[i].buildSum("antitagSRlowPU");
-      antitagSRlowPUPlots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < antitagSRhighPUPlots.size(); i++) {
-    outputFile->cd();
-    antitagSRhighPUPlots[i].Write();
-    if (sumBkgs) {
-      antitagSRhighPUPlots[i].buildSum("antitagSRhighPU");
-      antitagSRhighPUPlots[i].sum->Write();
-    }
-  }
   for (int i = 0; i < antitagSBPlots.size(); i++) {
     outputFile->cd();
     antitagSBPlots[i].Write();
     if (sumBkgs) {
       antitagSBPlots[i].buildSum("antitagSB");
       antitagSBPlots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < antitagSBlowPUPlots.size(); i++) {
-    outputFile->cd();
-    antitagSBlowPUPlots[i].Write();
-    if (sumBkgs) {
-      antitagSBlowPUPlots[i].buildSum("antitagSBlowPU");
-      antitagSBlowPUPlots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < antitagSBhighPUPlots.size(); i++) {
-    outputFile->cd();
-    antitagSBhighPUPlots[i].Write();
-    if (sumBkgs) {
-      antitagSBhighPUPlots[i].buildSum("antitagSBhighPU");
-      antitagSBhighPUPlots[i].sum->Write();
     }
   }
   for (int i = 0; i < antitagSROpt1Plots.size(); i++) {
@@ -1284,77 +715,12 @@ int main(int argc, char** argv) {
       antitagSROpt1Plots[i].sum->Write();
     }
   }
-  for (int i = 0; i < antitagSROpt2Plots.size(); i++) {
-    outputFile->cd();
-    antitagSROpt2Plots[i].Write();
-    if (sumBkgs) {
-      antitagSROpt2Plots[i].buildSum("antitagSROpt2");
-      antitagSROpt2Plots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < antitagSROpt3Plots.size(); i++) {
-    outputFile->cd();
-    antitagSROpt3Plots[i].Write();
-    if (sumBkgs) {
-      antitagSROpt3Plots[i].buildSum("antitagSROpt3");
-      antitagSROpt3Plots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < antitagSROpt4Plots.size(); i++) {
-    outputFile->cd();
-    antitagSROpt4Plots[i].Write();
-    if (sumBkgs) {
-      antitagSROpt4Plots[i].buildSum("antitagSROpt4");
-      antitagSROpt4Plots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < antitagSROpt5Plots.size(); i++) {
-    outputFile->cd();
-    antitagSROpt5Plots[i].Write();
-    if (sumBkgs) {
-      antitagSROpt5Plots[i].buildSum("antitagSROpt5");
-      antitagSROpt5Plots[i].sum->Write();
-    }
-  }
-
   for (int i = 0; i < antitagSBOpt1Plots.size(); i++) {
     outputFile->cd();
     antitagSBOpt1Plots[i].Write();
     if (sumBkgs) {
       antitagSBOpt1Plots[i].buildSum("antitagSBOpt1");
       antitagSBOpt1Plots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < antitagSBOpt2Plots.size(); i++) {
-    outputFile->cd();
-    antitagSBOpt2Plots[i].Write();
-    if (sumBkgs) {
-      antitagSBOpt2Plots[i].buildSum("antitagSBOpt2");
-      antitagSBOpt2Plots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < antitagSBOpt3Plots.size(); i++) {
-    outputFile->cd();
-    antitagSBOpt3Plots[i].Write();
-    if (sumBkgs) {
-      antitagSBOpt3Plots[i].buildSum("antitagSBOpt3");
-      antitagSBOpt3Plots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < antitagSBOpt4Plots.size(); i++) {
-    outputFile->cd();
-    antitagSBOpt4Plots[i].Write();
-    if (sumBkgs) {
-      antitagSBOpt4Plots[i].buildSum("antitagSBOpt4");
-      antitagSBOpt4Plots[i].sum->Write();
-    }
-  }
-  for (int i = 0; i < antitagSBOpt5Plots.size(); i++) {
-    outputFile->cd();
-    antitagSBOpt5Plots[i].Write();
-    if (sumBkgs) {
-      antitagSBOpt5Plots[i].buildSum("antitagSBOpt5");
-      antitagSBOpt5Plots[i].sum->Write();
     }
   }
   outputFile->Close();
