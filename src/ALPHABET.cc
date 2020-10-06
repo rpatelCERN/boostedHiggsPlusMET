@@ -572,14 +572,14 @@ int main(int argc, char** argv) {
       }
       if (!passBaseline) continue;
 
-      double weight = 1.0;
-      double this_lumi = 35862.824;
-      if ( filename.Contains("2016") ) this_lumi = 35922.0;
-      else if ( filename.Contains("2017") ) this_lumi = 41529.0;
-      else if ( filename.Contains("2018") ) this_lumi = 59740.0;
-      // else if ( filename.Contains("2017") ) this_lumi = 101269.0;
-
-      weight = ntuple->Weight*this_lumi;
+      // double weight = 1.0;
+      // double this_lumi = 35862.824;
+      // if ( filename.Contains("2016") ) this_lumi = 35922.0;
+      // else if ( filename.Contains("2017") ) this_lumi = 41529.0;
+      // else if ( filename.Contains("2018") ) this_lumi = 59740.0;
+      // // else if ( filename.Contains("2017") ) this_lumi = 101269.0;
+      //
+      // weight = ntuple->Weight*this_lumi;
 
       //Toggle whether or not we veto resolved events
       if (runVeto && resolvedBaselineCut(ntuple)) continue;
